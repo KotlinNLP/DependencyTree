@@ -291,6 +291,18 @@ class DependencyTree(val size: Int) {
   }
 
   /**
+   * @return an array where the i-th value is the projective order of the i-th element
+   */
+  fun projectiveOrder(): Array<Int> {
+
+    val results = arrayOfNulls<Int>(size = this.size)
+
+    this.inOrder().mapIndexed { index, element -> results[element] = index }
+
+    return results.requireNoNulls()
+  }
+
+  /**
    * @param deprels a list of [Deprel]s
    *
    * @return a Boolean indicating whether the given [deprels] match with the deprel of this [DependencyTree]
