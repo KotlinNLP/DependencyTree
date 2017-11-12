@@ -270,7 +270,7 @@ class DependencyTree(val size: Int) {
    *
    * @return a list of elements in the projective order
    */
-  fun projectiveOrder(): List<Int> {
+  fun inOrder(): List<Int> {
 
     fun helper(i: Int): List<Int> {
 
