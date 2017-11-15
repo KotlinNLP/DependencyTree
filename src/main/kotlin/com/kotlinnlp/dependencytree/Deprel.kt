@@ -7,13 +7,15 @@
 
 package com.kotlinnlp.dependencytree
 
+import java.io.Serializable
+
 /**
  * The Deprel.
  *
  * @property label a name for the dependency relation
  * @property direction the direction in a possible syntactic context for which this deprel is valid
  */
-open class Deprel(val label: String, val direction: Position = Position.NULL){
+open class Deprel(val label: String, val direction: Position = Position.NULL) : Serializable {
 
   /**
    * Deprel Position.
