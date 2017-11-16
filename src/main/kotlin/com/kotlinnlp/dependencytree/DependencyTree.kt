@@ -293,13 +293,13 @@ class DependencyTree(val size: Int) {
   /**
    * @return an array where the i-th value is the projective order of the i-th element
    */
-  fun projectiveOrder(): Array<Int> {
+  fun projectiveOrder(): List<Int> {
 
     val results = arrayOfNulls<Int>(size = this.size)
 
     this.inOrder().mapIndexed { index, element -> results[element] = index }
 
-    return results.requireNoNulls()
+    return results.requireNoNulls().toList()
   }
 
   /**
