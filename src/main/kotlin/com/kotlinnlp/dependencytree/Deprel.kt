@@ -17,6 +17,15 @@ import java.io.Serializable
  */
 open class Deprel(val label: String, val direction: Position = Position.NULL) : Serializable {
 
+  companion object {
+
+    /**
+     * Private val used to serialize the class (needed from Serializable)
+     */
+    @Suppress("unused")
+    private const val serialVersionUID: Long = 1L
+  }
+
   /**
    * Deprel Position.
    */
