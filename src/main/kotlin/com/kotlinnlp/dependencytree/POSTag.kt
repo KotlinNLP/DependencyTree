@@ -12,4 +12,10 @@ package com.kotlinnlp.dependencytree
  *
  * @property label the label of this POS
  */
-open class POSTag(val label: String)
+data class POSTag(val label: String){
+
+  /**
+   * @return a string representation of this pos tag
+   */
+  override fun toString(): String = this.label
+}
