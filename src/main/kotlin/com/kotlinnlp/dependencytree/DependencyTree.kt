@@ -61,6 +61,12 @@ class DependencyTree(val size: Int) {
   val deprels = arrayOfNulls<Deprel>(size = this.size)
 
   /**
+   * List of POS tags, one per element.
+   * Not assigned elements have null pos.
+   */
+  val posTags = arrayOfNulls<POSTag>(size = this.size)
+
+  /**
    * The list of left dependents for each element. In case of no dependents the list is empty.
    */
   val leftDependents = Array(size = this.size, init = { ArrayList<Int>() } )
@@ -102,13 +108,14 @@ class DependencyTree(val size: Int) {
   fun isNotAssigned(element: Int): Boolean = element in this.roots
 
   /**
-   * Set a new arc between a given [dependent] and [governor], possibly with a [deprel].
+   * Set a new arc between a given [dependent] and [governor], possibly with a [deprel] and a [posTag].
    *
    * @param dependent an element of the tree
    * @param governor an element of the tree
    * @param deprel a deprel (can be null)
+   * @param posTag a posTag (can be null)
    */
-  fun setArc(dependent: Int, governor: Int, deprel: Deprel? = null) {
+  fun setArc(dependent: Int, governor: Int, deprel: Deprel? = null, posTag: POSTag? = null) {
 
     require(governor in 0 until this.size) {
       "Governor [$governor] out of range 0 .. ${this.elements.last}"
@@ -125,6 +132,7 @@ class DependencyTree(val size: Int) {
     this.roots.remove(dependent)
     this.heads[dependent] = governor
     this.deprels[dependent] = deprel
+    this.posTags[dependent] = posTag
     this.addDependent(dependent, governor = governor)
   }
 
@@ -151,6 +159,17 @@ class DependencyTree(val size: Int) {
   fun setDeprel(dependent: Int, deprel: Deprel){
 
     this.deprels[dependent] = deprel
+  }
+
+  /**
+   * Set a [posTag] to the given [dependent].
+   *
+   * @param dependent an element of the tree
+   * @param posTag a POS tag
+   */
+  fun setPosTag(dependent: Int, posTag: POSTag){
+
+    this.posTags[dependent] = posTag
   }
 
   /**
@@ -305,12 +324,12 @@ class DependencyTree(val size: Int) {
   /**
    * @param deprels a list of [Deprel]s
    *
-   * @return a Boolean indicating whether the given [deprels] match with the deprel of this [DependencyTree]
+   * @return a Boolean indicating whether the given [deprels] matches the deprel of this [DependencyTree]
    */
   fun matchDeprels(deprels: Array<Deprel?>): Boolean = Arrays.equals(this.deprels, deprels)
 
   /**
-   * @return a Boolean indicating whether the given [heads] match with the heads of this [DependencyTree]
+   * @return a Boolean indicating whether the given [heads] matches the heads of this [DependencyTree]
    */
   fun matchHeads(heads: Array<Int?>): Boolean = Arrays.equals(this.heads, heads)
 
@@ -343,6 +362,7 @@ class DependencyTree(val size: Int) {
 
     this.heads.forEachIndexed { index, head -> tree.heads[index] = head }
     this.deprels.forEachIndexed { index, deprel -> tree.deprels[index] = deprel }
+    this.posTags.forEachIndexed { index, posTag -> tree.posTags[index] = posTag }
     this.leftDependents.forEachIndexed { index, dependent -> tree.leftDependents[index] = dependent }
     this.rightDependents.forEachIndexed { index, dependent -> tree.rightDependents[index] = dependent }
 
@@ -358,7 +378,5 @@ class DependencyTree(val size: Int) {
   /**
    * @return the hash code of this [DependencyTree]
    */
-  override fun hashCode(): Int {
-    return this.heads.hashCode() * 8191 + this.deprels.hashCode()
-  }
+  override fun hashCode(): Int = this.heads.hashCode() * 8191 + this.deprels.hashCode()
 }
