@@ -29,4 +29,15 @@ data class POSTag(val label: String): Serializable {
    * @return a string representation of this pos tag
    */
   override fun toString(): String = this.label
+
+  /**
+   * @return a Boolean indicating whether the given [other] object is equal to this [POSTag]
+   */
+  override fun equals(other: Any?): Boolean
+    = other is POSTag && other.label == this.label
+
+  /**
+   * @return the hash code of this [POSTag]
+   */
+  override fun hashCode(): Int = this.label.hashCode()
 }
