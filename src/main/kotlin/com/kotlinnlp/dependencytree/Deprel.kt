@@ -44,18 +44,11 @@ open class Deprel(val label: String, val direction: Position = Position.NULL) : 
   /**
    * @return a Boolean indicating whether the given [other] object is equal to this [Deprel]
    */
-  override fun equals(other: Any?): Boolean {
-    return if (other is Deprel){
-      other.label == this.label && other.direction == this.direction
-    } else {
-      false
-    }
-  }
+  override fun equals(other: Any?): Boolean
+    = other is Deprel && other.label == this.label && other.direction == this.direction
 
   /**
    * @return the hash code of this [Deprel]
    */
-  override fun hashCode(): Int {
-    return this.label.hashCode() * 31 + this.direction.hashCode()
-  }
+  override fun hashCode(): Int = this.label.hashCode() * 31 + this.direction.hashCode()
 }
