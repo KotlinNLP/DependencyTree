@@ -26,7 +26,7 @@ data class POSTag(val label: String): Serializable {
   }
 
   /**
-   * @return a string representation of this pos tag
+   * @return a string representation of this POS tag
    */
   override fun toString(): String = this.label
 
