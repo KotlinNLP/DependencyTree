@@ -7,12 +7,23 @@
 
 package com.kotlinnlp.dependencytree
 
+import java.io.Serializable
+
 /**
  * The Part-Of-Speech (POS) tag.
  *
  * @property label the label of this POS
  */
-data class POSTag(val label: String){
+data class POSTag(val label: String): Serializable {
+
+  companion object {
+
+    /**
+     * Private val used to serialize the class (needed from Serializable)
+     */
+    @Suppress("unused")
+    private const val serialVersionUID: Long = 1L
+  }
 
   /**
    * @return a string representation of this pos tag
