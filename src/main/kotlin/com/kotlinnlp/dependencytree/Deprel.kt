@@ -42,6 +42,11 @@ open class Deprel(val label: String, val direction: Position = Position.NULL) : 
   override fun toString(): String = this.label + ":" + this.direction
 
   /**
+   * @return a Boolean indicating whether the given [other] object is equal to this [Deprel], checking only the [label]
+   */
+  fun softEquals(other: Any?): Boolean = other is Deprel && other.label == this.label
+
+  /**
    * @return a Boolean indicating whether the given [other] object is equal to this [Deprel]
    */
   override fun equals(other: Any?): Boolean
