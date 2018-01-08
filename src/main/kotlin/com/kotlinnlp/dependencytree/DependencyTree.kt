@@ -18,7 +18,6 @@ import kotlin.coroutines.experimental.buildSequence
  */
 class DependencyTree(val size: Int) {
 
-
   companion object {
 
     /**
@@ -275,7 +274,7 @@ class DependencyTree(val size: Int) {
    * @return a Boolean indicating whether the tree contains at least one non-projective arc
    */
   fun isNonProjectiveTree(): Boolean = this.elements.any { this.inNonProjectiveArc(it) }
-  
+
   /**
    * @return a Boolean indicating whether the forest contains a single directed acyclic graph
    */
@@ -334,21 +333,14 @@ class DependencyTree(val size: Int) {
   fun matchHeads(heads: Array<Int?>): Boolean = Arrays.equals(this.heads, heads)
 
   /**
-   * @return a string representation of the [elements] with their [heads] and [deprels]
+   * @return a string representation of the [elements] and their dependencies
    */
-  override fun toString(): String {
+  override fun toString(): String = PrintHelper(this).print()
 
-    val result = ArrayList<String>()
-
-    this.elements.forEach { index ->
-      result.add(
-        index.toString()
-          + "\t" + (this.heads[index] ?: -1).toString()
-          + "\t" + this.deprels[index].toString())
-    }
-
-    return result.joinToString("\n")
-  }
+  /**
+   * @return a string representation of the [elements] and their dependencies
+   */
+  fun toString(words: List<String>): String = PrintHelper(tree = this, words = words).print()
 
   /**
    * @return a copy of this [DependencyTree]
