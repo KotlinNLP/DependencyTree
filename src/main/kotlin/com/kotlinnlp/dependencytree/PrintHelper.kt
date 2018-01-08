@@ -17,6 +17,10 @@ class PrintHelper(private val tree: DependencyTree, private val words: List<Stri
 
   /**
    * Enum class that defines the position of an element respect to its parent.
+   *
+   * @property ROOT the position of a root element
+   * @property LEFT the position of a left dependent element
+   * @property RIGHT the position of a right dependent element
    */
   private enum class Position { ROOT, LEFT, RIGHT }
 
