@@ -4,6 +4,20 @@ A simple package that contains convenient methods to build and navigate a depend
 
 DependencyTree is part of [KotlinNLP](http://kotlinnlp.com/ "KotlinNLP").
 
+
+## Getting Started
+
+### Import with Maven
+
+```xml
+<dependency>
+    <groupId>com.kotlinnlp</groupId>
+    <artifactId>dependencytree</artifactId>
+    <version>0.1.0</version>
+</dependency>
+```
+
+
 ## License
 
 This software is released under the terms of the 
