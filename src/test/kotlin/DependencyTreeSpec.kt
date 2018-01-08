@@ -34,8 +34,31 @@ class DependencyTreeSpec : Spek({
           assertEquals(listOf(0, 1, 2, 3, 4), dependencyTree.roots)
         }
       }
+
+      on("toString") {
+
+        val expectedString = """
+          0 _ _
+
+          1 _ _
+
+          2 _ _
+
+          3 _ _
+
+          4 _ _
+          """.trimIndent()
+
+        it("should return the expected string") {
+          assertEquals(expectedString, dependencyTree.toString())
+        }
+      }
     }
 
+    /**
+     * id    |   0    1    2    3    4
+     * head  |  -1    0    0    4    0
+     */
     context("pre-initialized with a single root") {
 
       val dependencyTree = DependencyTree(size = 5, dependencies = listOf(
@@ -69,8 +92,27 @@ class DependencyTreeSpec : Spek({
           assertTrue { dependencyTree.checkCycleWith(dependent = 4, governor = 3) }
         }
       }
+
+      on("toString") {
+
+        val expectedString = """
+          0 _ _
+          +--r 1 _ _
+          +--r 2 _ _
+          +--r 4 _ _
+               +--l 3 _ _
+          """.trimIndent()
+
+        it("should return the expected string") {
+          assertEquals(expectedString, dependencyTree.toString())
+        }
+      }
     }
 
+    /**
+     * id    |   0    1    2    3    4
+     * head  |  -1    0    1    4   -1
+     */
     context("pre-initialized with two roots") {
 
       val dependencyTree = DependencyTree(size = 5, dependencies = listOf(
@@ -100,14 +142,30 @@ class DependencyTreeSpec : Spek({
           assertTrue { dependencyTree.checkCycleWith(dependent = 0, governor = 2) }
         }
       }
-    }
-    
-    
-    context("pre-initialized with non-projective arcs"){
 
-      // text = You cannot put flavor into   a   bean that is not already there
-      //   id =  0    1     2    3      4    5    6    7    8  9   10     11
-      // head =  2    2    -1    2      6    6    2    8    3  8   11     8
+      on("toString") {
+
+        val expectedString = """
+          0 _ _
+          +--r 1 _ _
+               +--r 2 _ _
+
+          4 _ _
+          +--l 3 _ _
+          """.trimIndent()
+
+        it("should return the expected string") {
+          assertEquals(expectedString, dependencyTree.toString())
+        }
+      }
+    }
+
+    /**
+     * token | You cannot put flavor into a bean that is not already there
+     * id    |  0    1     2    3     4   5   6   7   8   9    10     11
+     * head  |  2    2    -1    2     6   6   2   8   3   8    11     8
+     */
+    context("pre-initialized with non-projective arcs") {
 
       val dependencyTree = DependencyTree(size = 12, dependencies = listOf(
         ArcConfiguration(0, 2),
@@ -186,6 +244,97 @@ class DependencyTreeSpec : Spek({
 
         it("should return false at index 11") {
           assertFalse(dependencyTree.inNonProjectiveArc(11))
+        }
+      }
+
+      on("toString") {
+
+        val expectedString = """
+          2 _ _
+          +--l 0 _ _
+          +--l 1 _ _
+          +--r 3 _ _
+          |    +--r 8 _ _
+          |         +--l 7 _ _
+          |         +--r 9 _ _
+          |         +--r 11 _ _
+          |              +--l 10 _ _
+          +--r 6 _ _
+               +--l 4 _ _
+               +--l 5 _ _
+               """.trimIndent()
+
+        it("should return the expected string") {
+          assertEquals(expectedString, dependencyTree.toString())
+        }
+      }
+
+      on("toString(words)") {
+
+        val words = listOf("You", "cannot", "put", "flavor", "into", "a", "bean", "that", "is", "not", "already",
+          "there")
+
+        val expectedString = """
+          put _ _
+          +--l You _ _
+          +--l cannot _ _
+          +--r flavor _ _
+          |    +--r is _ _
+          |         +--l that _ _
+          |         +--r not _ _
+          |         +--r there _ _
+          |              +--l already _ _
+          +--r bean _ _
+               +--l into _ _
+               +--l a _ _
+          """.trimIndent()
+
+        it("should return the expected string") {
+          assertEquals(expectedString, dependencyTree.toString(words))
+        }
+      }
+    }
+
+    /**
+     * id    |  0    1     2    3     4   5   6   7   8   9    10     11
+     * head  |  2    2    -1    2     6   6   2   8   3   8    11     8
+     */
+    context("pre-initialized with overlapping 'continue' string paddings") {
+
+      val dependencyTree = DependencyTree(size = 12, dependencies = listOf(
+        ArcConfiguration(0, 2),
+        ArcConfiguration(1, 2),
+        RootConfiguration(2),
+        ArcConfiguration(3, 2),
+        ArcConfiguration(4, 6),
+        ArcConfiguration(5, 6),
+        ArcConfiguration(6, 2),
+        ArcConfiguration(7, 8),
+        ArcConfiguration(8, 3),
+        ArcConfiguration(9, 8),
+        ArcConfiguration(10, 11),
+        ArcConfiguration(11, 3)
+      ))
+
+      on("toString(words)") {
+
+        val expectedString = """
+          2 _ _
+          +--l 0 _ _
+          +--l 1 _ _
+          +--r 3 _ _
+          |    +--r 8 _ _
+          |    |    +--l 7 _ _
+          |    |    +--r 9 _ _
+          |    +--r 11 _ _
+          |         +--l 10 _ _
+          +--r 6 _ _
+               +--l 4 _ _
+               +--l 5 _ _
+          """.trimIndent()
+
+        it("should return the expected string") {
+          assertEquals(expectedString, dependencyTree.toString())
         }
       }
     }
