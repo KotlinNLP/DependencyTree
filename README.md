@@ -1,4 +1,4 @@
-# DependencyTree
+# DependencyTree [![GitHub version](https://badge.fury.io/gh/KotlinNLP%2FDependencytree.svg)](https://badge.fury.io/gh/KotlinNLP%2FDependencytree) [![Build Status](https://travis-ci.org/KotlinNLP/DependencyTree.svg?branch=master)](https://travis-ci.org/KotlinNLP/DependencyTree)
 
 A simple package that contains convenient methods to build and navigate a dependency tree.
 
