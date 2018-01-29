@@ -9,7 +9,6 @@ package com.kotlinnlp.dependencytree
 
 import java.util.*
 import kotlin.collections.ArrayList
-import kotlin.coroutines.experimental.buildSequence
 
 /**
  * [DependencyTree] contains convenient methods to build and navigate a dependency tree.
@@ -172,13 +171,14 @@ class DependencyTree(val size: Int) {
   }
 
   /**
-   * Iterate over all the elements starting from the head of the given [element] up to the root.
+   * Iterate over all the ancestors of a given [element], calling the [callback] for each of them.
    *
    * @param element an element of the tree
+   * @param callback a function that receives an element as argument
    *
    * @throws CycleDetectedError when a cycle is detected during the iteration
    */
-  fun forEachAncestor(element: Int) = buildSequence {
+  fun forEachAncestor(element: Int, callback: ((Int?) -> Unit)? = null) {
 
     var iterations = 0
     var h: Int? = element
@@ -189,10 +189,39 @@ class DependencyTree(val size: Int) {
 
       h = this@DependencyTree.heads[h]
 
-      yield(h)
+      callback?.invoke(h)
 
       iterations++
     }
+  }
+
+  /**
+   * Iterate over all the ancestors of a given [element], calling the [callback] for each of them.
+   *
+   * @param element an element of the tree
+   * @param callback a function that receives an element as argument and returns a boolean
+   *
+   * @throws CycleDetectedError when a cycle is detected during the iteration
+   *
+   * @return true if any call of the [callback] returned true, otherwise false
+   */
+  fun anyAncestor(element: Int, callback: (Int?) -> Boolean): Boolean {
+
+    var iterations = 0
+    var h: Int? = element
+
+    while (h != null) {
+
+      if (iterations > this@DependencyTree.size) throw CycleDetectedError()
+
+      h = this@DependencyTree.heads[h]
+
+      if (callback(h)) return true
+
+      iterations++
+    }
+
+    return false
   }
 
   /**
@@ -225,7 +254,7 @@ class DependencyTree(val size: Int) {
    * @return a Boolean indicating whether the arc between the given [dependent] and [governor] introduces cycle
    */
   fun checkCycleWith(dependent: Int, governor: Int)
-    = dependent == governor || this.forEachAncestor(governor).any { it == dependent }
+    = dependent == governor || this.anyAncestor(governor) { it == dependent }
 
   /**
    * Whether a dependent element is involved in a non-projective arc.
@@ -260,8 +289,7 @@ class DependencyTree(val size: Int) {
    *
    * @return a Boolean indicating whether the given [candidateAncestor] is the ancestor of the given [element]
    */
-  fun isAncestorOf(candidateAncestor: Int, element: Int)
-    = this.forEachAncestor(element).any { it == candidateAncestor }
+  fun isAncestorOf(candidateAncestor: Int, element: Int) = this.anyAncestor(element) { it == candidateAncestor }
 
   /**
    * @param element an element of the tree
