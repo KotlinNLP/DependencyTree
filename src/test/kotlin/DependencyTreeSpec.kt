@@ -7,6 +7,7 @@
 
 import com.kotlinnlp.dependencytree.ArcConfiguration
 import com.kotlinnlp.dependencytree.DependencyTree
+import com.kotlinnlp.dependencytree.Deprel
 import com.kotlinnlp.dependencytree.RootConfiguration
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.context
@@ -181,9 +182,11 @@ class DependencyTreeSpec : Spek({
       val dependencyTree = DependencyTree(
         size = 5,
         dependencies = listOf(
-          ArcConfiguration(1, 0),
-          ArcConfiguration(2, 1),
-          ArcConfiguration(3, 4)
+          RootConfiguration(id = 0, deprel = Deprel(label = "VERB", direction = Deprel.Position.ROOT)),
+          ArcConfiguration(1, 0, deprel = Deprel(label = "SUBJ", direction = Deprel.Position.RIGHT)),
+          ArcConfiguration(2, 1, deprel = null),
+          ArcConfiguration(3, 4, deprel = Deprel(label = "PRON", direction = Deprel.Position.LEFT)),
+          RootConfiguration(id = 4, deprel = Deprel(label = "VERB", direction = Deprel.Position.ROOT))
         ))
 
       it("should have the expected root") {
@@ -275,15 +278,30 @@ class DependencyTreeSpec : Spek({
         }
       }
 
+      on("matchDeprels") {
+
+        it("should match the expected deprels") {
+
+          assertTrue { dependencyTree.matchDeprels(arrayOf(
+            Deprel(label = "VERB", direction = Deprel.Position.ROOT),
+            Deprel(label = "SUBJ", direction = Deprel.Position.RIGHT),
+            null,
+            Deprel(label = "PRON", direction = Deprel.Position.LEFT),
+            Deprel(label = "VERB", direction = Deprel.Position.ROOT
+            )))
+          }
+        }
+      }
+
       on("toString") {
 
         val expectedString = """
-          0 _ _
-          +--r 1 _ _
+          0 _ VERB:ROOT
+          +--r 1 _ SUBJ:RIGHT
                +--r 2 _ _
 
-          4 _ _
-          +--l 3 _ _
+          4 _ VERB:ROOT
+          +--l 3 _ PRON:LEFT
           """.trimIndent()
 
         it("should return the expected string") {
