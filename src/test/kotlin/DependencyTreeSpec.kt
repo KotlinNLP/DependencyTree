@@ -64,6 +64,27 @@ class DependencyTreeSpec : Spek({
 
     /**
      * id    |   0    1    2    3    4
+     * head  |  -1    2    4    4    1
+     */
+    context("pre-initialized with a cycle") {
+
+      val dependencyTree = DependencyTree(size = 5, dependencies = listOf(
+        ArcConfiguration(1, 2),
+        ArcConfiguration(2, 4),
+        ArcConfiguration(3, 4),
+        ArcConfiguration(4, 1)
+      ))
+
+      on("containsCycle") {
+
+        it("should return true") {
+          assertTrue { dependencyTree.containsCycle() }
+        }
+      }
+    }
+
+    /**
+     * id    |   0    1    2    3    4
      * head  |  -1    0    0    4    0
      */
     context("pre-initialized with a single root") {
