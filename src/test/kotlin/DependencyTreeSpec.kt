@@ -84,6 +84,17 @@ class DependencyTreeSpec : Spek({
           assertTrue { dependencyTree.containsCycle() }
         }
       }
+
+      on("isRoot") {
+
+        it("should return true on a root element") {
+          assertTrue { dependencyTree.isRoot(0) }
+        }
+
+        it("should return false on a non-root element") {
+          assertFalse { dependencyTree.isRoot(1) }
+        }
+      }
     }
 
     /**
@@ -109,6 +120,25 @@ class DependencyTreeSpec : Spek({
 
         it("should return true"){
           assertTrue { dependencyTree.hasSingleRoot() }
+        }
+      }
+
+      on("isRoot") {
+
+        it("should return true on a root element") {
+          assertTrue { dependencyTree.isRoot(0) }
+        }
+
+        it("should return false on a non-root element") {
+          assertFalse { dependencyTree.isRoot(1) }
+        }
+      }
+
+      on ("isDAG") {
+
+        it("should return true") {
+
+          assertTrue { dependencyTree.isDAG() }
         }
       }
 
@@ -167,10 +197,62 @@ class DependencyTreeSpec : Spek({
         }
       }
 
+      on("isRoot") {
+
+        it("should return true on a root element") {
+          assertTrue { dependencyTree.isRoot(4) }
+        }
+
+        it("should return false on a non-root element") {
+          assertFalse { dependencyTree.isRoot(1) }
+        }
+      }
+
+      on ("isDAG") {
+
+        it("should return false") {
+
+          assertFalse { dependencyTree.isDAG() }
+        }
+      }
+
       on("containsCycle") {
 
         it("should return false") {
           assertFalse { dependencyTree.containsCycle() }
+        }
+      }
+
+      on("forEachAncestor") {
+
+        val ancestors = mutableListOf<Int>()
+
+        dependencyTree.forEachAncestor(2) { ancestors.add(it) }
+
+        it("should iterate over the expected ancestors of an element") {
+          assertEquals(ancestors.toList(), listOf(1, 0))
+        }
+      }
+
+      on("anyAncestor") {
+
+        it("should return true on its ancestor condition") {
+          assertTrue { dependencyTree.anyAncestor(2) { it == 0 } }
+        }
+
+        it("should return false on not ancestor condition") {
+          assertFalse { dependencyTree.anyAncestor(2) { it == 4 } }
+        }
+      }
+
+      on("isAncestorOf") {
+
+        it("should return true on its ancestor condition") {
+          assertTrue { dependencyTree.isAncestorOf(candidateAncestor = 0, element = 2) }
+        }
+
+        it("should return false on not ancestor condition") {
+          assertFalse { dependencyTree.isAncestorOf(candidateAncestor = 4, element = 2) }
         }
       }
 
@@ -182,6 +264,14 @@ class DependencyTreeSpec : Spek({
 
         it("should detect the introduction of a cycle ") {
           assertTrue { dependencyTree.checkCycleWith(dependent = 0, governor = 2) }
+        }
+      }
+
+      on("isProjective") {
+
+        it("should return true") {
+
+          assertTrue { dependencyTree.isProjective() }
         }
       }
 
@@ -226,6 +316,25 @@ class DependencyTreeSpec : Spek({
           ArcConfiguration(11, 8)
         ))
 
+      on("isRoot") {
+
+        it("should return true on a root element") {
+          assertTrue { dependencyTree.isRoot(2) }
+        }
+
+        it("should return false on a non-root element") {
+          assertFalse { dependencyTree.isRoot(6) }
+        }
+      }
+
+      on ("isDAG") {
+
+        it("should return true") {
+
+          assertTrue { dependencyTree.isDAG() }
+        }
+      }
+
       on("inOrder") {
 
         it("should return the expected list") {
@@ -247,7 +356,44 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("inNonProjectiveArcArc") {
+      on("forEachAncestor") {
+
+        val ancestors = mutableListOf<Int>()
+
+        dependencyTree.forEachAncestor(10) { ancestors.add(it) }
+
+        it("should iterate over the expected ancestors of an element") {
+          assertEquals(ancestors.toList(), listOf(11, 8, 3, 2))
+        }
+
+        it("should return false on not ancestor condition") {
+          assertFalse { dependencyTree.anyAncestor(10) { it == 5 } }
+        }
+      }
+
+      on("anyAncestor") {
+
+        it("should return true on its ancestor condition") {
+          assertTrue { dependencyTree.anyAncestor(10) { it == 2 } }
+        }
+
+        it("should return false on not ancestor condition") {
+          assertFalse { dependencyTree.anyAncestor(10) { it == 5 } }
+        }
+      }
+
+      on("isAncestorOf") {
+
+        it("should return true on its ancestor condition") {
+          assertTrue { dependencyTree.isAncestorOf(candidateAncestor = 2, element = 10) }
+        }
+
+        it("should return false on not ancestor condition") {
+          assertFalse { dependencyTree.isAncestorOf(candidateAncestor = 5, element = 10) }
+        }
+      }
+
+      on("inNonProjectiveArc") {
 
         it("should return false at index 0") {
           assertFalse(dependencyTree.inNonProjectiveArc(0))
@@ -295,6 +441,14 @@ class DependencyTreeSpec : Spek({
 
         it("should return false at index 11") {
           assertFalse(dependencyTree.inNonProjectiveArc(11))
+        }
+      }
+
+      on("isNonProjective") {
+
+        it("should return true") {
+
+          assertTrue { dependencyTree.isNonProjective() }
         }
       }
 
