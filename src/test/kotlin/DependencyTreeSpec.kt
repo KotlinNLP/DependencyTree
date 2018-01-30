@@ -73,7 +73,7 @@ class DependencyTreeSpec : Spek({
 
     /**
      * id    |   0    1    2    3    4
-     * head  |  -1    2    4    4    1
+     * head  |  -1    2    4    2    3
      */
     context("pre-initialized with a cycle") {
 
@@ -82,8 +82,8 @@ class DependencyTreeSpec : Spek({
         dependencies = listOf(
           ArcConfiguration(1, 2),
           ArcConfiguration(2, 4),
-          ArcConfiguration(3, 4),
-          ArcConfiguration(4, 1)
+          ArcConfiguration(3, 2),
+          ArcConfiguration(4, 3)
         ),
         allowCycles = true)
 
@@ -100,9 +100,9 @@ class DependencyTreeSpec : Spek({
 
           assertEquals(dependencyTree.getCycles(), listOf(
             DependencyTree.Path(arcs = listOf(
-              DependencyTree.Arc(dependent = 1, governor = 2),
               DependencyTree.Arc(dependent = 2, governor = 4),
-              DependencyTree.Arc(dependent = 4, governor = 1)
+              DependencyTree.Arc(dependent = 4, governor = 3),
+              DependencyTree.Arc(dependent = 3, governor = 2)
             )))
           )
         }
