@@ -239,6 +239,13 @@ class DependencyTree(val size: Int) {
   fun isAncestorOf(candidateAncestor: Int, element: Int) = this.anyAncestor(element) { it == candidateAncestor }
 
   /**
+   * @param element an element of the tree
+   *
+   * @return a Boolean indicating whether the given [element] is a root
+   */
+  fun isRoot(element: Int) = element in this.roots
+
+  /**
    * Check if the tree contains cycles.
    *
    * @return a Boolean indicating whether the tree contains cycles
@@ -299,13 +306,6 @@ class DependencyTree(val size: Int) {
       middleElements.any { !this.isAncestorOf(candidateAncestor = head, element = it) }
     }
   }
-
-  /**
-   * @param element an element of the tree
-   *
-   * @return a Boolean indicating whether the given [element] is a root
-   */
-  fun isRoot(element: Int) = element in this.roots
 
   /**
    * Whether this tree is non-projective.
