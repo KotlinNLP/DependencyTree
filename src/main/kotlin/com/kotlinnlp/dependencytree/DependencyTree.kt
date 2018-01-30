@@ -428,11 +428,11 @@ class DependencyTree(val size: Int) {
 
         var head: Int? = this.heads[elm]
 
-        if (head != null && head !in visited) {
+        if (head != null) {
 
           val visitedHeads = mutableSetOf(elm)
 
-          while (head != null && head !in visitedHeads) {
+          while (head != null && head !in visited && head !in visitedHeads) {
 
             visitedHeads.add(head)
 
