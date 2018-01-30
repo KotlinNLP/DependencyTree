@@ -92,12 +92,14 @@ class DependencyTreeSpec : Spek({
      */
     context("pre-initialized with a single root") {
 
-      val dependencyTree = DependencyTree(size = 5, dependencies = listOf(
-        ArcConfiguration(1, 0),
-        ArcConfiguration(2, 0),
-        ArcConfiguration(3, 4),
-        ArcConfiguration(4, 0)
-      ))
+      val dependencyTree = DependencyTree(
+        size = 5,
+        dependencies = listOf(
+          ArcConfiguration(1, 0),
+          ArcConfiguration(2, 0),
+          ArcConfiguration(3, 4),
+          ArcConfiguration(4, 0)
+        ))
 
       it("should have the expected root") {
         assertEquals(listOf(0), dependencyTree.roots)
@@ -146,11 +148,13 @@ class DependencyTreeSpec : Spek({
      */
     context("pre-initialized with two roots") {
 
-      val dependencyTree = DependencyTree(size = 5, dependencies = listOf(
-        ArcConfiguration(1, 0),
-        ArcConfiguration(2, 1),
-        ArcConfiguration(3, 4)
-      ))
+      val dependencyTree = DependencyTree(
+        size = 5,
+        dependencies = listOf(
+          ArcConfiguration(1, 0),
+          ArcConfiguration(2, 1),
+          ArcConfiguration(3, 4)
+        ))
 
       it("should have the expected root") {
         assertEquals(listOf(0, 4), dependencyTree.roots)
@@ -205,20 +209,22 @@ class DependencyTreeSpec : Spek({
      */
     context("pre-initialized with non-projective arcs") {
 
-      val dependencyTree = DependencyTree(size = 12, dependencies = listOf(
-        ArcConfiguration(0, 2),
-        ArcConfiguration(1, 2),
-        RootConfiguration(2),
-        ArcConfiguration(3, 2),
-        ArcConfiguration(4, 6),
-        ArcConfiguration(5, 6),
-        ArcConfiguration(6, 2),
-        ArcConfiguration(7, 8),
-        ArcConfiguration(8, 3),
-        ArcConfiguration(9, 8),
-        ArcConfiguration(10, 11),
-        ArcConfiguration(11, 8)
-      ))
+      val dependencyTree = DependencyTree(
+        size = 12,
+        dependencies = listOf(
+          ArcConfiguration(0, 2),
+          ArcConfiguration(1, 2),
+          RootConfiguration(2),
+          ArcConfiguration(3, 2),
+          ArcConfiguration(4, 6),
+          ArcConfiguration(5, 6),
+          ArcConfiguration(6, 2),
+          ArcConfiguration(7, 8),
+          ArcConfiguration(8, 3),
+          ArcConfiguration(9, 8),
+          ArcConfiguration(10, 11),
+          ArcConfiguration(11, 8)
+        ))
 
       on("inOrder") {
 
@@ -346,20 +352,22 @@ class DependencyTreeSpec : Spek({
      */
     context("pre-initialized with overlapping 'continue' string paddings") {
 
-      val dependencyTree = DependencyTree(size = 12, dependencies = listOf(
-        ArcConfiguration(0, 2),
-        ArcConfiguration(1, 2),
-        RootConfiguration(2),
-        ArcConfiguration(3, 2),
-        ArcConfiguration(4, 6),
-        ArcConfiguration(5, 6),
-        ArcConfiguration(6, 2),
-        ArcConfiguration(7, 8),
-        ArcConfiguration(8, 3),
-        ArcConfiguration(9, 8),
-        ArcConfiguration(10, 11),
-        ArcConfiguration(11, 3)
-      ))
+      val dependencyTree = DependencyTree(
+        size = 12,
+        dependencies = listOf(
+          ArcConfiguration(0, 2),
+          ArcConfiguration(1, 2),
+          RootConfiguration(2),
+          ArcConfiguration(3, 2),
+          ArcConfiguration(4, 6),
+          ArcConfiguration(5, 6),
+          ArcConfiguration(6, 2),
+          ArcConfiguration(7, 8),
+          ArcConfiguration(8, 3),
+          ArcConfiguration(9, 8),
+          ArcConfiguration(10, 11),
+          ArcConfiguration(11, 3)
+        ))
 
       on("toString(words)") {
 
