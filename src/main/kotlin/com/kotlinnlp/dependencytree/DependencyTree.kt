@@ -175,50 +175,43 @@ class DependencyTree(val size: Int) {
    *
    * @param element an element of the tree
    * @param callback a function that receives an element as argument
-   *
-   * @throws CycleDetectedError when a cycle is detected during the iteration
    */
-  fun forEachAncestor(element: Int, callback: ((Int?) -> Unit)? = null) {
+  fun forEachAncestor(element: Int, callback: ((Int) -> Unit)? = null) {
 
-    var iterations = 0
-    var h: Int? = element
+    var head: Int? = this@DependencyTree.heads[element]
+    var firstHead: Int? = null
 
-    while (h != null) {
+    while (head != null && head != firstHead) {
 
-      if (iterations > this@DependencyTree.size) throw CycleDetectedError()
+      if (firstHead == null) firstHead = head
 
-      h = this@DependencyTree.heads[h]
+      callback?.invoke(head)
 
-      callback?.invoke(h)
-
-      iterations++
+      head = this@DependencyTree.heads[head]
     }
   }
 
   /**
    * Iterate over all the ancestors of a given [element], calling the [callback] for each of them.
+   * If the [element] is involved in a cycle, the loop ends with the element itself.
    *
    * @param element an element of the tree
    * @param callback a function that receives an element as argument and returns a boolean
-   *
-   * @throws CycleDetectedError when a cycle is detected during the iteration
    *
    * @return true if any call of the [callback] returned true, otherwise false
    */
   fun anyAncestor(element: Int, callback: (Int?) -> Boolean): Boolean {
 
-    var iterations = 0
-    var h: Int? = element
+    var head: Int? = this@DependencyTree.heads[element]
+    var firstHead: Int? = null
 
-    while (h != null) {
+    while (head != null && head != firstHead) {
 
-      if (iterations > this@DependencyTree.size) throw CycleDetectedError()
+      if (firstHead == null) firstHead = head
 
-      h = this@DependencyTree.heads[h]
+      if (callback(head)) return true
 
-      if (callback(h)) return true
-
-      iterations++
+      head = this@DependencyTree.heads[head]
     }
 
     return false
@@ -256,7 +249,7 @@ class DependencyTree(val size: Int) {
    * @return a Boolean indicating whether the arc between the given [dependent] and [governor] introduces a cycle
    */
   fun checkCycleWith(dependent: Int, governor: Int)
-    = dependent == governor || this.anyAncestor(governor) { it == dependent }
+    = dependent == governor || this.isAncestorOf(candidateAncestor = dependent, element = governor)
 
   /**
    * Whether a dependent element is involved in a non-projective arc.
