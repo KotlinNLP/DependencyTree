@@ -68,12 +68,15 @@ class DependencyTreeSpec : Spek({
      */
     context("pre-initialized with a cycle") {
 
-      val dependencyTree = DependencyTree(size = 5, dependencies = listOf(
-        ArcConfiguration(1, 2),
-        ArcConfiguration(2, 4),
-        ArcConfiguration(3, 4),
-        ArcConfiguration(4, 1)
-      ))
+      val dependencyTree = DependencyTree(
+        size = 5,
+        dependencies = listOf(
+          ArcConfiguration(1, 2),
+          ArcConfiguration(2, 4),
+          ArcConfiguration(3, 4),
+          ArcConfiguration(4, 1)
+        ),
+        allowCycles = true)
 
       on("containsCycle") {
 
