@@ -395,21 +395,10 @@ class DependencyTree(val size: Int) {
 
       if (elm !in visited) {
 
-        val ancestors = mutableListOf<Int>()
+        val ancestors = this.getAncestors(elm)
 
-        this.forEachAncestor(elm) { it -> ancestors.add(it) }
-
-        if (ancestors.isNotEmpty() && ancestors.last() == elm) { // cycle detected
-          val cycle = mutableListOf<Arc>()
-          var dependent: Int = elm
-
-          ancestors.forEach { governor ->
-            cycle.add(Arc(dependent = dependent, governor = governor))
-            dependent = governor
-          }
-
-          cycles.add(Path(cycle))
-        }
+        val cycle: Path? = this.getCycle(element = elm, ancestors = ancestors)
+        if (cycle != null) cycles.add(cycle)
 
         visited.add(elm)
         visited.addAll(ancestors)
@@ -470,6 +459,45 @@ class DependencyTree(val size: Int) {
       this.leftDependents[governor].add(dependent)
     } else {
       this.rightDependents[governor].add(dependent)
+    }
+  }
+
+  /**
+   * @param element an element of this tree
+   *
+   * @return the ancestors of the given element
+   */
+  private fun getAncestors(element: Int): List<Int> {
+
+    val ancestors = mutableListOf<Int>()
+
+    this.forEachAncestor(element) { it -> ancestors.add(it) }
+
+    return ancestors.toList()
+  }
+
+  /**
+   * @param element an element of this tree
+   * @param ancestors the ancestors if
+   *
+   * @return the cycle path that starts from the given [element] or null if the element is not involved in a cycle
+   */
+  private fun getCycle(element: Int, ancestors: List<Int>): Path? {
+
+    return if (ancestors.isNotEmpty() && ancestors.last() == element) {
+
+      val cycle = mutableListOf<Arc>()
+      var dependent: Int = element
+
+      ancestors.forEach { governor ->
+        cycle.add(Arc(dependent = dependent, governor = governor))
+        dependent = governor
+      }
+
+      return Path(cycle)
+
+    } else {
+      null
     }
   }
 }
