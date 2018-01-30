@@ -163,6 +163,28 @@ class DependencyTree(val size: Int) {
   }
 
   /**
+   * Remove the arc between the given [dependent] and [governor].
+   *
+   * @param dependent an element of the tree
+   * @param governor an element of the tree
+   *
+   * @throws InvalidArc if the given [dependent] and [governor] are not involved in an arc
+   */
+  fun removeArc(dependent: Int, governor: Int) {
+
+    require(governor in 0 until this.size) { "Governor [$governor] out of range 0 .. ${this.elements.last}" }
+    require(dependent in 0 until this.size) { "Dependent [$dependent] out of range 0 .. ${this.elements.last}" }
+
+    if (this.heads[dependent] != governor) throw InvalidArc(dependent = dependent, governor = governor)
+
+    this.addRoot(dependent)
+    this.heads[dependent] = null
+    this.deprels[dependent] = null
+    this.posTags[dependent] = null
+    this.removeDependent(dependent = dependent, governor = governor)
+  }
+
+  /**
    * Set a [deprel] to the given [dependent].
    *
    * @param dependent an element of the tree
@@ -459,6 +481,39 @@ class DependencyTree(val size: Int) {
       this.leftDependents[governor].add(dependent)
     } else {
       this.rightDependents[governor].add(dependent)
+    }
+  }
+
+  /**
+   * Add the given element as root.
+   *
+   * @param element an element of the tree
+   */
+  private fun addRoot(element: Int) {
+
+    for (i in (0 until this.roots.size)) {
+      val root: Int = this.roots[i]
+
+      if (root > element) {
+        this.roots.add(i, element)
+        return
+      }
+    }
+
+    this.roots.add(element)
+  }
+
+  /**
+   * Remove the given [dependent] from the [leftDependents] or [rightDependents] of the given [governor].
+   *
+   * @param dependent an element of the tree
+   * @param governor an element of the tree
+   */
+  private fun removeDependent(dependent: Int, governor: Int) {
+    if (dependent < governor) {
+      this.leftDependents[governor].remove(dependent)
+    } else {
+      this.rightDependents[governor].remove(dependent)
     }
   }
 
