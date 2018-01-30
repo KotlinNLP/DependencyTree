@@ -312,14 +312,14 @@ class DependencyTree(val size: Int) {
    *
    * @return a Boolean indicating whether this tree contains at least one non-projective arc
    */
-  fun isNonProjectiveTree(): Boolean = this.elements.any { this.inNonProjectiveArc(it) }
+  fun isNonProjective(): Boolean = this.elements.any { this.inNonProjectiveArc(it) }
 
   /**
    * Whether this tree is projective.
    *
    * @return a Boolean indicating whether this tree contains all projective arcs
    */
-  fun isProjectiveTree(): Boolean = !this.isNonProjectiveTree()
+  fun isProjective(): Boolean = !this.isNonProjective()
 
   /**
    * @return a Boolean indicating whether the forest contains a single directed acyclic graph
