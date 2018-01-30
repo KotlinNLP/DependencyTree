@@ -16,6 +16,7 @@ import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /**
@@ -200,6 +201,52 @@ class DependencyTreeSpec : Spek({
         }
       }
     }
+
+    /**
+     * id    |   0    1    2    3    4   ->   0    1    2    3    4
+     * head  |  -1    0    0    4    0       -1    0   -1    4    0
+     */
+    context("pre-initialized with a single root (removing arcs)") {
+
+      val dependencyTree = DependencyTree(
+        size = 5,
+        dependencies = listOf(
+          ArcConfiguration(1, 0),
+          ArcConfiguration(2, 0),
+          ArcConfiguration(3, 4),
+          ArcConfiguration(4, 0)
+        ))
+
+      on("removing the arc between 2 and 0") {
+
+        dependencyTree.removeArc(dependent = 2, governor = 0)
+
+        it("should contain no single root") {
+          assertFalse { dependencyTree.hasSingleRoot() }
+        }
+
+        it("should contain 2 as new root") {
+          assertTrue { dependencyTree.isRoot(2) }
+        }
+
+        it("should return null as head of 2") {
+          assertNull(dependencyTree.heads[2])
+        }
+
+        it("should return null as deprel of 2") {
+          assertNull(dependencyTree.deprels[2])
+        }
+
+        it("should return null as POS tag of 2") {
+          assertNull(dependencyTree.posTags[2])
+        }
+
+        it("should not contain 2 as dependent of 0") {
+          assertFalse { 2 in dependencyTree.dependentsOf(0) }
+        }
+      }
+    }
+
 
     /**
      * id    |   0    1    2    3    4
