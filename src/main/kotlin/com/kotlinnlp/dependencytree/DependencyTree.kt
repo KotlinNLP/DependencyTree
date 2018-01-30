@@ -54,6 +54,21 @@ class DependencyTree(val size: Int) {
   }
 
   /**
+   * An arc between two elements.
+   *
+   * @property dependent the dependent element
+   * @property governor the governor element
+   */
+  data class Arc(val dependent: Int, val governor: Int)
+
+  /**
+   * A path that link more arcs.
+   *
+   * @property arcs the list of arcs of this path
+   */
+  data class Path(val arcs: List<Arc>)
+
+  /**
    * List of the elements of the tree, in linear order.
    */
   val elements = IntRange(start = 0, endInclusive = this.size - 1)
@@ -365,6 +380,44 @@ class DependencyTree(val size: Int) {
    * @return a Boolean indicating whether the given [heads] matches the heads of this [DependencyTree]
    */
   fun matchHeads(heads: Array<Int?>): Boolean = Arrays.equals(this.heads, heads)
+
+  /**
+   * Get a list of paths that represent the cycles of this tree.
+   *
+   * @return the list of cycles
+   */
+  fun getCycles(): List<Path> {
+
+    val cycles = mutableListOf<Path>()
+    val visited = mutableSetOf<Int>()
+
+    this.elements.forEach { elm ->
+
+      if (elm !in visited) {
+
+        val ancestors = mutableListOf<Int>()
+
+        this.forEachAncestor(elm) { it -> ancestors.add(it) }
+
+        if (ancestors.isNotEmpty() && ancestors.last() == elm) { // cycle detected
+          val cycle = mutableListOf<Arc>()
+          var dependent: Int = elm
+
+          ancestors.forEach { governor ->
+            cycle.add(Arc(dependent = dependent, governor = governor))
+            dependent = governor
+          }
+
+          cycles.add(Path(cycle))
+        }
+
+        visited.add(elm)
+        visited.addAll(ancestors)
+      }
+    }
+
+    return cycles.toList()
+  }
 
   /**
    * @return a string representation of the [elements] and their dependencies
