@@ -153,7 +153,7 @@ class DependencyTree(val size: Int) {
     require(dependent in 0 until this.size) { "Dependent [$dependent] out of range 0 .. ${this.elements.last}" }
     require(this.heads[dependent] == null) { "Dependent has already an head" }
 
-    if (!allowCycle && this.checkCycleWith(dependent = dependent, governor = governor)) throw CycleDetectedError()
+    if (!allowCycle && this.introduceCycle(dependent = dependent, governor = governor)) throw CycleDetectedError()
 
     this.roots.remove(dependent)
     this.heads[dependent] = governor
@@ -309,7 +309,7 @@ class DependencyTree(val size: Int) {
    *
    * @return a Boolean indicating whether the arc between the given [dependent] and [governor] introduces a cycle
    */
-  fun checkCycleWith(dependent: Int, governor: Int)
+  fun introduceCycle(dependent: Int, governor: Int)
     = dependent == governor || this.isAncestorOf(candidateAncestor = dependent, element = governor)
 
   /**

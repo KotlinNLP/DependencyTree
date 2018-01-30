@@ -186,10 +186,10 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("checkCycleWith") {
+      on("introduceCycle") {
 
         it("should detect the introduction of a cycle") {
-          assertTrue { dependencyTree.checkCycleWith(dependent = 4, governor = 3) }
+          assertTrue { dependencyTree.introduceCycle(dependent = 4, governor = 3) }
         }
       }
 
@@ -348,14 +348,14 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("checkCycleWith") {
+      on("introduceCycle") {
 
         it("should detect the feasibility of an arc") {
-          assertFalse { dependencyTree.checkCycleWith(dependent = 4, governor = 2) }
+          assertFalse { dependencyTree.introduceCycle(dependent = 4, governor = 2) }
         }
 
         it("should detect the introduction of a cycle ") {
-          assertTrue { dependencyTree.checkCycleWith(dependent = 0, governor = 2) }
+          assertTrue { dependencyTree.introduceCycle(dependent = 0, governor = 2) }
         }
       }
 
