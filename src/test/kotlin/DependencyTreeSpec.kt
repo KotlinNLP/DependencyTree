@@ -108,6 +108,13 @@ class DependencyTreeSpec : Spek({
         }
       }
 
+      on("anyAncestor") {
+
+        it("should return true on its ancestor condition") {
+          assertTrue { dependencyTree.anyAncestor(2) { it == 2 } }
+        }
+      }
+
       on("isRoot") {
 
         it("should return true on a root element") {
