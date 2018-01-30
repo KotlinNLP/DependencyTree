@@ -11,3 +11,11 @@ package com.kotlinnlp.dependencytree
  * Error raised when a cycle is detected in a dependency tree.
  */
 class CycleDetectedError : RuntimeException()
+
+/**
+ * Error raised when an invalid Arc is managed.
+ *
+ * @param dependent the dependent of the arc
+ * @param governor the governor of the arc
+ */
+class InvalidArc(dependent: Int, governor: Int) : RuntimeException(message = "$dependent <- $governor")
