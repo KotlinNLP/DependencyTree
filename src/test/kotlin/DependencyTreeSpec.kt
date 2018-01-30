@@ -35,6 +35,13 @@ class DependencyTreeSpec : Spek({
         }
       }
 
+      on("containsCycle") {
+
+        it("should return false") {
+          assertFalse { dependencyTree.containsCycle() }
+        }
+      }
+
       on("toString") {
 
         val expectedString = """
@@ -132,6 +139,13 @@ class DependencyTreeSpec : Spek({
         }
       }
 
+      on("containsCycle") {
+
+        it("should return false") {
+          assertFalse { dependencyTree.containsCycle() }
+        }
+      }
+
       on("checkCycleWith") {
 
         it("should detect the feasibility of an arc") {
@@ -193,6 +207,13 @@ class DependencyTreeSpec : Spek({
 
         it("should return the expected list") {
           assertEquals(listOf(0, 1, 2, 3, 9, 10, 11, 4, 5, 6, 7, 8), dependencyTree.projectiveOrder())
+        }
+      }
+
+      on("containsCycle") {
+
+        it("should return false") {
+          assertFalse { dependencyTree.containsCycle() }
         }
       }
 
