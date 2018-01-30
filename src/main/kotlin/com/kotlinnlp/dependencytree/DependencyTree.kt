@@ -22,18 +22,30 @@ class DependencyTree(val size: Int) {
     /**
      * Initialize the DependencyTree with a given list of [dependencies].
      *
+     * @param size the number of elements in the tree
      * @param dependencies a list of [DependencyConfiguration]
+     * @param allowCycles if true it allows to create cycles when building the tree (default = false)
      *
      * @return a new DependencyTree
      */
-    operator fun invoke(size: Int, dependencies: List<DependencyConfiguration>): DependencyTree {
+    operator fun invoke(size: Int,
+                        dependencies: List<DependencyConfiguration>,
+                        allowCycles: Boolean = false): DependencyTree {
 
       val tree = DependencyTree(size)
 
       dependencies.forEach {
         when  {
-          it is RootConfiguration && it.deprel != null -> tree.setDeprel(dependent = it.id, deprel = it.deprel!!)
-          it is ArcConfiguration -> tree.setArc(dependent = it.dependent, governor = it.governor, deprel = it.deprel)
+
+          it is RootConfiguration && it.deprel != null -> tree.setDeprel(
+            dependent = it.id,
+            deprel = it.deprel!!)
+
+          it is ArcConfiguration -> tree.setArc(
+            dependent = it.dependent,
+            governor = it.governor,
+            deprel = it.deprel,
+            allowCycle = allowCycles)
         }
       }
 
@@ -112,20 +124,21 @@ class DependencyTree(val size: Int) {
    * @param governor an element of the tree
    * @param deprel a deprel (can be null)
    * @param posTag a posTag (can be null)
+   * @param allowCycle if true it allows to create cycles setting this arc (default = false)
+   *
+   * @throws CycleDetectedError if [allowCycle] is false and this arc introduces a cycle
    */
-  fun setArc(dependent: Int, governor: Int, deprel: Deprel? = null, posTag: POSTag? = null) {
+  fun setArc(dependent: Int,
+             governor: Int,
+             deprel: Deprel? = null,
+             posTag: POSTag? = null,
+             allowCycle: Boolean = false) {
 
-    require(governor in 0 until this.size) {
-      "Governor [$governor] out of range 0 .. ${this.elements.last}"
-    }
+    require(governor in 0 until this.size) { "Governor [$governor] out of range 0 .. ${this.elements.last}" }
+    require(dependent in 0 until this.size) { "Dependent [$dependent] out of range 0 .. ${this.elements.last}" }
+    require(this.heads[dependent] == null) { "Dependent has already an head" }
 
-    require(dependent in 0 until this.size) {
-      "Dependent [$dependent] out of range 0 .. ${this.elements.last}"
-    }
-
-    require(this.heads[dependent] == null) {
-      "Dependent has already an head"
-    }
+    if (!allowCycle && this.checkCycleWith(dependent = dependent, governor = governor)) throw CycleDetectedError()
 
     this.roots.remove(dependent)
     this.heads[dependent] = governor
