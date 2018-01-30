@@ -313,7 +313,7 @@ class DependencyTree(val size: Int) {
    *
    * @return a Boolean indicating whether the given [dependent] is involved in a non-projective arc
    */
-  fun inNonProjectiveArc(dependent: Int): Boolean {
+  fun isNonProjectiveArc(dependent: Int): Boolean {
 
     val head = this.heads[dependent]
 
@@ -335,7 +335,7 @@ class DependencyTree(val size: Int) {
    *
    * @return a Boolean indicating whether this tree contains at least one non-projective arc
    */
-  fun isNonProjective(): Boolean = this.elements.any { this.inNonProjectiveArc(it) }
+  fun isNonProjective(): Boolean = this.elements.any { this.isNonProjectiveArc(it) }
 
   /**
    * Whether this tree is projective.

@@ -500,54 +500,54 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("inNonProjectiveArc") {
+      on("isNonProjectiveArc") {
 
         it("should return false at index 0") {
-          assertFalse(dependencyTree.inNonProjectiveArc(0))
+          assertFalse(dependencyTree.isNonProjectiveArc(0))
         }
 
         it("should return false at index 1") {
-          assertFalse(dependencyTree.inNonProjectiveArc(1))
+          assertFalse(dependencyTree.isNonProjectiveArc(1))
         }
 
         it("should return false at index 2") {
-          assertFalse(dependencyTree.inNonProjectiveArc(2))
+          assertFalse(dependencyTree.isNonProjectiveArc(2))
         }
 
         it("should return false at index 3") {
-          assertFalse(dependencyTree.inNonProjectiveArc(3))
+          assertFalse(dependencyTree.isNonProjectiveArc(3))
         }
 
         it("should return false at index 4") {
-          assertFalse(dependencyTree.inNonProjectiveArc(4))
+          assertFalse(dependencyTree.isNonProjectiveArc(4))
         }
 
         it("should return false at index 5") {
-          assertFalse(dependencyTree.inNonProjectiveArc(5))
+          assertFalse(dependencyTree.isNonProjectiveArc(5))
         }
 
         it("should return false at index 6") {
-          assertFalse(dependencyTree.inNonProjectiveArc(6))
+          assertFalse(dependencyTree.isNonProjectiveArc(6))
         }
 
         it("should return false at index 7") {
-          assertFalse(dependencyTree.inNonProjectiveArc(7))
+          assertFalse(dependencyTree.isNonProjectiveArc(7))
         }
 
         it("should return false at index 8") {
-          assertTrue(dependencyTree.inNonProjectiveArc(8))
+          assertTrue(dependencyTree.isNonProjectiveArc(8))
         }
 
         it("should return false at index 9") {
-          assertFalse(dependencyTree.inNonProjectiveArc(9))
+          assertFalse(dependencyTree.isNonProjectiveArc(9))
         }
 
         it("should return false at index 10") {
-          assertFalse(dependencyTree.inNonProjectiveArc(10))
+          assertFalse(dependencyTree.isNonProjectiveArc(10))
         }
 
         it("should return false at index 11") {
-          assertFalse(dependencyTree.inNonProjectiveArc(11))
+          assertFalse(dependencyTree.isNonProjectiveArc(11))
         }
       }
 
