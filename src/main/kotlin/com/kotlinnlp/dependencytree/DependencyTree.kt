@@ -248,10 +248,12 @@ class DependencyTree(val size: Int) {
   }
 
   /**
-   * @param dependent an element of the tree
-   * @param governor an element of the tree
+   * Check if an arc between two elements introduces a cycle.
    *
-   * @return a Boolean indicating whether the arc between the given [dependent] and [governor] introduces cycle
+   * @param dependent the dependent element of the arc
+   * @param governor the governor element of the arc
+   *
+   * @return a Boolean indicating whether the arc between the given [dependent] and [governor] introduces a cycle
    */
   fun checkCycleWith(dependent: Int, governor: Int)
     = dependent == governor || this.anyAncestor(governor) { it == dependent }
