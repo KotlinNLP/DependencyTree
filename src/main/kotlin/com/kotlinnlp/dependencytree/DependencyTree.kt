@@ -148,20 +148,6 @@ class DependencyTree(val size: Int) {
   }
 
   /**
-   * Add the given [dependent] to the [leftDependents] or [rightDependents] of the given [governor].
-   *
-   * @param dependent an element of the tree
-   * @param governor an element of the tree
-   */
-  fun addDependent(dependent: Int, governor: Int) {
-    if (dependent < governor) {
-      this.leftDependents[governor].add(dependent)
-    } else {
-      this.rightDependents[governor].add(dependent)
-    }
-  }
-
-  /**
    * Set a [deprel] to the given [dependent].
    *
    * @param dependent an element of the tree
@@ -419,4 +405,18 @@ class DependencyTree(val size: Int) {
    * @return the hash code of this [DependencyTree]
    */
   override fun hashCode(): Int = this.heads.hashCode() * 8191 + this.deprels.hashCode()
+
+  /**
+   * Add the given [dependent] to the [leftDependents] or [rightDependents] of the given [governor].
+   *
+   * @param dependent an element of the tree
+   * @param governor an element of the tree
+   */
+  private fun addDependent(dependent: Int, governor: Int) {
+    if (dependent < governor) {
+      this.leftDependents[governor].add(dependent)
+    } else {
+      this.rightDependents[governor].add(dependent)
+    }
+  }
 }
