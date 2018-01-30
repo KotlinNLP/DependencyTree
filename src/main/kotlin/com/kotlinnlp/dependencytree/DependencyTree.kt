@@ -144,7 +144,7 @@ class DependencyTree(val size: Int) {
     this.heads[dependent] = governor
     this.deprels[dependent] = deprel
     this.posTags[dependent] = posTag
-    this.addDependent(dependent, governor = governor)
+    this.addDependent(dependent = dependent, governor = governor)
   }
 
   /**
