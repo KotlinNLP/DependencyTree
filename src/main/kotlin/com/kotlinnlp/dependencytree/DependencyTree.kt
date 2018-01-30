@@ -417,13 +417,28 @@ class DependencyTree(val size: Int) {
 
       if (elm !in visited) {
 
-        val ancestors = this.getAncestors(elm)
+        var head: Int? = this.heads[elm]
 
-        val cycle: Path? = this.getCycle(element = elm, ancestors = ancestors)
-        if (cycle != null) cycles.add(cycle)
+        if (head != null && head !in visited) {
 
-        visited.add(elm)
-        visited.addAll(ancestors)
+          val visitedHeads = mutableSetOf(elm)
+
+          while (head != null && head !in visitedHeads) {
+
+            visitedHeads.add(head)
+
+            head = this.heads[head]
+          }
+
+          if (head != null && head in visitedHeads) {
+            cycles.add(this.getCycle(startElement = head))
+          }
+
+          visited.addAll(visitedHeads)
+
+        } else {
+          visited.add(elm)
+        }
       }
     }
 
@@ -518,41 +533,26 @@ class DependencyTree(val size: Int) {
   }
 
   /**
-   * @param element an element of this tree
+   * @param startElement the start element of a cycle
    *
-   * @return the ancestors of the given element
+   * @return the cycle path built starting from [startElement]
    */
-  private fun getAncestors(element: Int): List<Int> {
+  private fun getCycle(startElement: Int): Path {
 
-    val ancestors = mutableListOf<Int>()
+    val cycle = mutableListOf<Arc>()
+    var head: Int = this.heads[startElement]!!
 
-    this.forEachAncestor(element) { it -> ancestors.add(it) }
+    cycle.add(Arc(dependent = startElement, governor = head))
 
-    return ancestors.toList()
-  }
+    while (head != startElement) {
 
-  /**
-   * @param element an element of this tree
-   * @param ancestors the ancestors if
-   *
-   * @return the cycle path that starts from the given [element] or null if the element is not involved in a cycle
-   */
-  private fun getCycle(element: Int, ancestors: List<Int>): Path? {
+      val nextHead: Int = this.heads[head]!!
 
-    return if (ancestors.isNotEmpty() && ancestors.last() == element) {
+      cycle.add(Arc(dependent = head, governor = nextHead))
 
-      val cycle = mutableListOf<Arc>()
-      var dependent: Int = element
-
-      ancestors.forEach { governor ->
-        cycle.add(Arc(dependent = dependent, governor = governor))
-        dependent = governor
-      }
-
-      return Path(cycle)
-
-    } else {
-      null
+      head = nextHead
     }
+
+    return Path(cycle)
   }
 }
