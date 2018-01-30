@@ -18,4 +18,4 @@ class CycleDetectedError : RuntimeException()
  * @param dependent the dependent of the arc
  * @param governor the governor of the arc
  */
-class InvalidArc(dependent: Int, governor: Int) : RuntimeException(message = "$dependent <- $governor")
+class InvalidArc(dependent: Int, governor: Int) : RuntimeException("$dependent <- $governor")
