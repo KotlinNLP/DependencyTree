@@ -322,9 +322,11 @@ class DependencyTree(val size: Int) {
   fun isProjective(): Boolean = !this.isNonProjective()
 
   /**
-   * @return a Boolean indicating whether the forest contains a single directed acyclic graph
+   * Whether this tree is a fully-connected directed acyclic graph (DAG).
+   *
+   * @return a Boolean indicating if this tree is a fully-connected directed acyclic graph
    */
-  fun isTree(): Boolean = this.hasSingleRoot() && !this.containsCycle()
+  fun isDAG(): Boolean = this.hasSingleRoot() && !this.containsCycle()
 
   /**
    * The projective order is a canonical (re)ordering of the elements for which the tree is projective.
@@ -349,7 +351,7 @@ class DependencyTree(val size: Int) {
       return results
     }
 
-    require(this.isTree()) { "Required a single directed acyclic graph."}
+    require(this.isDAG()) { "Required a single directed acyclic graph."}
 
     return helper(this.roots.first())
   }
