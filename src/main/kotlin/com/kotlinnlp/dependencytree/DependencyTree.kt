@@ -281,11 +281,20 @@ class DependencyTree(val size: Int) {
 
       if (elm !in visited) {
 
-        this.forEachAncestor(elm) { it -> visited.add(it) }
+        var head: Int? = this.heads[elm]
+        val visitedHeads = mutableSetOf<Int>()
 
-        if (visited.isNotEmpty() && visited.last() == elm) return true
+        while (head != null) {
+
+          if (head in visitedHeads) return true
+
+          visitedHeads.add(head)
+
+          head = this.heads[head]
+        }
 
         visited.add(elm)
+        visited.addAll(visitedHeads)
       }
     }
 
