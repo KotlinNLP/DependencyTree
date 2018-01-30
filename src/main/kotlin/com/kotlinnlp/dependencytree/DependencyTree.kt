@@ -218,22 +218,31 @@ class DependencyTree(val size: Int) {
   }
 
   /**
-   * Check if the tree contains cycle.
+   * @param candidateAncestor an element of the tree
+   * @param element an element of the tree
    *
-   * Implementation note: in an acyclic tree, the path from each word following the head relation upwards always ends
-   * at the root node.
+   * @return a Boolean indicating whether the given [candidateAncestor] is the ancestor of the given [element]
+   */
+  fun isAncestorOf(candidateAncestor: Int, element: Int) = this.anyAncestor(element) { it == candidateAncestor }
+
+  /**
+   * Check if the tree contains cycles.
    *
    * @return a Boolean indicating whether the tree contains cycles
    */
   fun containsCycle(): Boolean {
 
-    this.elements.forEach { index ->
+    val visited = mutableSetOf<Int>()
 
-      try {
-        this.forEachAncestor(index)
+    this.elements.forEach { elm ->
 
-      } catch (e: CycleDetectedError) {
-        return true
+      if (elm !in visited) {
+
+        this.forEachAncestor(elm) { it -> visited.add(it) }
+
+        if (visited.isNotEmpty() && visited.last() == elm) return true
+
+        visited.add(elm)
       }
     }
 
@@ -277,14 +286,6 @@ class DependencyTree(val size: Int) {
       middleElements.any { !this.isAncestorOf(candidateAncestor = head, element = it) }
     }
   }
-
-  /**
-   * @param candidateAncestor an element of the tree
-   * @param element an element of the tree
-   *
-   * @return a Boolean indicating whether the given [candidateAncestor] is the ancestor of the given [element]
-   */
-  fun isAncestorOf(candidateAncestor: Int, element: Int) = this.anyAncestor(element) { it == candidateAncestor }
 
   /**
    * @param element an element of the tree
