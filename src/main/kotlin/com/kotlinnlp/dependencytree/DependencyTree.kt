@@ -215,13 +215,13 @@ class DependencyTree(val size: Int) {
   fun forEachAncestor(element: Int, callback: ((Int) -> Unit)? = null) {
 
     var head: Int? = this@DependencyTree.heads[element]
-    var firstHead: Int? = null
+    val visited = mutableSetOf<Int>()
 
-    while (head != null && head != firstHead) {
-
-      if (firstHead == null) firstHead = head
+    while (head != null && head !in visited) {
 
       callback?.invoke(head)
+
+      visited.add(head)
 
       head = this@DependencyTree.heads[head]
     }
@@ -239,13 +239,13 @@ class DependencyTree(val size: Int) {
   fun anyAncestor(element: Int, callback: (Int?) -> Boolean): Boolean {
 
     var head: Int? = this@DependencyTree.heads[element]
-    var firstHead: Int? = null
+    val visited = mutableSetOf<Int>()
 
-    while (head != null && head != firstHead) {
-
-      if (firstHead == null) firstHead = head
+    while (head != null && head !in visited) {
 
       if (callback(head)) return true
+
+      visited.add(head)
 
       head = this@DependencyTree.heads[head]
     }
