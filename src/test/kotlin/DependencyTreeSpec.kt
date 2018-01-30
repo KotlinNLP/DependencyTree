@@ -43,6 +43,13 @@ class DependencyTreeSpec : Spek({
         }
       }
 
+      on("getCycles") {
+
+        it("should return no cycles") {
+          assertTrue { dependencyTree.getCycles().isEmpty() }
+        }
+      }
+
       on("toString") {
 
         val expectedString = """
@@ -83,6 +90,20 @@ class DependencyTreeSpec : Spek({
 
         it("should return true") {
           assertTrue { dependencyTree.containsCycle() }
+        }
+      }
+
+      on("getCycles") {
+
+        it("should return the expected cycles") {
+
+          assertEquals(dependencyTree.getCycles(), listOf(
+            DependencyTree.Path(arcs = listOf(
+              DependencyTree.Arc(dependent = 1, governor = 2),
+              DependencyTree.Arc(dependent = 2, governor = 4),
+              DependencyTree.Arc(dependent = 4, governor = 1)
+            )))
+          )
         }
       }
 
@@ -147,6 +168,13 @@ class DependencyTreeSpec : Spek({
 
         it("should return false") {
           assertFalse { dependencyTree.containsCycle() }
+        }
+      }
+
+      on("getCycles") {
+
+        it("should return no cycles") {
+          assertTrue { dependencyTree.getCycles().isEmpty() }
         }
       }
 
@@ -223,6 +251,13 @@ class DependencyTreeSpec : Spek({
 
         it("should return false") {
           assertFalse { dependencyTree.containsCycle() }
+        }
+      }
+
+      on("getCycles") {
+
+        it("should return no cycles") {
+          assertTrue { dependencyTree.getCycles().isEmpty() }
         }
       }
 
@@ -371,6 +406,13 @@ class DependencyTreeSpec : Spek({
 
         it("should return false") {
           assertFalse { dependencyTree.containsCycle() }
+        }
+      }
+
+      on("getCycles") {
+
+        it("should return no cycles") {
+          assertTrue { dependencyTree.getCycles().isEmpty() }
         }
       }
 
