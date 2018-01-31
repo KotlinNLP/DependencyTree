@@ -119,20 +119,6 @@ class DependencyTree(val size: Int) {
   fun hasSingleRoot(): Boolean = this.roots.size == 1
 
   /**
-   * @param element an element of the tree
-   *
-   * @return a Boolean indicating whether the [element] isn't in the [roots]
-   */
-  fun isAssigned(element: Int): Boolean = element !in this.roots
-
-  /**
-   * @param element an element of the tree
-   *
-   * @return a Boolean indicating whether the [element] is in the [roots]
-   */
-  fun isNotAssigned(element: Int): Boolean = element in this.roots
-
-  /**
    * Set a new arc between a given [dependent] and [governor], possibly with a [deprel] and a [posTag].
    *
    * @param dependent an element of the tree
@@ -266,7 +252,23 @@ class DependencyTree(val size: Int) {
    *
    * @return a Boolean indicating whether the given [element] is a root
    */
-  fun isRoot(element: Int) = element in this.roots
+  fun isRoot(element: Int) = this.heads[element] == null
+
+  /**
+   * Whether an element has a head.
+   *
+   * @param element an element of the tree
+   *
+   * @return a Boolean indicating whether the [element] has a head
+   */
+  fun isAssigned(element: Int): Boolean = !this.isRoot(element)
+
+  /**
+   * @param element an element of the tree
+   *
+   * @return a Boolean indicating whether the [element] has not a head
+   */
+  fun isNotAssigned(element: Int): Boolean = this.isRoot(element)
 
   /**
    * Check if the tree contains cycles.
