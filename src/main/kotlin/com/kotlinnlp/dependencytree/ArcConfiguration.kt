@@ -13,9 +13,11 @@ package com.kotlinnlp.dependencytree
  * @property dependent an element of the tree
  * @property governor an element of the tree
  * @property deprel the syntactic relation that connects the [dependent] with the [governor] (can be null)
+ * @property attachmentScore the attachment score (default = 0.0)
  */
 data class ArcConfiguration(
   val dependent: Int,
   val governor: Int,
-  override val deprel: Deprel? = null
+  override val deprel: Deprel? = null,
+  override val attachmentScore: Double = 0.0
 ) : DependencyConfiguration

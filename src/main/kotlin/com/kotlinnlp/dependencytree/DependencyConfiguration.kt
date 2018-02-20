@@ -16,4 +16,9 @@ interface DependencyConfiguration {
    * The Dependency Relation (can be null)
    */
   val deprel: Deprel?
+
+  /**
+   * The attachment score.
+   */
+  val attachmentScore: Double
 }

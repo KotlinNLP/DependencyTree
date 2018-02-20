@@ -12,5 +12,10 @@ package com.kotlinnlp.dependencytree
  *
  * @property id an element of the tree
  * @property deprel the dependency relation of the top of the tree (can be null)
+ * @property attachmentScore the attachment score (default = 0.0)
  */
-data class RootConfiguration(val id: Int, override val deprel: Deprel? = null) : DependencyConfiguration
+data class RootConfiguration(
+  val id: Int,
+  override val deprel: Deprel? = null,
+  override val attachmentScore: Double = 0.0
+) : DependencyConfiguration
