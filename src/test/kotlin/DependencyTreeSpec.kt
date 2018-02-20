@@ -37,6 +37,13 @@ class DependencyTreeSpec : Spek({
         }
       }
 
+      on("attachment scores") {
+
+        it("should have the expected default attachment scores") {
+          assertTrue { dependencyTree.attachmentScores.all { it == 0.0 } }
+        }
+      }
+
       on("containsCycle") {
 
         it("should return false") {
@@ -127,6 +134,38 @@ class DependencyTreeSpec : Spek({
       }
     }
 
+    context("pre-initialized with attachment scores") {
+
+      val dependencyTree = DependencyTree(
+        size = 5,
+        dependencies = listOf(
+          ArcConfiguration(1, 0, attachmentScore = 0.5),
+          ArcConfiguration(2, 0, attachmentScore = 0.2),
+          ArcConfiguration(3, 4, attachmentScore = 0.7),
+          ArcConfiguration(4, 0, attachmentScore = 0.3)
+        ))
+
+      it("should contain the expected attachment score of the element 0") {
+        assertEquals(0.0, dependencyTree.attachmentScores[0])
+      }
+
+      it("should contain the expected attachment score of the element 1") {
+        assertEquals(0.5, dependencyTree.attachmentScores[1])
+      }
+
+      it("should contain the expected attachment score of the element 2") {
+        assertEquals(0.2, dependencyTree.attachmentScores[2])
+      }
+
+      it("should contain the expected attachment score of the element 3") {
+        assertEquals(0.7, dependencyTree.attachmentScores[3])
+      }
+
+      it("should contain the expected attachment score of the element 4") {
+        assertEquals(0.3, dependencyTree.attachmentScores[4])
+      }
+    }
+
     /**
      * id    |   0    1    2    3    4
      * head  |  -1    0    0    4    0
@@ -144,6 +183,10 @@ class DependencyTreeSpec : Spek({
 
       it("should have the expected root") {
         assertEquals(listOf(0), dependencyTree.roots)
+      }
+
+      it("should have the expected default attachment scores") {
+        assertTrue { dependencyTree.attachmentScores.all { it == 0.0 } }
       }
 
       on("hasSingleRoot") {
@@ -253,7 +296,6 @@ class DependencyTreeSpec : Spek({
         }
       }
     }
-
 
     /**
      * id    |   0    1    2    3    4
