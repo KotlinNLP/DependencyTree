@@ -45,6 +45,7 @@ class DependencyTree(val size: Int) {
             dependent = it.dependent,
             governor = it.governor,
             deprel = it.deprel,
+            score = it.attachmentScore,
             allowCycle = allowCycles)
         }
       }
@@ -92,6 +93,11 @@ class DependencyTree(val size: Int) {
   val posTags = arrayOfNulls<POSTag>(size = this.size)
 
   /**
+   * List of attachment scores, one for each dependent element (also roots can have it), default = 0.0.
+   */
+  val attachmentScores = Array(size = this.size, init = { 0.0 })
+
+  /**
    * The list of left dependents for each element. In case of no dependents the list is empty.
    */
   val leftDependents = Array(size = this.size, init = { ArrayList<Int>() } )
@@ -125,6 +131,7 @@ class DependencyTree(val size: Int) {
    * @param governor an element of the tree
    * @param deprel a deprel (can be null)
    * @param posTag a posTag (can be null)
+   * @param score the attachment score (default = 0.0)
    * @param allowCycle if true it allows to create cycles setting this arc (default = false)
    *
    * @throws CycleDetectedError if [allowCycle] is false and this arc introduces a cycle
@@ -133,6 +140,7 @@ class DependencyTree(val size: Int) {
              governor: Int,
              deprel: Deprel? = null,
              posTag: POSTag? = null,
+             score: Double = 0.0,
              allowCycle: Boolean = false) {
 
     require(governor in 0 until this.size) { "Governor [$governor] out of range 0 .. ${this.elements.last}" }
@@ -145,6 +153,7 @@ class DependencyTree(val size: Int) {
     this.heads[dependent] = governor
     this.deprels[dependent] = deprel
     this.posTags[dependent] = posTag
+    this.attachmentScores[dependent] = score
     this.addDependent(dependent = dependent, governor = governor)
   }
 
@@ -167,6 +176,7 @@ class DependencyTree(val size: Int) {
     this.heads[dependent] = null
     this.deprels[dependent] = null
     this.posTags[dependent] = null
+    this.attachmentScores[dependent] = 0.0
     this.removeDependent(dependent = dependent, governor = governor)
   }
 
@@ -176,8 +186,7 @@ class DependencyTree(val size: Int) {
    * @param dependent an element of the tree
    * @param deprel a Deprel
    */
-  fun setDeprel(dependent: Int, deprel: Deprel){
-
+  fun setDeprel(dependent: Int, deprel: Deprel) {
     this.deprels[dependent] = deprel
   }
 
@@ -187,9 +196,20 @@ class DependencyTree(val size: Int) {
    * @param dependent an element of the tree
    * @param posTag a POS tag
    */
-  fun setPosTag(dependent: Int, posTag: POSTag){
-
+  fun setPosTag(dependent: Int, posTag: POSTag) {
     this.posTags[dependent] = posTag
+  }
+
+  /**
+   * Set an attachment to the given [dependent].
+   *
+   * It is required that the given [dependent] has an head assigned.
+   *
+   * @param dependent an element of the tree
+   * @param score the score to assign
+   */
+  fun setAttachmentScore(dependent: Int, score: Double) {
+    this.attachmentScores[dependent] = score
   }
 
   /**
@@ -479,6 +499,7 @@ class DependencyTree(val size: Int) {
     this.heads.forEachIndexed { index, head -> tree.heads[index] = head }
     this.deprels.forEachIndexed { index, deprel -> tree.deprels[index] = deprel }
     this.posTags.forEachIndexed { index, posTag -> tree.posTags[index] = posTag }
+    this.attachmentScores.forEachIndexed { index, score -> tree.attachmentScores[index] = score }
     this.leftDependents.forEachIndexed { index, dependent -> tree.leftDependents[index] = dependent }
     this.rightDependents.forEachIndexed { index, dependent -> tree.rightDependents[index] = dependent }
 
