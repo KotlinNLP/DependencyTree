@@ -15,7 +15,7 @@ import kotlin.collections.ArrayList
  *
  * @property size
  */
-class DependencyTree(val size: Int) {
+open class DependencyTree(val size: Int) {
 
   companion object {
 
