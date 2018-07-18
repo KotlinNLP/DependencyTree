@@ -14,9 +14,9 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 /**
- * [DependencyTree] contains convenient methods to build and navigate a dependency tree.
+ * [DependencyTree] contains methods to build and navigate a dependency tree.
  *
- * @property size
+ * @property size the number of elements into the tree
  */
 class DependencyTree(val size: Int) {
 
