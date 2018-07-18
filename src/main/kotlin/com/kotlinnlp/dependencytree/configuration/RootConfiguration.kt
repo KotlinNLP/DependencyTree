@@ -5,7 +5,9 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
-package com.kotlinnlp.dependencytree
+package com.kotlinnlp.dependencytree.configuration
+
+import com.kotlinnlp.dependencytree.Deprel
 
 /**
  * RootConfiguration

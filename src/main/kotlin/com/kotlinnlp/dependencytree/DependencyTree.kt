@@ -7,6 +7,9 @@
 
 package com.kotlinnlp.dependencytree
 
+import com.kotlinnlp.dependencytree.configuration.ArcConfiguration
+import com.kotlinnlp.dependencytree.configuration.DependencyConfiguration
+import com.kotlinnlp.dependencytree.configuration.RootConfiguration
 import java.util.*
 import kotlin.collections.ArrayList
 
