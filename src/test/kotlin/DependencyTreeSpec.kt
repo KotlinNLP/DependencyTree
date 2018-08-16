@@ -134,6 +134,10 @@ class DependencyTreeSpec : Spek({
       }
     }
 
+    /**
+     * id    |   0    1    2    3    4
+     * head  |  -1    0    0    4    0
+     */
     context("pre-initialized with attachment scores") {
 
       val dependencyTree = DependencyTree(
@@ -500,14 +504,14 @@ class DependencyTreeSpec : Spek({
               1 to 1,
               2 to 2,
               3 to 3,
-              9 to 4,
-              10 to 5,
-              11 to 6,
-              4 to 7,
-              5 to 8,
-              6 to 9,
-              7 to 10,
-              8 to 11),
+              7 to 4,
+              8 to 5,
+              9 to 6,
+              10 to 7,
+              11 to 8,
+              4 to 9,
+              5 to 10,
+              6 to 11),
             dependencyTree.elementsToInOrderIndex())
         }
       }
@@ -672,7 +676,7 @@ class DependencyTreeSpec : Spek({
 
     /**
      * id    |  0    1     2    3     4   5   6   7   8   9    10     11
-     * head  |  2    2    -1    2     6   6   2   8   3   8    11     8
+     * head  |  2    2    -1    2     6   6   2   8   3   8    11     3
      */
     context("pre-initialized with overlapping 'continue' string paddings") {
 
@@ -693,7 +697,7 @@ class DependencyTreeSpec : Spek({
           ArcConfiguration(11, 3)
         ))
 
-      on("toString(words)") {
+      on("toString") {
 
         val expectedString = """
           2 _ _
