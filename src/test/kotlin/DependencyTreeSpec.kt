@@ -24,7 +24,7 @@ import kotlin.test.assertTrue
  */
 class DependencyTreeSpec : Spek({
 
-  describe("a DependencyTree") {
+  describe("a DependencyTree built with the size") {
 
     context("not initialized") {
 
@@ -712,6 +712,706 @@ class DependencyTreeSpec : Spek({
           +--r 6 _ _
                +--l 4 _ _
                +--l 5 _ _
+          """.trimIndent()
+
+        it("should return the expected string") {
+          assertEquals(expectedString, dependencyTree.toString())
+        }
+      }
+    }
+  }
+
+  describe("a DependencyTree built with a list of elements") {
+
+    context("not initialized") {
+
+      val dependencyTree = DependencyTree(elements = listOf(5, 89, 13, 67, 69))
+
+      on("roots") {
+
+        it("should have the expected roots") {
+          assertEquals(listOf(5, 89, 13, 67, 69), dependencyTree.roots)
+        }
+      }
+
+      on("attachment scores") {
+
+        it("should have the expected default attachment scores") {
+          assertTrue { dependencyTree.attachmentScores.values.all { it == 0.0 } }
+        }
+      }
+
+      on("containsCycle") {
+
+        it("should return false") {
+          assertFalse { dependencyTree.containsCycle() }
+        }
+      }
+
+      on("getCycles") {
+
+        it("should return no cycles") {
+          assertTrue { dependencyTree.getCycles().isEmpty() }
+        }
+      }
+
+      on("toString") {
+
+        val expectedString = """
+          5 _ _
+
+          89 _ _
+
+          13 _ _
+
+          67 _ _
+
+          69 _ _
+          """.trimIndent()
+
+        it("should return the expected string") {
+          assertEquals(expectedString, dependencyTree.toString())
+        }
+      }
+    }
+
+    /**
+     * id    |   5   89   13   67   69
+     * head  |  -1   13   69   13   67
+     */
+    context("pre-initialized with a cycle") {
+
+      val dependencyTree = DependencyTree(
+        elements = listOf(5, 89, 13, 67, 69),
+        dependencies = listOf(
+          ArcConfiguration(89, 13),
+          ArcConfiguration(13, 69),
+          ArcConfiguration(67, 13),
+          ArcConfiguration(69, 67)
+        ),
+        allowCycles = true)
+
+      on("containsCycle") {
+
+        it("should return true") {
+          assertTrue { dependencyTree.containsCycle() }
+        }
+      }
+
+      on("getCycles") {
+
+        it("should return the expected cycles") {
+
+          assertEquals(dependencyTree.getCycles(), listOf(
+            DependencyTree.Path(arcs = listOf(
+              DependencyTree.Arc(dependent = 13, governor = 69),
+              DependencyTree.Arc(dependent = 69, governor = 67),
+              DependencyTree.Arc(dependent = 67, governor = 13)
+            )))
+          )
+        }
+      }
+
+      on("anyAncestor") {
+
+        it("should return true on its ancestor condition") {
+          assertTrue { dependencyTree.anyAncestor(13) { it == 13 } }
+        }
+      }
+
+      on("isRoot") {
+
+        it("should return true on a root element") {
+          assertTrue { dependencyTree.isRoot(5) }
+        }
+
+        it("should return false on a non-root element") {
+          assertFalse { dependencyTree.isRoot(89) }
+        }
+      }
+    }
+
+    /**
+     * id    |   5   89   13   67   69
+     * head  |  -1    5    5   69    5
+     */
+    context("pre-initialized with attachment scores") {
+
+      val dependencyTree = DependencyTree(
+        elements = listOf(5, 89, 13, 67, 69),
+        dependencies = listOf(
+          ArcConfiguration(89, 5, attachmentScore = 0.5),
+          ArcConfiguration(13, 5, attachmentScore = 0.2),
+          ArcConfiguration(67, 69, attachmentScore = 0.7),
+          ArcConfiguration(69, 5, attachmentScore = 0.3)
+        ))
+
+      it("should contain the expected attachment score of the element 5") {
+        assertEquals(0.0, dependencyTree.getAttachmentScore(5))
+      }
+
+      it("should contain the expected attachment score of the element 89") {
+        assertEquals(0.5, dependencyTree.getAttachmentScore(89))
+      }
+
+      it("should contain the expected attachment score of the element 13") {
+        assertEquals(0.2, dependencyTree.getAttachmentScore(13))
+      }
+
+      it("should contain the expected attachment score of the element 67") {
+        assertEquals(0.7, dependencyTree.getAttachmentScore(67))
+      }
+
+      it("should contain the expected attachment score of the element 69") {
+        assertEquals(0.3, dependencyTree.getAttachmentScore(69))
+      }
+    }
+
+    /**
+     * id    |   5   89   13   67   69
+     * head  |  -1    5    5   69    5
+     */
+    context("pre-initialized with a single root") {
+
+      val dependencyTree = DependencyTree(
+        elements = listOf(5, 89, 13, 67, 69),
+        dependencies = listOf(
+          ArcConfiguration(89, 5),
+          ArcConfiguration(13, 5),
+          ArcConfiguration(67, 69),
+          ArcConfiguration(69, 5)
+        ))
+
+      it("should have the expected root") {
+        assertEquals(listOf(5), dependencyTree.roots)
+      }
+
+      it("should have the expected default attachment scores") {
+        assertTrue { dependencyTree.attachmentScores.values.all { it == 0.0 } }
+      }
+
+      on("hasSingleRoot") {
+
+        it("should return true"){
+          assertTrue { dependencyTree.hasSingleRoot() }
+        }
+      }
+
+      on("isRoot") {
+
+        it("should return true on a root element") {
+          assertTrue { dependencyTree.isRoot(5) }
+        }
+
+        it("should return false on a non-root element") {
+          assertFalse { dependencyTree.isRoot(89) }
+        }
+      }
+
+      on ("isDAG") {
+
+        it("should return true") {
+
+          assertTrue { dependencyTree.isDAG() }
+        }
+      }
+
+      on("containsCycle") {
+
+        it("should return false") {
+          assertFalse { dependencyTree.containsCycle() }
+        }
+      }
+
+      on("getCycles") {
+
+        it("should return no cycles") {
+          assertTrue { dependencyTree.getCycles().isEmpty() }
+        }
+      }
+
+      on("introduceCycle") {
+
+        it("should detect the introduction of a cycle") {
+          assertTrue { dependencyTree.introduceCycle(dependent = 69, governor = 67) }
+        }
+      }
+
+      on("toString") {
+
+        val expectedString = """
+          5 _ _
+          +--r 89 _ _
+          +--r 13 _ _
+          +--r 69 _ _
+               +--l 67 _ _
+          """.trimIndent()
+
+        it("should return the expected string") {
+          assertEquals(expectedString, dependencyTree.toString())
+        }
+      }
+    }
+
+    /**
+     * id    |   5   89   13   67   69   ->   5   89   13   67   69
+     * head  |  -1    5    5   69    5       -1    5   -1   69    5
+     */
+    context("pre-initialized with a single root (removing arcs)") {
+
+      val dependencyTree = DependencyTree(
+        elements = listOf(5, 89, 13, 67, 69),
+        dependencies = listOf(
+          ArcConfiguration(89, 5),
+          ArcConfiguration(13, 5),
+          ArcConfiguration(67, 69),
+          ArcConfiguration(69, 5)
+        ))
+
+      on("removing the arc between 13 and 5") {
+
+        dependencyTree.removeArc(dependent = 13, governor = 5)
+
+        it("should contain no single root") {
+          assertFalse { dependencyTree.hasSingleRoot() }
+        }
+
+        it("should contain 2 as new root") {
+          assertTrue { dependencyTree.isRoot(13) }
+        }
+
+        it("should return null as head of 13") {
+          assertNull(dependencyTree.heads[13])
+        }
+
+        it("should return null as deprel of 13") {
+          assertNull(dependencyTree.deprels[13])
+        }
+
+        it("should return null as POS tag of 13") {
+          assertNull(dependencyTree.posTags[13])
+        }
+
+        it("should not contain 13 as dependent of 5") {
+          assertFalse { 13 in dependencyTree.getDependents(5) }
+        }
+      }
+    }
+
+    /**
+     * id    |   5   89   13   67   69
+     * head  |  -1    5   89   69   -1
+     */
+    context("pre-initialized with two roots") {
+
+      val dependencyTree = DependencyTree(
+        elements = listOf(5, 89, 13, 67, 69),
+        dependencies = listOf(
+          RootConfiguration(5, deprel = Deprel(label = "VERB", direction = Deprel.Position.ROOT)),
+          ArcConfiguration(89, 5, deprel = Deprel(label = "SUBJ", direction = Deprel.Position.RIGHT)),
+          ArcConfiguration(13, 89, deprel = null),
+          ArcConfiguration(67, 69, deprel = Deprel(label = "PRON", direction = Deprel.Position.LEFT)),
+          RootConfiguration(69, deprel = Deprel(label = "VERB", direction = Deprel.Position.ROOT))
+        ))
+
+      it("should have the expected root") {
+        assertEquals(listOf(5, 69), dependencyTree.roots)
+      }
+
+      on("hasSingleRoot") {
+
+        it("should return true"){
+          assertFalse { dependencyTree.hasSingleRoot() }
+        }
+      }
+
+      on("isRoot") {
+
+        it("should return true on a root element") {
+          assertTrue { dependencyTree.isRoot(69) }
+        }
+
+        it("should return false on a non-root element") {
+          assertFalse { dependencyTree.isRoot(89) }
+        }
+      }
+
+      on ("isDAG") {
+
+        it("should return false") {
+
+          assertFalse { dependencyTree.isDAG() }
+        }
+      }
+
+      on("containsCycle") {
+
+        it("should return false") {
+          assertFalse { dependencyTree.containsCycle() }
+        }
+      }
+
+      on("getCycles") {
+
+        it("should return no cycles") {
+          assertTrue { dependencyTree.getCycles().isEmpty() }
+        }
+      }
+
+      on("forEachAncestor") {
+
+        val ancestors = mutableListOf<Int>()
+
+        dependencyTree.forEachAncestor(13) { ancestors.add(it) }
+
+        it("should iterate over the expected ancestors of an element") {
+          assertEquals(ancestors.toList(), listOf(89, 5))
+        }
+      }
+
+      on("anyAncestor") {
+
+        it("should return true on its ancestor condition") {
+          assertTrue { dependencyTree.anyAncestor(13) { it == 5 } }
+        }
+
+        it("should return false on not ancestor condition") {
+          assertFalse { dependencyTree.anyAncestor(13) { it == 69 } }
+        }
+      }
+
+      on("isAncestorOf") {
+
+        it("should return true on its ancestor condition") {
+          assertTrue { dependencyTree.isAncestorOf(candidateAncestor = 5, element = 13) }
+        }
+
+        it("should return false on not ancestor condition") {
+          assertFalse { dependencyTree.isAncestorOf(candidateAncestor = 69, element = 13) }
+        }
+      }
+
+      on("introduceCycle") {
+
+        it("should detect the feasibility of an arc") {
+          assertFalse { dependencyTree.introduceCycle(dependent = 69, governor = 13) }
+        }
+
+        it("should detect the introduction of a cycle ") {
+          assertTrue { dependencyTree.introduceCycle(dependent = 5, governor = 13) }
+        }
+      }
+
+      on("isProjective") {
+
+        it("should return true") {
+
+          assertTrue { dependencyTree.isProjective() }
+        }
+      }
+
+      on("matchDeprels") {
+
+        it("should match the expected deprels") {
+
+          val testTree = DependencyTree(listOf(5, 89, 13, 67, 69))
+
+          testTree.setDeprel(dependent = 5, deprel = Deprel(label = "VERB", direction = Deprel.Position.ROOT))
+          testTree.setDeprel(dependent = 89, deprel = Deprel(label = "SUBJ", direction = Deprel.Position.RIGHT))
+          testTree.setDeprel(dependent = 67, deprel = Deprel(label = "PRON", direction = Deprel.Position.LEFT))
+          testTree.setDeprel(dependent = 69, deprel = Deprel(label = "VERB", direction = Deprel.Position.ROOT))
+
+          assertTrue { dependencyTree.matchDeprels(testTree) }
+        }
+      }
+
+      on("toString") {
+
+        val expectedString = """
+          5 _ VERB:ROOT
+          +--r 89 _ SUBJ:RIGHT
+               +--r 13 _ _
+
+          69 _ VERB:ROOT
+          +--l 67 _ PRON:LEFT
+          """.trimIndent()
+
+        it("should return the expected string") {
+          assertEquals(expectedString, dependencyTree.toString())
+        }
+      }
+    }
+
+    /**
+     * token | You cannot put flavor into a bean that is not already there
+     * id    |  5    89   13    67    69  97  15   3  45  77   14     52
+     * head  |  13   13   -1    13    15  15  13  45  67  45   52     45
+     */
+    context("pre-initialized with non-projective arcs") {
+
+      val dependencyTree = DependencyTree(
+        elements = listOf(5, 89, 13, 67, 69, 97, 15, 3, 45, 77, 14, 52),
+        dependencies = listOf(
+          ArcConfiguration(5, 13),
+          ArcConfiguration(89, 13),
+          RootConfiguration(13),
+          ArcConfiguration(67, 13),
+          ArcConfiguration(69, 15),
+          ArcConfiguration(97, 15),
+          ArcConfiguration(15, 13),
+          ArcConfiguration(3, 45),
+          ArcConfiguration(45, 67),
+          ArcConfiguration(77, 45),
+          ArcConfiguration(14, 52),
+          ArcConfiguration(52, 45)
+        ))
+
+      on("isRoot") {
+
+        it("should return true on a root element") {
+          assertTrue { dependencyTree.isRoot(13) }
+        }
+
+        it("should return false on a non-root element") {
+          assertFalse { dependencyTree.isRoot(15) }
+        }
+      }
+
+      on ("isDAG") {
+
+        it("should return true") {
+
+          assertTrue { dependencyTree.isDAG() }
+        }
+      }
+
+      on("inOrder") {
+
+        it("should return the expected list") {
+          assertEquals(listOf(5, 89, 13, 67, 3, 45, 77, 14, 52, 69, 97, 15), dependencyTree.inOrder())
+        }
+      }
+
+      on("elementsToInOrderIndex") {
+
+        it("should return the expected list") {
+          assertEquals(
+            mapOf(
+              5 to 0,
+              89 to 1,
+              13 to 2,
+              67 to 3,
+              3 to 4,
+              45 to 5,
+              77 to 6,
+              14 to 7,
+              52 to 8,
+              69 to 9,
+              97 to 10,
+              15 to 11),
+            dependencyTree.elementsToInOrderIndex())
+        }
+      }
+
+      on("containsCycle") {
+
+        it("should return false") {
+          assertFalse { dependencyTree.containsCycle() }
+        }
+      }
+
+      on("getCycles") {
+
+        it("should return no cycles") {
+          assertTrue { dependencyTree.getCycles().isEmpty() }
+        }
+      }
+
+      on("forEachAncestor") {
+
+        val ancestors = mutableListOf<Int>()
+
+        dependencyTree.forEachAncestor(14) { ancestors.add(it) }
+
+        it("should iterate over the expected ancestors of an element") {
+          assertEquals(ancestors.toList(), listOf(52, 45, 67, 13))
+        }
+
+        it("should return false on not ancestor condition") {
+          assertFalse { dependencyTree.anyAncestor(14) { it == 97 } }
+        }
+      }
+
+      on("anyAncestor") {
+
+        it("should return true on its ancestor condition") {
+          assertTrue { dependencyTree.anyAncestor(14) { it == 13 } }
+        }
+
+        it("should return false on not ancestor condition") {
+          assertFalse { dependencyTree.anyAncestor(14) { it == 97 } }
+        }
+      }
+
+      on("isAncestorOf") {
+
+        it("should return true on its ancestor condition") {
+          assertTrue { dependencyTree.isAncestorOf(candidateAncestor = 13, element = 14) }
+        }
+
+        it("should return false on not ancestor condition") {
+          assertFalse { dependencyTree.isAncestorOf(candidateAncestor = 97, element = 14) }
+        }
+      }
+
+      on("isNonProjectiveArc") {
+
+        it("should return false for the token 5") {
+          assertFalse(dependencyTree.isNonProjectiveArc(5))
+        }
+
+        it("should return false for the token 89") {
+          assertFalse(dependencyTree.isNonProjectiveArc(89))
+        }
+
+        it("should return false for the token 13") {
+          assertFalse(dependencyTree.isNonProjectiveArc(13))
+        }
+
+        it("should return false for the token 67") {
+          assertFalse(dependencyTree.isNonProjectiveArc(67))
+        }
+
+        it("should return false for the token 69") {
+          assertFalse(dependencyTree.isNonProjectiveArc(69))
+        }
+
+        it("should return false for the token 97") {
+          assertFalse(dependencyTree.isNonProjectiveArc(97))
+        }
+
+        it("should return false for the token 15") {
+          assertFalse(dependencyTree.isNonProjectiveArc(15))
+        }
+
+        it("should return false for the token 3") {
+          assertFalse(dependencyTree.isNonProjectiveArc(3))
+        }
+
+        it("should return false for the token 45") {
+          assertTrue(dependencyTree.isNonProjectiveArc(45))
+        }
+
+        it("should return false for the token 77") {
+          assertFalse(dependencyTree.isNonProjectiveArc(77))
+        }
+
+        it("should return false for the token 14") {
+          assertFalse(dependencyTree.isNonProjectiveArc(14))
+        }
+
+        it("should return false for the token 52") {
+          assertFalse(dependencyTree.isNonProjectiveArc(52))
+        }
+      }
+
+      on("isNonProjective") {
+
+        it("should return true") {
+
+          assertTrue { dependencyTree.isNonProjective() }
+        }
+      }
+
+      on("toString") {
+
+        val expectedString = """
+          13 _ _
+          +--l 5 _ _
+          +--l 89 _ _
+          +--r 67 _ _
+          |    +--r 45 _ _
+          |         +--l 3 _ _
+          |         +--r 77 _ _
+          |         +--r 52 _ _
+          |              +--l 14 _ _
+          +--r 15 _ _
+               +--l 69 _ _
+               +--l 97 _ _
+               """.trimIndent()
+
+        it("should return the expected string") {
+          assertEquals(expectedString, dependencyTree.toString())
+        }
+      }
+
+      on("toString(words)") {
+
+        val words = listOf("You", "cannot", "put", "flavor", "into", "a", "bean", "that", "is", "not", "already",
+          "there")
+
+        val expectedString = """
+          put _ _
+          +--l You _ _
+          +--l cannot _ _
+          +--r flavor _ _
+          |    +--r is _ _
+          |         +--l that _ _
+          |         +--r not _ _
+          |         +--r there _ _
+          |              +--l already _ _
+          +--r bean _ _
+               +--l into _ _
+               +--l a _ _
+          """.trimIndent()
+
+        it("should return the expected string") {
+          assertEquals(expectedString, dependencyTree.toString(words))
+        }
+      }
+    }
+
+    /**
+     * token | You cannot put flavor into a bean that is not already there
+     * id    |  5    89   13    67    69  97  15   3  45  77   14     52
+     * head  |  13   13   -1    13    15  15  13  45  67  45   52     67
+     */
+    context("pre-initialized with overlapping 'continue' string paddings") {
+
+      // 0  1  2  3  4  5  6 7  8  9 10 11
+      // 5 89 13 67 69 97 15 3 45 77 14 52
+      val dependencyTree = DependencyTree(
+        elements = listOf(5, 89, 13, 67, 69, 97, 15, 3, 45, 77, 14, 52),
+        dependencies = listOf(
+          ArcConfiguration(5, 13),
+          ArcConfiguration(89, 13),
+          RootConfiguration(13),
+          ArcConfiguration(67, 13),
+          ArcConfiguration(69, 15),
+          ArcConfiguration(97, 15),
+          ArcConfiguration(15, 13),
+          ArcConfiguration(3, 45),
+          ArcConfiguration(45, 67),
+          ArcConfiguration(77, 45),
+          ArcConfiguration(14, 52),
+          ArcConfiguration(52, 67)
+        ))
+
+      on("toString") {
+
+        val expectedString = """
+          13 _ _
+          +--l 5 _ _
+          +--l 89 _ _
+          +--r 67 _ _
+          |    +--r 45 _ _
+          |    |    +--l 3 _ _
+          |    |    +--r 77 _ _
+          |    +--r 52 _ _
+          |         +--l 14 _ _
+          +--r 15 _ _
+               +--l 69 _ _
+               +--l 97 _ _
           """.trimIndent()
 
         it("should return the expected string") {
