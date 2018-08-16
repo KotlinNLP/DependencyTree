@@ -23,17 +23,17 @@ class DependencyTree(val elements: List<Int>) {
     /**
      * Build a DependencyTree with a given list of [dependencies].
      *
-     * @param elementsIds the list of the ids of the elements in the dependency tree
+     * @param elements the list of the ids of the elements in the dependency tree
      * @param dependencies a list of [DependencyConfiguration]
      * @param allowCycles if true it allows to create cycles when building the tree (default = false)
      *
      * @return a new DependencyTree
      */
-    operator fun invoke(elementsIds: List<Int>,
+    operator fun invoke(elements: List<Int>,
                         dependencies: List<DependencyConfiguration>,
                         allowCycles: Boolean = false): DependencyTree {
 
-      val tree = DependencyTree(elementsIds)
+      val tree = DependencyTree(elements)
 
       dependencies.forEach {
         when  {
@@ -67,7 +67,7 @@ class DependencyTree(val elements: List<Int>) {
     operator fun invoke(size: Int,
                         dependencies: List<DependencyConfiguration>,
                         allowCycles: Boolean = false): DependencyTree = this(
-      elementsIds = IntRange(0, size - 1).toList(),
+      elements = IntRange(0, size - 1).toList(),
       dependencies = dependencies,
       allowCycles = allowCycles)
   }
