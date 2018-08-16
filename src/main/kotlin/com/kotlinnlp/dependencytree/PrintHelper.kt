@@ -13,7 +13,7 @@ package com.kotlinnlp.dependencytree
  * @param tree the dependency tree to print
  * @param words a list of words to associate to each element of the given [tree] (if null the ids are used)
  */
-class PrintHelper(private val tree: DependencyTree, private val words: List<String>? = null) {
+internal class PrintHelper(private val tree: DependencyTree, private val words: List<String>? = null) {
 
   /**
    * Enum class that defines the position of an element respect to its parent.
