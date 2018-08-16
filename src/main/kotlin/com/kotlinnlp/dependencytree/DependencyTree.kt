@@ -10,32 +10,30 @@ package com.kotlinnlp.dependencytree
 import com.kotlinnlp.dependencytree.configuration.ArcConfiguration
 import com.kotlinnlp.dependencytree.configuration.DependencyConfiguration
 import com.kotlinnlp.dependencytree.configuration.RootConfiguration
-import java.util.*
-import kotlin.collections.ArrayList
 
 /**
  * [DependencyTree] contains methods to build and navigate a dependency tree.
  *
- * @property size the number of elements into the tree
+ * @property elements the list of the elements in the dependency tree (each represented by an integer ID)
  */
-class DependencyTree(val size: Int) {
+class DependencyTree(val elements: List<Int>) {
 
   companion object {
 
     /**
-     * Initialize the DependencyTree with a given list of [dependencies].
+     * Build a DependencyTree with a given list of [dependencies].
      *
-     * @param size the number of elements in the tree
+     * @param elementsIds the list of the ids of the elements in the dependency tree
      * @param dependencies a list of [DependencyConfiguration]
      * @param allowCycles if true it allows to create cycles when building the tree (default = false)
      *
      * @return a new DependencyTree
      */
-    operator fun invoke(size: Int,
+    operator fun invoke(elementsIds: List<Int>,
                         dependencies: List<DependencyConfiguration>,
                         allowCycles: Boolean = false): DependencyTree {
 
-      val tree = DependencyTree(size)
+      val tree = DependencyTree(elementsIds)
 
       dependencies.forEach {
         when  {
@@ -55,7 +53,34 @@ class DependencyTree(val size: Int) {
 
       return tree
     }
+
+    /**
+     * Build a DependencyTree with a size.
+     * It will contain elements with sequential ids, from 0 to (size - 1).
+     *
+     * @param size the number of elements in the dependency tree
+     * @param dependencies a list of [DependencyConfiguration]
+     * @param allowCycles if true it allows to create cycles when building the tree (default = false)
+     *
+     * @return a new DependencyTree
+     */
+    operator fun invoke(size: Int,
+                        dependencies: List<DependencyConfiguration>,
+                        allowCycles: Boolean = false): DependencyTree = this(
+      elementsIds = IntRange(0, size - 1).toList(),
+      dependencies = dependencies,
+      allowCycles = allowCycles)
   }
+
+  /**
+   * Build a DependencyTree with a size.
+   * It will contain elements with sequential ids, from 0 to (size - 1).
+   *
+   * @param size the number of elements in the dependency tree
+   *
+   * @return a new DependencyTree
+   */
+  constructor(size: Int): this(IntRange(0, size - 1).toList())
 
   /**
    * An arc between two elements.
@@ -73,57 +98,124 @@ class DependencyTree(val size: Int) {
   data class Path(val arcs: List<Arc>)
 
   /**
-   * List of the elements of the tree, in linear order.
+   * The number of elements into the tree.
    */
-  val elements = IntRange(start = 0, endInclusive = this.size - 1)
+  val size: Int = this.elements.size
 
   /**
-   * List of heads, one per element.
+   * A map of elements to their ordinal position.
+   */
+  private val elementsToPosition: Map<Int, Int> = (0 until this.size).associate { this.elements[it] to it }
+
+  /**
+   * The map of elements to their heads.
    * Not assigned elements have null head.
    */
-  val heads = arrayOfNulls<Int>(size = this.size)
+  internal val heads: MutableMap<Int, Int?> = this.elements.associate { it to null }.toMutableMap()
 
   /**
-   * List of deprels, one per element.
+   * The map of elements to their deprels.
    * Not assigned elements have null deprel.
    */
-  val deprels = arrayOfNulls<Deprel>(size = this.size)
+  internal val deprels: MutableMap<Int, Deprel?> = this.elements.associate { it to null }.toMutableMap()
 
   /**
-   * List of POS tags, one per element.
+   * The map of elements to their POS tags.
    * Not assigned elements have null pos.
    */
-  val posTags = arrayOfNulls<POSTag>(size = this.size)
+  internal val posTags: MutableMap<Int, POSTag?> = this.elements.associate { it to null }.toMutableMap()
 
   /**
-   * List of attachment scores, one for each dependent element (also roots can have it), default = 0.0.
+   * The map of elements to their attachment scores (roots included, default = 0.0).
    */
-  val attachmentScores = Array(size = this.size, init = { 0.0 })
+  internal val attachmentScores: MutableMap<Int, Double> = this.elements.associate { it to 0.0 }.toMutableMap()
 
   /**
-   * The list of left dependents for each element. In case of no dependents the list is empty.
+   * The map of elements to their left dependents.
+   * In case of no dependents the list is empty.
    */
-  val leftDependents = Array(size = this.size, init = { ArrayList<Int>() } )
+  internal val leftDependents: Map<Int, MutableList<Int>> = this.elements.associate { it to mutableListOf<Int>() }
 
   /**
-   * The list of right dependents for each element. In case of no dependents the list is empty.
+   * The map of elements to their right dependents.
+   * In case of no dependents the list is empty.
    */
-  val rightDependents = Array(size = this.size, init = { ArrayList<Int>() } )
+  internal val rightDependents: Map<Int, MutableList<Int>> = this.elements.associate { it to mutableListOf<Int>() }
 
   /**
    * List of root elements.
    */
-  val roots = ArrayList(elements.toList())
+  internal val roots: MutableList<Int> = this.elements.toMutableList()
+
+  /**
+   * The set of elements.
+   */
+  private val elementsSet = this.elements.toSet()
 
   /**
    * @param element an element of the tree
    *
-   * @return the list of dependents of the [element] (both left and right)
+   * @return the head of the given element
    */
-  fun dependentsOf(element: Int): List<Int> = this.leftDependents[element].plus(this.rightDependents[element])
+  fun getHead(element: Int): Int? = this.heads.getValue(element)
 
   /**
-   * @return a Boolean indicating whether the tree is single root
+   * @param element an element of the tree
+   *
+   * @return the deprel of the given element
+   */
+  fun getDeprel(element: Int): Deprel? = this.deprels.getValue(element)
+
+  /**
+   * @param element an element of the tree
+   *
+   * @return the POS tag of the given element
+   */
+  fun getPosTag(element: Int): POSTag? = this.posTags.getValue(element)
+
+  /**
+   * @param element an element of the tree
+   *
+   * @return the attachment score of the given element
+   */
+  fun getAttachmentScore(element: Int): Double = this.attachmentScores.getValue(element)
+
+  /**
+   * @param element an element of the tree
+   *
+   * @return the list of left dependents of the given element
+   */
+  fun getLeftDependents(element: Int): List<Int> = this.leftDependents.getValue(element)
+
+  /**
+   * @param element an element of the tree
+   *
+   * @return the list of right dependents of the given element
+   */
+  fun getRightDependents(element: Int): List<Int> = this.rightDependents.getValue(element)
+
+  /**
+   * TODO: rename to getDependents
+   * @param element an element of the tree
+   *
+   * @return the list of all the dependents (left + right) of the given element
+   */
+  fun dependentsOf(element: Int): List<Int> = this.getLeftDependents(element) + this.getRightDependents(element)
+
+  /**
+   * @return the list of roots of the tree
+   */
+  fun getRoots(): List<Int> = this.roots
+
+  /**
+   * @param element an element of the tree
+   *
+   * @return the ordinal position of the element
+   */
+  fun getPosition(element: Int): Int = this.elementsToPosition.getValue(element)
+
+  /**
+   * @return a Boolean indicating whether the tree has a single root
    */
   fun hasSingleRoot(): Boolean = this.roots.size == 1
 
@@ -146,8 +238,8 @@ class DependencyTree(val size: Int) {
              score: Double = 0.0,
              allowCycle: Boolean = false) {
 
-    require(governor in 0 until this.size) { "Governor [$governor] out of range 0 .. ${this.elements.last}" }
-    require(dependent in 0 until this.size) { "Dependent [$dependent] out of range 0 .. ${this.elements.last}" }
+    require(governor in this.elementsSet) { "Invalid governor: $governor" }
+    require(dependent in this.elementsSet) { "Invalid dependent: $dependent" }
     require(this.heads[dependent] == null) { "Dependent has already an head" }
 
     if (!allowCycle && this.introduceCycle(dependent = dependent, governor = governor)) throw CycleDetectedError()
@@ -170,12 +262,12 @@ class DependencyTree(val size: Int) {
    */
   fun removeArc(dependent: Int, governor: Int) {
 
-    require(governor in 0 until this.size) { "Governor [$governor] out of range 0 .. ${this.elements.last}" }
-    require(dependent in 0 until this.size) { "Dependent [$dependent] out of range 0 .. ${this.elements.last}" }
+    require(governor in this.elementsSet) { "Invalid governor: $governor" }
+    require(dependent in this.elementsSet) { "Invalid dependent: $dependent" }
 
-    if (this.heads[dependent] != governor) throw InvalidArc(dependent = dependent, governor = governor)
+    if (this.getHead(dependent) != governor) throw InvalidArc(dependent = dependent, governor = governor)
 
-    this.addRoot(dependent)
+    this.setRoot(dependent)
     this.heads[dependent] = null
     this.deprels[dependent] = null
     this.posTags[dependent] = null
@@ -223,7 +315,7 @@ class DependencyTree(val size: Int) {
    */
   fun forEachAncestor(element: Int, callback: ((Int) -> Unit)? = null) {
 
-    var head: Int? = this@DependencyTree.heads[element]
+    var head: Int? = this.getHead(element)
     val visited = mutableSetOf<Int>()
 
     while (head != null && head !in visited) {
@@ -232,7 +324,7 @@ class DependencyTree(val size: Int) {
 
       visited.add(head)
 
-      head = this@DependencyTree.heads[head]
+      head = this.getHead(head)
     }
   }
 
@@ -247,7 +339,7 @@ class DependencyTree(val size: Int) {
    */
   fun anyAncestor(element: Int, callback: (Int?) -> Boolean): Boolean {
 
-    var head: Int? = this@DependencyTree.heads[element]
+    var head: Int? = this.getHead(element)
     val visited = mutableSetOf<Int>()
 
     while (head != null && head !in visited) {
@@ -256,7 +348,7 @@ class DependencyTree(val size: Int) {
 
       visited.add(head)
 
-      head = this@DependencyTree.heads[head]
+      head = this.getHead(head)
     }
 
     return false
@@ -275,7 +367,7 @@ class DependencyTree(val size: Int) {
    *
    * @return a Boolean indicating whether the given [element] is a root
    */
-  fun isRoot(element: Int) = this.heads[element] == null
+  fun isRoot(element: Int) = this.getHead(element) == null
 
   /**
    * Whether an element has a head.
@@ -302,11 +394,11 @@ class DependencyTree(val size: Int) {
 
     val visited = mutableSetOf<Int>()
 
-    this.elements.forEach { elm ->
+    this.elements.forEach { element ->
 
-      if (elm !in visited) {
+      if (element !in visited) {
 
-        var head: Int? = this.heads[elm]
+        var head: Int? = this.getHead(element)
         val visitedHeads = mutableSetOf<Int>()
 
         while (head != null) {
@@ -315,10 +407,10 @@ class DependencyTree(val size: Int) {
 
           visitedHeads.add(head)
 
-          head = this.heads[head]
+          head = this.getHead(head)
         }
 
-        visited.add(elm)
+        visited.add(element)
         visited.addAll(visitedHeads)
       }
     }
@@ -347,22 +439,22 @@ class DependencyTree(val size: Int) {
    *
    * @return a Boolean indicating whether the given [dependent] is involved in a non-projective arc
    */
-  fun isNonProjectiveArc(dependent: Int): Boolean {
+  fun isNonProjectiveArc(dependent: Int): Boolean =
 
-    val head = this.heads[dependent]
+    this.getHead(dependent)?.let { head ->
 
-    return if (head == null) {
+      val dependentPosition: Int = this.getPosition(dependent)
+      val headPosition: Int = this.getPosition(head)
 
-      false
-
-    } else {
-
-      val middleElements = IntRange(minOf(head, dependent) + 1, maxOf(head, dependent) - 1)
+      val middleElementsPositions =
+        IntRange(minOf(headPosition, dependentPosition) + 1, maxOf(headPosition, dependentPosition) - 1)
 
       // optimized with negated condition
-      middleElements.any { !this.isAncestorOf(candidateAncestor = head, element = it) }
-    }
-  }
+      middleElementsPositions.any { position ->
+        !this.isAncestorOf(candidateAncestor = head, element = this.elements[position])
+      }
+
+    } ?: false
 
   /**
    * Whether this tree is non-projective.
@@ -395,47 +487,54 @@ class DependencyTree(val size: Int) {
    */
   fun inOrder(): List<Int> {
 
-    fun helper(i: Int): List<Int> {
+    /**
+     * @param element an element of the tree
+     *
+     * @return the list of in-order elements visiting the tree in depth starting from the given [element]
+     */
+    fun getInOrderElements(element: Int): List<Int> {
 
-      val results = ArrayList<Int>()
+      val inOrderElements = mutableListOf<Int>()
+      val position: Int = this.getPosition(element)
 
-      (0 .. i).filter { this.heads[it] == i }.forEach { results.addAll(helper(it)) }
+      this.elements.subList(0, position)
+        .filter { this.getHead(it) == element }
+        .forEach { inOrderElements.addAll(getInOrderElements(it)) }
 
-      results.add(i)
+      inOrderElements.add(element)
 
-      (i until this.size).filter { this.heads[it] == i }.forEach { results.addAll(helper(it)) }
+      this.elements.subList(position + 1, this.size)
+        .filter { this.getHead(it) == element }
+        .forEach { inOrderElements.addAll(getInOrderElements(it)) }
 
-      return results
+      return inOrderElements
     }
 
     require(this.isDAG()) { "Required a single directed acyclic graph."}
 
-    return helper(this.roots.first())
+    return getInOrderElements(this.roots.first()) // Note: if it is a DAG there is only one root
   }
 
   /**
-   * @return an array where the i-th value is the projective order of the i-th element
+   * // TODO: rename to elementsToInOrderIndex
+   * @return a map of elements to their in-order position index
    */
-  fun projectiveOrder(): List<Int> {
-
-    val results = arrayOfNulls<Int>(size = this.size)
-
-    this.inOrder().mapIndexed { index, element -> results[element] = index }
-
-    return results.requireNoNulls().toList()
-  }
+  fun projectiveOrder(): Map<Int, Int> =
+    this.inOrder().withIndex().associate { (elementIndex, inOrderIndex) -> this.elements[elementIndex] to inOrderIndex }
 
   /**
-   * @param deprels a list of [Deprel]s
+   * @param otherTree another dependency tree
    *
-   * @return a Boolean indicating whether the given [deprels] matches the deprel of this [DependencyTree]
+   * @return a Boolean indicating whether the given tree deprels match the deprels of this [DependencyTree]
    */
-  fun matchDeprels(deprels: Array<Deprel?>): Boolean = Arrays.equals(this.deprels, deprels)
+  fun matchDeprels(otherTree: DependencyTree): Boolean = this.deprels == otherTree.deprels
 
   /**
-   * @return a Boolean indicating whether the given [heads] matches the heads of this [DependencyTree]
+   * @param otherTree another dependency tree
+   *
+   * @return a Boolean indicating whether the given tree heads match the heads of this [DependencyTree]
    */
-  fun matchHeads(heads: Array<Int?>): Boolean = Arrays.equals(this.heads, heads)
+  fun matchHeads(otherTree: DependencyTree): Boolean = this.heads == otherTree.heads
 
   /**
    * Get a list of paths that represent the cycles of this tree.
@@ -447,31 +546,30 @@ class DependencyTree(val size: Int) {
     val cycles = mutableListOf<Path>()
     val visited = mutableSetOf<Int>()
 
-    this.elements.forEach { elm ->
+    this.elements.forEach { element ->
 
-      if (elm !in visited) {
+      if (element !in visited) {
 
-        var head: Int? = this.heads[elm]
+        var head: Int? = this.getHead(element)
 
         if (head != null) {
 
-          val visitedHeads = mutableSetOf(elm)
+          val visitedHeads = mutableSetOf(element)
 
           while (head != null && head !in visited && head !in visitedHeads) {
 
             visitedHeads.add(head)
 
-            head = this.heads[head]
+            head = this.getHead(head)
           }
 
-          if (head != null && head in visitedHeads) {
+          if (head != null && head in visitedHeads)
             cycles.add(this.getCycle(startElement = head))
-          }
 
           visited.addAll(visitedHeads)
 
         } else {
-          visited.add(elm)
+          visited.add(element)
         }
       }
     }
@@ -494,17 +592,17 @@ class DependencyTree(val size: Int) {
    */
   fun clone(): DependencyTree {
 
-    val tree = DependencyTree(this.size)
+    val tree = DependencyTree(this.elements)
 
     tree.roots.clear()
     tree.roots.addAll(this.roots)
 
-    this.heads.forEachIndexed { index, head -> tree.heads[index] = head }
-    this.deprels.forEachIndexed { index, deprel -> tree.deprels[index] = deprel }
-    this.posTags.forEachIndexed { index, posTag -> tree.posTags[index] = posTag }
-    this.attachmentScores.forEachIndexed { index, score -> tree.attachmentScores[index] = score }
-    this.leftDependents.forEachIndexed { index, dependent -> tree.leftDependents[index] = dependent }
-    this.rightDependents.forEachIndexed { index, dependent -> tree.rightDependents[index] = dependent }
+    this.heads.forEach { element, head -> tree.heads[element] = head }
+    this.deprels.forEach { element, deprel -> tree.deprels[element] = deprel }
+    this.posTags.forEach { element, posTag -> tree.posTags[element] = posTag }
+    this.attachmentScores.forEach { element, score -> tree.attachmentScores[element] = score }
+    this.leftDependents.forEach { element, dependents -> tree.leftDependents.getValue(element).addAll(dependents) }
+    this.rightDependents.forEach { element, dependents -> tree.rightDependents.getValue(element).addAll(dependents) }
 
     return tree
   }
@@ -513,7 +611,7 @@ class DependencyTree(val size: Int) {
    * @return a Boolean indicating whether the given [other] object is equal to this [DependencyTree]
    */
   override operator fun equals(other: Any?): Boolean
-    = other is DependencyTree && this.matchHeads(other.heads) && this.matchDeprels(other.deprels)
+    = other is DependencyTree && this.matchHeads(other) && this.matchDeprels(other)
 
   /**
    * @return the hash code of this [DependencyTree]
@@ -521,36 +619,31 @@ class DependencyTree(val size: Int) {
   override fun hashCode(): Int = this.heads.hashCode() * 8191 + this.deprels.hashCode()
 
   /**
-   * Add the given [dependent] to the [leftDependents] or [rightDependents] of the given [governor].
+   * Add the given dependent to the [leftDependents] or [rightDependents] of the given governor.
    *
    * @param dependent an element of the tree
    * @param governor an element of the tree
    */
   private fun addDependent(dependent: Int, governor: Int) {
-    if (dependent < governor) {
-      this.leftDependents[governor].add(dependent)
-    } else {
-      this.rightDependents[governor].add(dependent)
-    }
+    if (this.getPosition(dependent) < this.getPosition(governor))
+      this.leftDependents.getValue(governor).add(dependent)
+    else
+      this.rightDependents.getValue(governor).add(dependent)
   }
 
   /**
-   * Add the given element as root.
+   * Set the given element as root.
    *
    * @param element an element of the tree
    */
-  private fun addRoot(element: Int) {
+  private fun setRoot(element: Int) {
 
-    for (i in (0 until this.roots.size)) {
-      val root: Int = this.roots[i]
+    val elementPosition: Int = this.getPosition(element)
 
-      if (root > element) {
-        this.roots.add(i, element)
-        return
-      }
-    }
+    val index: Int = this.roots.indexOfFirst { this.getPosition(it) > elementPosition }
+    val insertAt: Int = if (index >= 0) index else this.roots.size
 
-    this.roots.add(element)
+    this.roots.add(insertAt, element)
   }
 
   /**
@@ -560,11 +653,10 @@ class DependencyTree(val size: Int) {
    * @param governor an element of the tree
    */
   private fun removeDependent(dependent: Int, governor: Int) {
-    if (dependent < governor) {
-      this.leftDependents[governor].remove(dependent)
-    } else {
-      this.rightDependents[governor].remove(dependent)
-    }
+    if (this.getPosition(dependent) < this.getPosition(governor))
+      this.leftDependents.getValue(governor).remove(dependent)
+    else
+      this.rightDependents.getValue(governor).remove(dependent)
   }
 
   /**
@@ -575,13 +667,13 @@ class DependencyTree(val size: Int) {
   private fun getCycle(startElement: Int): Path {
 
     val cycle = mutableListOf<Arc>()
-    var head: Int = this.heads[startElement]!!
+    var head: Int = this.getHead(startElement)!!
 
     cycle.add(Arc(dependent = startElement, governor = head))
 
     while (head != startElement) {
 
-      val nextHead: Int = this.heads[head]!!
+      val nextHead: Int = this.getHead(head)!!
 
       cycle.add(Arc(dependent = head, governor = nextHead))
 
