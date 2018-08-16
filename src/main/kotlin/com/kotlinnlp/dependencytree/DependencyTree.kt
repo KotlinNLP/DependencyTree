@@ -518,7 +518,7 @@ class DependencyTree(val elements: List<Int>) {
    * @return a map of elements to their in-order position index
    */
   fun elementsToInOrderIndex(): Map<Int, Int> =
-    this.inOrder().withIndex().associate { (elementIndex, inOrderIndex) -> this.elements[elementIndex] to inOrderIndex }
+    this.inOrder().withIndex().associate { (inOrderIndex, element) -> element to inOrderIndex }
 
   /**
    * @param otherTree another dependency tree
