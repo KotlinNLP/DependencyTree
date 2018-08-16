@@ -195,12 +195,11 @@ class DependencyTree(val elements: List<Int>) {
   fun getRightDependents(element: Int): List<Int> = this.rightDependents.getValue(element)
 
   /**
-   * TODO: rename to getDependents
    * @param element an element of the tree
    *
    * @return the list of all the dependents (left + right) of the given element
    */
-  fun dependentsOf(element: Int): List<Int> = this.getLeftDependents(element) + this.getRightDependents(element)
+  fun getDependents(element: Int): List<Int> = this.getLeftDependents(element) + this.getRightDependents(element)
 
   /**
    * @return the list of roots of the tree
@@ -516,10 +515,9 @@ class DependencyTree(val elements: List<Int>) {
   }
 
   /**
-   * // TODO: rename to elementsToInOrderIndex
    * @return a map of elements to their in-order position index
    */
-  fun projectiveOrder(): Map<Int, Int> =
+  fun elementsToInOrderIndex(): Map<Int, Int> =
     this.inOrder().withIndex().associate { (elementIndex, inOrderIndex) -> this.elements[elementIndex] to inOrderIndex }
 
   /**

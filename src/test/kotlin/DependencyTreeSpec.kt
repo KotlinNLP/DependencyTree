@@ -292,7 +292,7 @@ class DependencyTreeSpec : Spek({
         }
 
         it("should not contain 2 as dependent of 0") {
-          assertFalse { 2 in dependencyTree.dependentsOf(0) }
+          assertFalse { 2 in dependencyTree.getDependents(0) }
         }
       }
     }
@@ -491,7 +491,7 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("projectiveOrder") {
+      on("elementsToInOrderIndex") {
 
         it("should return the expected list") {
           assertEquals(
@@ -508,7 +508,7 @@ class DependencyTreeSpec : Spek({
               6 to 9,
               7 to 10,
               8 to 11),
-            dependencyTree.projectiveOrder())
+            dependencyTree.elementsToInOrderIndex())
         }
       }
 
