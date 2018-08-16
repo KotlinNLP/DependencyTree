@@ -120,9 +120,11 @@ internal class PrintHelper(private val tree: DependencyTree, private val words: 
    */
   private fun getElementString(element: Int): String {
 
-    val name = this.words?.get(element) ?: element
-    val posTag = this.tree.posTags[element] ?: this.nullKeyword
-    val deprel = this.tree.deprels[element] ?: this.nullKeyword
+    val elementIndex: Int = this.tree.getPosition(element)
+
+    val name: String = this.words?.get(elementIndex) ?: element.toString()
+    val posTag = this.tree.getPosTag(element) ?: this.nullKeyword
+    val deprel = this.tree.getDeprel(element) ?: this.nullKeyword
 
     return "$name $posTag $deprel"
   }
@@ -135,8 +137,8 @@ internal class PrintHelper(private val tree: DependencyTree, private val words: 
    */
   private fun descendantsToString(element: Int, ancestorsAreLeaves: List<Boolean>): String {
 
-    val leftDependents: List<Int> = this.tree.leftDependents.getValue(element)
-    val rightDependents: List<Int> = this.tree.rightDependents.getValue(element)
+    val leftDependents: List<Int> = this.tree.getLeftDependents(element)
+    val rightDependents: List<Int> = this.tree.getRightDependents(element)
     val childrenTotal = leftDependents.size + rightDependents.size
 
     val buf = StringBuffer()
@@ -144,7 +146,7 @@ internal class PrintHelper(private val tree: DependencyTree, private val words: 
 
     leftDependents.forEach {
       buf.append(
-        subTreeToString(
+        this.subTreeToString(
           element = it,
           position = Position.LEFT,
           ancestorsAreLeaves = ancestorsAreLeaves + listOf(++childrenCount == childrenTotal)
@@ -154,7 +156,7 @@ internal class PrintHelper(private val tree: DependencyTree, private val words: 
 
     rightDependents.forEach {
       buf.append(
-        subTreeToString(
+        this.subTreeToString(
           element = it,
           position = Position.RIGHT,
           ancestorsAreLeaves = ancestorsAreLeaves + listOf(++childrenCount == childrenTotal)
