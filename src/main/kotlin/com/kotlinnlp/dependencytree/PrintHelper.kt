@@ -53,7 +53,7 @@ internal class PrintHelper(private val tree: DependencyTree, private val words: 
    * Check the number of words.
    */
   init {
-    require(this.words == null || this.words.size == tree.elements.count())
+    require(this.words == null || this.words.size == tree.size)
   }
 
   /**
@@ -62,7 +62,6 @@ internal class PrintHelper(private val tree: DependencyTree, private val words: 
   fun print(): String {
 
     return this.tree.roots
-      .filter { it != null }
       .joinToString(separator = "\n") {
         this.subTreeToString(element = it, position = Position.ROOT, ancestorsAreLeaves = listOf())
       }
@@ -122,8 +121,8 @@ internal class PrintHelper(private val tree: DependencyTree, private val words: 
   private fun getElementString(element: Int): String {
 
     val name = this.words?.get(element) ?: element
-    val posTag = if (this.tree.posTags[element] != null) this.tree.posTags[element] else this.nullKeyword
-    val deprel = if (this.tree.deprels[element] != null) this.tree.deprels[element] else this.nullKeyword
+    val posTag = this.tree.posTags[element] ?: this.nullKeyword
+    val deprel = this.tree.deprels[element] ?: this.nullKeyword
 
     return "$name $posTag $deprel"
   }
@@ -136,11 +135,14 @@ internal class PrintHelper(private val tree: DependencyTree, private val words: 
    */
   private fun descendantsToString(element: Int, ancestorsAreLeaves: List<Boolean>): String {
 
+    val leftDependents: List<Int> = this.tree.leftDependents.getValue(element)
+    val rightDependents: List<Int> = this.tree.rightDependents.getValue(element)
+    val childrenTotal = leftDependents.size + rightDependents.size
+
     val buf = StringBuffer()
     var childrenCount = 0
-    val childrenTotal = this.tree.leftDependents[element].size + this.tree.rightDependents[element].size
 
-    this.tree.leftDependents[element].forEach {
+    leftDependents.forEach {
       buf.append(
         subTreeToString(
           element = it,
@@ -150,7 +152,7 @@ internal class PrintHelper(private val tree: DependencyTree, private val words: 
       )
     }
 
-    this.tree.rightDependents[element].forEach {
+    rightDependents.forEach {
       buf.append(
         subTreeToString(
           element = it,
