@@ -40,7 +40,7 @@ class DependencyTreeSpec : Spek({
       on("attachment scores") {
 
         it("should have the expected default attachment scores") {
-          assertTrue { dependencyTree.attachmentScores.all { it == 0.0 } }
+          assertTrue { dependencyTree.attachmentScores.values.all { it == 0.0 } }
         }
       }
 
@@ -146,23 +146,23 @@ class DependencyTreeSpec : Spek({
         ))
 
       it("should contain the expected attachment score of the element 0") {
-        assertEquals(0.0, dependencyTree.attachmentScores[0])
+        assertEquals(0.0, dependencyTree.getAttachmentScore(0))
       }
 
       it("should contain the expected attachment score of the element 1") {
-        assertEquals(0.5, dependencyTree.attachmentScores[1])
+        assertEquals(0.5, dependencyTree.getAttachmentScore(1))
       }
 
       it("should contain the expected attachment score of the element 2") {
-        assertEquals(0.2, dependencyTree.attachmentScores[2])
+        assertEquals(0.2, dependencyTree.getAttachmentScore(2))
       }
 
       it("should contain the expected attachment score of the element 3") {
-        assertEquals(0.7, dependencyTree.attachmentScores[3])
+        assertEquals(0.7, dependencyTree.getAttachmentScore(3))
       }
 
       it("should contain the expected attachment score of the element 4") {
-        assertEquals(0.3, dependencyTree.attachmentScores[4])
+        assertEquals(0.3, dependencyTree.getAttachmentScore(4))
       }
     }
 
@@ -186,7 +186,7 @@ class DependencyTreeSpec : Spek({
       }
 
       it("should have the expected default attachment scores") {
-        assertTrue { dependencyTree.attachmentScores.all { it == 0.0 } }
+        assertTrue { dependencyTree.attachmentScores.values.all { it == 0.0 } }
       }
 
       on("hasSingleRoot") {
@@ -413,14 +413,14 @@ class DependencyTreeSpec : Spek({
 
         it("should match the expected deprels") {
 
-          assertTrue { dependencyTree.matchDeprels(arrayOf(
-            Deprel(label = "VERB", direction = Deprel.Position.ROOT),
-            Deprel(label = "SUBJ", direction = Deprel.Position.RIGHT),
-            null,
-            Deprel(label = "PRON", direction = Deprel.Position.LEFT),
-            Deprel(label = "VERB", direction = Deprel.Position.ROOT
-            )))
-          }
+          val testTree = DependencyTree(listOf(0, 1, 2, 3, 4))
+
+          testTree.setDeprel(dependent = 0, deprel = Deprel(label = "VERB", direction = Deprel.Position.ROOT))
+          testTree.setDeprel(dependent = 1, deprel = Deprel(label = "SUBJ", direction = Deprel.Position.RIGHT))
+          testTree.setDeprel(dependent = 3, deprel = Deprel(label = "PRON", direction = Deprel.Position.LEFT))
+          testTree.setDeprel(dependent = 4, deprel = Deprel(label = "VERB", direction = Deprel.Position.ROOT))
+
+          assertTrue { dependencyTree.matchDeprels(testTree) }
         }
       }
 
@@ -494,7 +494,21 @@ class DependencyTreeSpec : Spek({
       on("projectiveOrder") {
 
         it("should return the expected list") {
-          assertEquals(listOf(0, 1, 2, 3, 9, 10, 11, 4, 5, 6, 7, 8), dependencyTree.projectiveOrder())
+          assertEquals(
+            mapOf(
+              0 to 0,
+              1 to 1,
+              2 to 2,
+              3 to 3,
+              9 to 4,
+              10 to 5,
+              11 to 6,
+              4 to 7,
+              5 to 8,
+              6 to 9,
+              7 to 10,
+              8 to 11),
+            dependencyTree.projectiveOrder())
         }
       }
 
