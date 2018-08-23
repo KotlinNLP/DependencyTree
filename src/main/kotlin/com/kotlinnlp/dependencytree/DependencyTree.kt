@@ -134,13 +134,13 @@ class DependencyTree(val elements: List<Int>) {
    * The map of elements to their left dependents.
    * In case of no dependents the list is empty.
    */
-  internal val leftDependents: Map<Int, MutableList<Int>> = this.elements.associate { it to mutableListOf<Int>() }
+  private val leftDependents: Map<Int, MutableList<Int>> = this.elements.associate { it to mutableListOf<Int>() }
 
   /**
    * The map of elements to their right dependents.
    * In case of no dependents the list is empty.
    */
-  internal val rightDependents: Map<Int, MutableList<Int>> = this.elements.associate { it to mutableListOf<Int>() }
+  private val rightDependents: Map<Int, MutableList<Int>> = this.elements.associate { it to mutableListOf<Int>() }
 
   /**
    * List of root elements.
