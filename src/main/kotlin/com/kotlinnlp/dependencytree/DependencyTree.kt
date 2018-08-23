@@ -103,6 +103,11 @@ class DependencyTree(val elements: List<Int>) {
   val size: Int = this.elements.size
 
   /**
+   * The confidence score of the tree.
+   */
+  var score = 1.0
+
+  /**
    * A map of elements to their ordinal position.
    */
   private val elementsToPosition: Map<Int, Int> = (0 until this.size).associate { this.elements[it] to it }
