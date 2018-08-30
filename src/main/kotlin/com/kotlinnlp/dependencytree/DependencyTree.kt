@@ -207,6 +207,13 @@ class DependencyTree(val elements: List<Int>) {
   fun getDependents(element: Int): List<Int> = this.getLeftDependents(element) + this.getRightDependents(element)
 
   /**
+   * @param element an element of the tree
+   *
+   * @return the list of all the descendants (dependents at any depth) of the given element
+   */
+  fun getAllDescendants(element: Int): List<Int> = this.getDependents(element).flatMap { this.getAllDescendants(it) }
+
+  /**
    * @return the list of roots of the tree
    */
   fun getRoots(): List<Int> = this.roots
