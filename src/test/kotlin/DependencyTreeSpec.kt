@@ -310,11 +310,11 @@ class DependencyTreeSpec : Spek({
       val dependencyTree = DependencyTree(
         size = 5,
         dependencies = listOf(
-          RootConfiguration(id = 0, deprel = Deprel(label = "VERB", direction = Deprel.Position.ROOT)),
-          ArcConfiguration(1, 0, deprel = Deprel(label = "SUBJ", direction = Deprel.Position.RIGHT)),
+          RootConfiguration(id = 0, deprel = Deprel(label = "VERB", direction = Deprel.Direction.ROOT)),
+          ArcConfiguration(1, 0, deprel = Deprel(label = "SUBJ", direction = Deprel.Direction.RIGHT)),
           ArcConfiguration(2, 1, deprel = null),
-          ArcConfiguration(3, 4, deprel = Deprel(label = "PRON", direction = Deprel.Position.LEFT)),
-          RootConfiguration(id = 4, deprel = Deprel(label = "VERB", direction = Deprel.Position.ROOT))
+          ArcConfiguration(3, 4, deprel = Deprel(label = "PRON", direction = Deprel.Direction.LEFT)),
+          RootConfiguration(id = 4, deprel = Deprel(label = "VERB", direction = Deprel.Direction.ROOT))
         ))
 
       it("should have the expected root") {
@@ -419,10 +419,10 @@ class DependencyTreeSpec : Spek({
 
           val testTree = DependencyTree(listOf(0, 1, 2, 3, 4))
 
-          testTree.setDeprel(dependent = 0, deprel = Deprel(label = "VERB", direction = Deprel.Position.ROOT))
-          testTree.setDeprel(dependent = 1, deprel = Deprel(label = "SUBJ", direction = Deprel.Position.RIGHT))
-          testTree.setDeprel(dependent = 3, deprel = Deprel(label = "PRON", direction = Deprel.Position.LEFT))
-          testTree.setDeprel(dependent = 4, deprel = Deprel(label = "VERB", direction = Deprel.Position.ROOT))
+          testTree.setDeprel(dependent = 0, deprel = Deprel(label = "VERB", direction = Deprel.Direction.ROOT))
+          testTree.setDeprel(dependent = 1, deprel = Deprel(label = "SUBJ", direction = Deprel.Direction.RIGHT))
+          testTree.setDeprel(dependent = 3, deprel = Deprel(label = "PRON", direction = Deprel.Direction.LEFT))
+          testTree.setDeprel(dependent = 4, deprel = Deprel(label = "VERB", direction = Deprel.Direction.ROOT))
 
           assertTrue { dependencyTree.matchDeprels(testTree) }
         }
@@ -1007,11 +1007,11 @@ class DependencyTreeSpec : Spek({
       val dependencyTree = DependencyTree(
         elements = listOf(5, 89, 13, 67, 69),
         dependencies = listOf(
-          RootConfiguration(5, deprel = Deprel(label = "VERB", direction = Deprel.Position.ROOT)),
-          ArcConfiguration(89, 5, deprel = Deprel(label = "SUBJ", direction = Deprel.Position.RIGHT)),
+          RootConfiguration(5, deprel = Deprel(label = "VERB", direction = Deprel.Direction.ROOT)),
+          ArcConfiguration(89, 5, deprel = Deprel(label = "SUBJ", direction = Deprel.Direction.RIGHT)),
           ArcConfiguration(13, 89, deprel = null),
-          ArcConfiguration(67, 69, deprel = Deprel(label = "PRON", direction = Deprel.Position.LEFT)),
-          RootConfiguration(69, deprel = Deprel(label = "VERB", direction = Deprel.Position.ROOT))
+          ArcConfiguration(67, 69, deprel = Deprel(label = "PRON", direction = Deprel.Direction.LEFT)),
+          RootConfiguration(69, deprel = Deprel(label = "VERB", direction = Deprel.Direction.ROOT))
         ))
 
       it("should have the expected root") {
@@ -1116,10 +1116,10 @@ class DependencyTreeSpec : Spek({
 
           val testTree = DependencyTree(listOf(5, 89, 13, 67, 69))
 
-          testTree.setDeprel(dependent = 5, deprel = Deprel(label = "VERB", direction = Deprel.Position.ROOT))
-          testTree.setDeprel(dependent = 89, deprel = Deprel(label = "SUBJ", direction = Deprel.Position.RIGHT))
-          testTree.setDeprel(dependent = 67, deprel = Deprel(label = "PRON", direction = Deprel.Position.LEFT))
-          testTree.setDeprel(dependent = 69, deprel = Deprel(label = "VERB", direction = Deprel.Position.ROOT))
+          testTree.setDeprel(dependent = 5, deprel = Deprel(label = "VERB", direction = Deprel.Direction.ROOT))
+          testTree.setDeprel(dependent = 89, deprel = Deprel(label = "SUBJ", direction = Deprel.Direction.RIGHT))
+          testTree.setDeprel(dependent = 67, deprel = Deprel(label = "PRON", direction = Deprel.Direction.LEFT))
+          testTree.setDeprel(dependent = 69, deprel = Deprel(label = "VERB", direction = Deprel.Direction.ROOT))
 
           assertTrue { dependencyTree.matchDeprels(testTree) }
         }

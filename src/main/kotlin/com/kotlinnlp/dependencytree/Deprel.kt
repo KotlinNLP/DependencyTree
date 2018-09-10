@@ -15,7 +15,7 @@ import java.io.Serializable
  * @property label a name for the dependency relation
  * @property direction the direction in a possible syntactic context for which this deprel is valid
  */
-data class Deprel(val label: String, val direction: Position = Position.NULL) : Serializable {
+data class Deprel(val label: String, val direction: Direction = Direction.NULL) : Serializable {
 
   companion object {
 
@@ -27,9 +27,9 @@ data class Deprel(val label: String, val direction: Position = Position.NULL) : 
   }
 
   /**
-   * Deprel Position.
+   * The direction of the relation.
    */
-  enum class Position {
+  enum class Direction {
     ROOT,
     LEFT,
     RIGHT,
