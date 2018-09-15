@@ -656,7 +656,7 @@ class DependencyTree(val elements: List<Int>) {
     val head: Int = token.head!!
 
     val deprel = Deprel(
-      label = token.deprel.split("~").last(),
+      label = token.deprel,
       direction = when {
         head == 0 -> Deprel.Direction.ROOT
         head > token.id -> Deprel.Direction.LEFT
