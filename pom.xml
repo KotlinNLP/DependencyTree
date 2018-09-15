@@ -56,6 +56,7 @@
         <surfire.version>2.19.1</surfire.version>
         <spek.version>1.1.5</spek.version>
         <dokka.version>0.9.16</dokka.version>
+        <conllio.version>0.2.5</conllio.version>
     </properties>
 
     <repositories>
@@ -221,6 +222,12 @@
             <artifactId>spek-junit-platform-engine</artifactId>
             <version>${spek.version}</version>
             <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.kotlinnlp</groupId>
+            <artifactId>conllio</artifactId>
+            <version>${conllio.version}</version>
         </dependency>
     </dependencies>
 </project>
