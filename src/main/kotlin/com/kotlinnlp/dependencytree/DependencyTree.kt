@@ -7,6 +7,8 @@
 
 package com.kotlinnlp.dependencytree
 
+import com.kotlinnlp.conllio.Sentence
+import com.kotlinnlp.conllio.Token
 import com.kotlinnlp.dependencytree.configuration.ArcConfiguration
 import com.kotlinnlp.dependencytree.configuration.DependencyConfiguration
 import com.kotlinnlp.dependencytree.configuration.RootConfiguration
@@ -70,6 +72,22 @@ class DependencyTree(val elements: List<Int>) {
       elements = IntRange(0, size - 1).toList(),
       dependencies = dependencies,
       allowCycles = allowCycles)
+
+    /**
+     * Build a [DependencyTree] from a CoNLL sentence.
+     *
+     * @param sentence a CoNLL sentence
+     *
+     * @return a new dependency tree defined in the given sentence
+     */
+    operator fun invoke(sentence: Sentence): DependencyTree {
+
+      val tree = DependencyTree(elements = sentence.tokens.map { it.id })
+
+      sentence.tokens.forEach { tree.setArc(it) }
+
+      return tree
+    }
   }
 
   /**
@@ -627,6 +645,33 @@ class DependencyTree(val elements: List<Int>) {
    * @return the hash code of this [DependencyTree]
    */
   override fun hashCode(): Int = this.heads.hashCode() * 8191 + this.deprels.hashCode()
+
+  /**
+   * Set the arc defined by the id, head and deprel of a given CoNLL [token].
+   *
+   * @param token a CoNLL token
+   */
+  private fun setArc(token: Token) {
+
+    val head: Int = token.head!!
+
+    val deprel = Deprel(
+      label = token.deprel.split("~").last(),
+      direction = when {
+        head == 0 -> Deprel.Direction.ROOT
+        head > token.id -> Deprel.Direction.LEFT
+        else -> Deprel.Direction.RIGHT
+      })
+
+    val posTag = POSTag(label = token.pos)
+
+    if (head > 0) {
+      this.setArc(dependent = token.id, governor = head, deprel = deprel, posTag = posTag)
+    } else {
+      this.setDeprel(dependent = token.id, deprel = deprel)
+      this.setPosTag(dependent = token.id, posTag = posTag)
+    }
+  }
 
   /**
    * Add the given dependent to the [leftDependents] or [rightDependents] of the given governor.
