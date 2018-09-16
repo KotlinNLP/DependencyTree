@@ -7,8 +7,8 @@
 
 import com.kotlinnlp.dependencytree.configuration.ArcConfiguration
 import com.kotlinnlp.dependencytree.DependencyTree
-import com.kotlinnlp.dependencytree.Deprel
 import com.kotlinnlp.dependencytree.configuration.RootConfiguration
+import com.kotlinnlp.linguisticdescription.Deprel
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.context
 import org.jetbrains.spek.api.dsl.describe
@@ -287,12 +287,8 @@ class DependencyTreeSpec : Spek({
           assertNull(dependencyTree.heads[2])
         }
 
-        it("should return null as deprel of 2") {
-          assertNull(dependencyTree.deprels[2])
-        }
-
-        it("should return null as POS tag of 2") {
-          assertNull(dependencyTree.posTags[2])
+        it("should return null as dependency relation of 2") {
+          assertNull(dependencyTree.dependencyRelations[2])
         }
 
         it("should not contain 2 as dependent of 0") {
@@ -310,11 +306,11 @@ class DependencyTreeSpec : Spek({
       val dependencyTree = DependencyTree(
         size = 5,
         dependencies = listOf(
-          RootConfiguration(id = 0, deprel = Deprel(label = "VERB", direction = Deprel.Direction.ROOT)),
-          ArcConfiguration(1, 0, deprel = Deprel(label = "SUBJ", direction = Deprel.Direction.RIGHT)),
+          RootConfiguration(id = 0, deprel = Deprel(labels = listOf("VERB"), direction = Deprel.Direction.ROOT)),
+          ArcConfiguration(1, 0, deprel = Deprel(labels = listOf("SUBJ"), direction = Deprel.Direction.RIGHT)),
           ArcConfiguration(2, 1, deprel = null),
-          ArcConfiguration(3, 4, deprel = Deprel(label = "PRON", direction = Deprel.Direction.LEFT)),
-          RootConfiguration(id = 4, deprel = Deprel(label = "VERB", direction = Deprel.Direction.ROOT))
+          ArcConfiguration(3, 4, deprel = Deprel(labels = listOf("PRON"), direction = Deprel.Direction.LEFT)),
+          RootConfiguration(id = 4, deprel = Deprel(labels = listOf("VERB"), direction = Deprel.Direction.ROOT))
         ))
 
       it("should have the expected root") {
@@ -413,18 +409,18 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("matchDeprels") {
+      on("matchDependencyRelations") {
 
-        it("should match the expected deprels") {
+        it("should match the expected dependency relations") {
 
           val testTree = DependencyTree(listOf(0, 1, 2, 3, 4))
 
-          testTree.setDeprel(dependent = 0, deprel = Deprel(label = "VERB", direction = Deprel.Direction.ROOT))
-          testTree.setDeprel(dependent = 1, deprel = Deprel(label = "SUBJ", direction = Deprel.Direction.RIGHT))
-          testTree.setDeprel(dependent = 3, deprel = Deprel(label = "PRON", direction = Deprel.Direction.LEFT))
-          testTree.setDeprel(dependent = 4, deprel = Deprel(label = "VERB", direction = Deprel.Direction.ROOT))
+          testTree.setDependencyRelation(0, deprel = Deprel(labels = listOf("VERB"), direction = Deprel.Direction.ROOT))
+          testTree.setDependencyRelation(1, deprel = Deprel(labels = listOf("SUBJ"), direction = Deprel.Direction.RIGHT))
+          testTree.setDependencyRelation(3, deprel = Deprel(labels = listOf("PRON"), direction = Deprel.Direction.LEFT))
+          testTree.setDependencyRelation(4, deprel = Deprel(labels = listOf("VERB"), direction = Deprel.Direction.ROOT))
 
-          assertTrue { dependencyTree.matchDeprels(testTree) }
+          assertTrue { dependencyTree.matchDependencyRelations(testTree) }
         }
       }
 
@@ -984,12 +980,8 @@ class DependencyTreeSpec : Spek({
           assertNull(dependencyTree.heads[13])
         }
 
-        it("should return null as deprel of 13") {
-          assertNull(dependencyTree.deprels[13])
-        }
-
-        it("should return null as POS tag of 13") {
-          assertNull(dependencyTree.posTags[13])
+        it("should return null as dependency relation of 13") {
+          assertNull(dependencyTree.dependencyRelations[13])
         }
 
         it("should not contain 13 as dependent of 5") {
@@ -1007,11 +999,11 @@ class DependencyTreeSpec : Spek({
       val dependencyTree = DependencyTree(
         elements = listOf(5, 89, 13, 67, 69),
         dependencies = listOf(
-          RootConfiguration(5, deprel = Deprel(label = "VERB", direction = Deprel.Direction.ROOT)),
-          ArcConfiguration(89, 5, deprel = Deprel(label = "SUBJ", direction = Deprel.Direction.RIGHT)),
+          RootConfiguration(5, deprel = Deprel(labels = listOf("VERB"), direction = Deprel.Direction.ROOT)),
+          ArcConfiguration(89, 5, deprel = Deprel(labels = listOf("SUBJ"), direction = Deprel.Direction.RIGHT)),
           ArcConfiguration(13, 89, deprel = null),
-          ArcConfiguration(67, 69, deprel = Deprel(label = "PRON", direction = Deprel.Direction.LEFT)),
-          RootConfiguration(69, deprel = Deprel(label = "VERB", direction = Deprel.Direction.ROOT))
+          ArcConfiguration(67, 69, deprel = Deprel(labels = listOf("PRON"), direction = Deprel.Direction.LEFT)),
+          RootConfiguration(69, deprel = Deprel(labels = listOf("VERB"), direction = Deprel.Direction.ROOT))
         ))
 
       it("should have the expected root") {
@@ -1110,18 +1102,18 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("matchDeprels") {
+      on("matchDependencyRelations") {
 
-        it("should match the expected deprels") {
+        it("should match the expected dependency relations") {
 
           val testTree = DependencyTree(listOf(5, 89, 13, 67, 69))
 
-          testTree.setDeprel(dependent = 5, deprel = Deprel(label = "VERB", direction = Deprel.Direction.ROOT))
-          testTree.setDeprel(dependent = 89, deprel = Deprel(label = "SUBJ", direction = Deprel.Direction.RIGHT))
-          testTree.setDeprel(dependent = 67, deprel = Deprel(label = "PRON", direction = Deprel.Direction.LEFT))
-          testTree.setDeprel(dependent = 69, deprel = Deprel(label = "VERB", direction = Deprel.Direction.ROOT))
+          testTree.setDependencyRelation(5, deprel = Deprel(labels = listOf("VERB"), direction = Deprel.Direction.ROOT))
+          testTree.setDependencyRelation(89, deprel = Deprel(labels = listOf("SUBJ"), direction = Deprel.Direction.RIGHT))
+          testTree.setDependencyRelation(67, deprel = Deprel(labels = listOf("PRON"), direction = Deprel.Direction.LEFT))
+          testTree.setDependencyRelation(69, deprel = Deprel(labels = listOf("VERB"), direction = Deprel.Direction.ROOT))
 
-          assertTrue { dependencyTree.matchDeprels(testTree) }
+          assertTrue { dependencyTree.matchDependencyRelations(testTree) }
         }
       }
 

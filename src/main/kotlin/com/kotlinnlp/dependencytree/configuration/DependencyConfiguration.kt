@@ -7,17 +7,17 @@
 
 package com.kotlinnlp.dependencytree.configuration
 
-import com.kotlinnlp.dependencytree.Deprel
+import com.kotlinnlp.linguisticdescription.DependencyRelation
 
 /**
- * DependencyConfiguration.
+ * The configuration of a dependency.
  */
 interface DependencyConfiguration {
 
   /**
-   * The Dependency Relation (can be null)
+   * The dependency relation (can be null).
    */
-  val deprel: Deprel?
+  val dependencyRelation: DependencyRelation?
 
   /**
    * The attachment score.

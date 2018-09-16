@@ -7,17 +7,32 @@
 
 package com.kotlinnlp.dependencytree.configuration
 
-import com.kotlinnlp.dependencytree.Deprel
+import com.kotlinnlp.linguisticdescription.DependencyRelation
+import com.kotlinnlp.linguisticdescription.Deprel
 
 /**
- * RootConfiguration
+ * The configuration of the root.
  *
  * @property id an element of the tree
- * @property deprel the dependency relation of the top of the tree (can be null)
+ * @property dependencyRelation the dependency relation of the top of the tree (can be null)
  * @property attachmentScore the attachment score (default = 0.0)
  */
 data class RootConfiguration(
   val id: Int,
-  override val deprel: Deprel? = null,
+  override val dependencyRelation: DependencyRelation? = null,
   override val attachmentScore: Double = 0.0
-) : DependencyConfiguration
+) : DependencyConfiguration {
+
+  /**
+   * Build a [RootConfiguration] given a [Deprel] only instead of a complete [DependencyRelation].
+   *
+   * @param id an element of the tree
+   * @param deprel the deprel (can be null)
+   * @param attachmentScore the attachment score (default = 0.0)
+   */
+  constructor(id: Int, deprel: Deprel?, attachmentScore: Double = 0.0): this(
+    id = id,
+    dependencyRelation = deprel?.let { DependencyRelation(deprel = it) },
+    attachmentScore = attachmentScore
+  )
+}

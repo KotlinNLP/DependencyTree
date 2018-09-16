@@ -7,6 +7,8 @@
 
 package com.kotlinnlp.dependencytree
 
+import com.kotlinnlp.linguisticdescription.DependencyRelation
+
 /**
  * The print helper of a [DependencyTree].
  *
@@ -123,8 +125,9 @@ internal class PrintHelper(private val tree: DependencyTree, private val words: 
     val elementIndex: Int = this.tree.getPosition(element)
 
     val name: String = this.words?.get(elementIndex) ?: element.toString()
-    val posTag = this.tree.getPosTag(element) ?: this.nullKeyword
-    val deprel = this.tree.getDeprel(element) ?: this.nullKeyword
+    val dependencyRelation: DependencyRelation? = this.tree.getDependencyRelation(element)
+    val posTag: String = dependencyRelation?.posTag?.toString() ?: this.nullKeyword
+    val deprel: String = dependencyRelation?.deprel?.toString() ?: this.nullKeyword
 
     return "$name $posTag $deprel"
   }

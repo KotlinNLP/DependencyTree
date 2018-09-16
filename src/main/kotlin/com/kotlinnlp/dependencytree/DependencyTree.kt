@@ -12,6 +12,8 @@ import com.kotlinnlp.conllio.Token
 import com.kotlinnlp.dependencytree.configuration.ArcConfiguration
 import com.kotlinnlp.dependencytree.configuration.DependencyConfiguration
 import com.kotlinnlp.dependencytree.configuration.RootConfiguration
+import com.kotlinnlp.linguisticdescription.DependencyRelation
+import com.kotlinnlp.linguisticdescription.Deprel
 
 /**
  * [DependencyTree] contains methods to build and navigate a dependency tree.
@@ -39,15 +41,13 @@ class DependencyTree(val elements: List<Int>) {
 
       dependencies.forEach {
         when  {
-
-          it is RootConfiguration && it.deprel != null -> tree.setDeprel(
+          it is RootConfiguration && it.dependencyRelation != null -> tree.setDependencyRelation(
             dependent = it.id,
-            deprel = it.deprel!!)
-
+            dependencyRelation = it.dependencyRelation!!)
           it is ArcConfiguration -> tree.setArc(
             dependent = it.dependent,
             governor = it.governor,
-            deprel = it.deprel,
+            dependencyRelation = it.dependencyRelation,
             score = it.attachmentScore,
             allowCycle = allowCycles)
         }
@@ -137,16 +137,11 @@ class DependencyTree(val elements: List<Int>) {
   internal val heads: MutableMap<Int, Int?> = this.elements.associate { it to null }.toMutableMap()
 
   /**
-   * The map of elements to their deprels.
-   * Not assigned elements have null deprel.
+   * The map of elements to their dependency relations.
+   * Not assigned elements have null dependency relation.
    */
-  internal val deprels: MutableMap<Int, Deprel?> = this.elements.associate { it to null }.toMutableMap()
-
-  /**
-   * The map of elements to their POS tags.
-   * Not assigned elements have null pos.
-   */
-  internal val posTags: MutableMap<Int, POSTag?> = this.elements.associate { it to null }.toMutableMap()
+  internal val dependencyRelations: MutableMap<Int, DependencyRelation?> =
+    this.elements.associate { it to null }.toMutableMap()
 
   /**
    * The map of elements to their attachment scores (roots included, default = 0.0).
@@ -185,16 +180,9 @@ class DependencyTree(val elements: List<Int>) {
   /**
    * @param element an element of the tree
    *
-   * @return the deprel of the given element
+   * @return the dependency relation of the given element
    */
-  fun getDeprel(element: Int): Deprel? = this.deprels.getValue(element)
-
-  /**
-   * @param element an element of the tree
-   *
-   * @return the POS tag of the given element
-   */
-  fun getPosTag(element: Int): POSTag? = this.posTags.getValue(element)
+  fun getDependencyRelation(element: Int): DependencyRelation? = this.dependencyRelations.getValue(element)
 
   /**
    * @param element an element of the tree
@@ -249,12 +237,11 @@ class DependencyTree(val elements: List<Int>) {
   fun hasSingleRoot(): Boolean = this.roots.size == 1
 
   /**
-   * Set a new arc between a given [dependent] and [governor], possibly with a [deprel] and a [posTag].
+   * Set a new arc between a given dependent and governor, possibly with a dependency relation.
    *
    * @param dependent an element of the tree
    * @param governor an element of the tree
-   * @param deprel a deprel (can be null)
-   * @param posTag a posTag (can be null)
+   * @param dependencyRelation a dependency relation (can be null)
    * @param score the attachment score (default = 0.0)
    * @param allowCycle if true it allows to create cycles setting this arc (default = false)
    *
@@ -262,8 +249,7 @@ class DependencyTree(val elements: List<Int>) {
    */
   fun setArc(dependent: Int,
              governor: Int,
-             deprel: Deprel? = null,
-             posTag: POSTag? = null,
+             dependencyRelation: DependencyRelation? = null,
              score: Double = 0.0,
              allowCycle: Boolean = false) {
 
@@ -275,8 +261,7 @@ class DependencyTree(val elements: List<Int>) {
 
     this.roots.remove(dependent)
     this.heads[dependent] = governor
-    this.deprels[dependent] = deprel
-    this.posTags[dependent] = posTag
+    this.dependencyRelations[dependent] = dependencyRelation
     this.attachmentScores[dependent] = score
     this.addDependent(dependent = dependent, governor = governor)
   }
@@ -298,30 +283,29 @@ class DependencyTree(val elements: List<Int>) {
 
     this.setRoot(dependent)
     this.heads[dependent] = null
-    this.deprels[dependent] = null
-    this.posTags[dependent] = null
+    this.dependencyRelations[dependent] = null
     this.attachmentScores[dependent] = 0.0
     this.removeDependent(dependent = dependent, governor = governor)
   }
 
   /**
-   * Set a [deprel] to the given [dependent].
+   * Set a dependency relation to a given dependent.
    *
    * @param dependent an element of the tree
-   * @param deprel a Deprel
+   * @param dependencyRelation a dependency relation
    */
-  fun setDeprel(dependent: Int, deprel: Deprel) {
-    this.deprels[dependent] = deprel
+  fun setDependencyRelation(dependent: Int, dependencyRelation: DependencyRelation) {
+    this.dependencyRelations[dependent] = dependencyRelation
   }
 
   /**
-   * Set a [posTag] to the given [dependent].
+   * Set a dependency relation to a given dependent with a [Deprel] only.
    *
    * @param dependent an element of the tree
-   * @param posTag a POS tag
+   * @param deprel a deprel
    */
-  fun setPosTag(dependent: Int, posTag: POSTag) {
-    this.posTags[dependent] = posTag
+  fun setDependencyRelation(dependent: Int, deprel: Deprel) {
+    this.dependencyRelations[dependent] = DependencyRelation(deprel = deprel)
   }
 
   /**
@@ -553,9 +537,10 @@ class DependencyTree(val elements: List<Int>) {
   /**
    * @param otherTree another dependency tree
    *
-   * @return a Boolean indicating whether the given tree deprels match the deprels of this [DependencyTree]
+   * @return a Boolean indicating whether the dependency relations of this tree and the given one match
    */
-  fun matchDeprels(otherTree: DependencyTree): Boolean = this.deprels == otherTree.deprels
+  fun matchDependencyRelations(otherTree: DependencyTree): Boolean =
+    this.dependencyRelations == otherTree.dependencyRelations
 
   /**
    * @param otherTree another dependency tree
@@ -626,8 +611,7 @@ class DependencyTree(val elements: List<Int>) {
     tree.roots.addAll(this.roots)
 
     this.heads.forEach { element, head -> tree.heads[element] = head }
-    this.deprels.forEach { element, deprel -> tree.deprels[element] = deprel }
-    this.posTags.forEach { element, posTag -> tree.posTags[element] = posTag }
+    this.dependencyRelations.forEach { element, relation -> tree.dependencyRelations[element] = relation }
     this.attachmentScores.forEach { element, score -> tree.attachmentScores[element] = score }
     this.leftDependents.forEach { element, dependents -> tree.leftDependents.getValue(element).addAll(dependents) }
     this.rightDependents.forEach { element, dependents -> tree.rightDependents.getValue(element).addAll(dependents) }
@@ -639,12 +623,12 @@ class DependencyTree(val elements: List<Int>) {
    * @return a Boolean indicating whether the given [other] object is equal to this [DependencyTree]
    */
   override operator fun equals(other: Any?): Boolean
-    = other is DependencyTree && this.matchHeads(other) && this.matchDeprels(other)
+    = other is DependencyTree && this.matchHeads(other) && this.matchDependencyRelations(other)
 
   /**
    * @return the hash code of this [DependencyTree]
    */
-  override fun hashCode(): Int = this.heads.hashCode() * 8191 + this.deprels.hashCode()
+  override fun hashCode(): Int = this.heads.hashCode() * 8191 + this.dependencyRelations.hashCode()
 
   /**
    * Set the arc defined by the id, head and deprel of a given CoNLL [token].
@@ -655,22 +639,12 @@ class DependencyTree(val elements: List<Int>) {
 
     val head: Int = token.head!!
 
-    val deprel = Deprel(
-      label = token.deprel,
-      direction = when {
-        head == 0 -> Deprel.Direction.ROOT
-        head > token.id -> Deprel.Direction.LEFT
-        else -> Deprel.Direction.RIGHT
-      })
+    val dependencyRelation = DependencyRelation(deprel = token.deprel, posTag = token.pos)
 
-    val posTag = POSTag(label = token.pos)
-
-    if (head > 0) {
-      this.setArc(dependent = token.id, governor = head, deprel = deprel, posTag = posTag)
-    } else {
-      this.setDeprel(dependent = token.id, deprel = deprel)
-      this.setPosTag(dependent = token.id, posTag = posTag)
-    }
+    if (head > 0)
+      this.setArc(dependent = token.id, governor = head, dependencyRelation = dependencyRelation)
+    else
+      this.setDependencyRelation(dependent = token.id, dependencyRelation = dependencyRelation)
   }
 
   /**

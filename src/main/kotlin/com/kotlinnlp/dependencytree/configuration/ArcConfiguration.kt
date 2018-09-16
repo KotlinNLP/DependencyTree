@@ -7,19 +7,36 @@
 
 package com.kotlinnlp.dependencytree.configuration
 
-import com.kotlinnlp.dependencytree.Deprel
+import com.kotlinnlp.linguisticdescription.DependencyRelation
+import com.kotlinnlp.linguisticdescription.Deprel
 
 /**
  * ArcConfiguration.
  *
  * @property dependent an element of the tree
  * @property governor an element of the tree
- * @property deprel the syntactic relation that connects the [dependent] with the [governor] (can be null)
+ * @property dependencyRelation the dependency relation between the [dependent] and the [governor] (can be null)
  * @property attachmentScore the attachment score (default = 0.0)
  */
 data class ArcConfiguration(
   val dependent: Int,
   val governor: Int,
-  override val deprel: Deprel? = null,
+  override val dependencyRelation: DependencyRelation? = null,
   override val attachmentScore: Double = 0.0
-) : DependencyConfiguration
+) : DependencyConfiguration {
+
+  /**
+   * Build a [RootConfiguration] given a [Deprel] only instead of a complete [DependencyRelation].
+   *
+   * @param dependent an element of the tree
+   * @param governor an element of the tree
+   * @param deprel the deprel (can be null)
+   * @param attachmentScore the attachment score (default = 0.0)
+   */
+  constructor(dependent: Int, governor: Int, deprel: Deprel?, attachmentScore: Double = 0.0): this(
+    dependent = dependent,
+    governor = governor,
+    dependencyRelation = deprel?.let { DependencyRelation(deprel = it) },
+    attachmentScore = attachmentScore
+  )
+}
