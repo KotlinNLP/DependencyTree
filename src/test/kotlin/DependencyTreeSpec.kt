@@ -287,8 +287,8 @@ class DependencyTreeSpec : Spek({
           assertNull(dependencyTree.heads[2])
         }
 
-        it("should return null as dependency relation of 2") {
-          assertNull(dependencyTree.dependencyRelations[2])
+        it("should return null as grammatical configuration of 2") {
+          assertNull(dependencyTree.grammaticalConfigurations[2])
         }
 
         it("should not contain 2 as dependent of 0") {
@@ -409,18 +409,18 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("matchDependencyRelations") {
+      on("matchesGrammar") {
 
-        it("should match the expected dependency relations") {
+        it("should match the expected grammatical configurations") {
 
           val testTree = DependencyTree(listOf(0, 1, 2, 3, 4))
 
-          testTree.setDependencyRelation(0, deprel = Deprel(labels = listOf("VERB"), direction = Deprel.Direction.ROOT))
-          testTree.setDependencyRelation(1, deprel = Deprel(labels = listOf("SUBJ"), direction = Deprel.Direction.RIGHT))
-          testTree.setDependencyRelation(3, deprel = Deprel(labels = listOf("PRON"), direction = Deprel.Direction.LEFT))
-          testTree.setDependencyRelation(4, deprel = Deprel(labels = listOf("VERB"), direction = Deprel.Direction.ROOT))
+          testTree.setGrammaticalConfiguration(0, deprel = Deprel(labels = listOf("VERB"), direction = Deprel.Direction.ROOT))
+          testTree.setGrammaticalConfiguration(1, deprel = Deprel(labels = listOf("SUBJ"), direction = Deprel.Direction.RIGHT))
+          testTree.setGrammaticalConfiguration(3, deprel = Deprel(labels = listOf("PRON"), direction = Deprel.Direction.LEFT))
+          testTree.setGrammaticalConfiguration(4, deprel = Deprel(labels = listOf("VERB"), direction = Deprel.Direction.ROOT))
 
-          assertTrue { dependencyTree.matchDependencyRelations(testTree) }
+          assertTrue { dependencyTree.matchesGrammar(testTree) }
         }
       }
 
@@ -980,8 +980,8 @@ class DependencyTreeSpec : Spek({
           assertNull(dependencyTree.heads[13])
         }
 
-        it("should return null as dependency relation of 13") {
-          assertNull(dependencyTree.dependencyRelations[13])
+        it("should return null as grammatical configuration of 13") {
+          assertNull(dependencyTree.grammaticalConfigurations[13])
         }
 
         it("should not contain 13 as dependent of 5") {
@@ -1102,18 +1102,18 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("matchDependencyRelations") {
+      on("matchesGrammar") {
 
-        it("should match the expected dependency relations") {
+        it("should match the expected grammatical configurations") {
 
           val testTree = DependencyTree(listOf(5, 89, 13, 67, 69))
 
-          testTree.setDependencyRelation(5, deprel = Deprel(labels = listOf("VERB"), direction = Deprel.Direction.ROOT))
-          testTree.setDependencyRelation(89, deprel = Deprel(labels = listOf("SUBJ"), direction = Deprel.Direction.RIGHT))
-          testTree.setDependencyRelation(67, deprel = Deprel(labels = listOf("PRON"), direction = Deprel.Direction.LEFT))
-          testTree.setDependencyRelation(69, deprel = Deprel(labels = listOf("VERB"), direction = Deprel.Direction.ROOT))
+          testTree.setGrammaticalConfiguration(5, deprel = Deprel(labels = listOf("VERB"), direction = Deprel.Direction.ROOT))
+          testTree.setGrammaticalConfiguration(89, deprel = Deprel(labels = listOf("SUBJ"), direction = Deprel.Direction.RIGHT))
+          testTree.setGrammaticalConfiguration(67, deprel = Deprel(labels = listOf("PRON"), direction = Deprel.Direction.LEFT))
+          testTree.setGrammaticalConfiguration(69, deprel = Deprel(labels = listOf("VERB"), direction = Deprel.Direction.ROOT))
 
-          assertTrue { dependencyTree.matchDependencyRelations(testTree) }
+          assertTrue { dependencyTree.matchesGrammar(testTree) }
         }
       }
 

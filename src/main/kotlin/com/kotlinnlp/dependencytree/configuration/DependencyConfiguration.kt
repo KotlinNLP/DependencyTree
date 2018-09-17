@@ -7,7 +7,7 @@
 
 package com.kotlinnlp.dependencytree.configuration
 
-import com.kotlinnlp.linguisticdescription.DependencyRelation
+import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
 
 /**
  * The configuration of a dependency.
@@ -15,9 +15,9 @@ import com.kotlinnlp.linguisticdescription.DependencyRelation
 interface DependencyConfiguration {
 
   /**
-   * The dependency relation (can be null).
+   * The grammatical configuration (can be null).
    */
-  val dependencyRelation: DependencyRelation?
+  val grammaticalConfiguration: GrammaticalConfiguration?
 
   /**
    * The attachment score.

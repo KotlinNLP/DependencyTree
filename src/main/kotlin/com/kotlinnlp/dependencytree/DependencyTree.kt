@@ -12,7 +12,7 @@ import com.kotlinnlp.conllio.Token
 import com.kotlinnlp.dependencytree.configuration.ArcConfiguration
 import com.kotlinnlp.dependencytree.configuration.DependencyConfiguration
 import com.kotlinnlp.dependencytree.configuration.RootConfiguration
-import com.kotlinnlp.linguisticdescription.DependencyRelation
+import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
 import com.kotlinnlp.linguisticdescription.Deprel
 
 /**
@@ -41,13 +41,13 @@ class DependencyTree(val elements: List<Int>) {
 
       dependencies.forEach {
         when  {
-          it is RootConfiguration && it.dependencyRelation != null -> tree.setDependencyRelation(
+          it is RootConfiguration && it.grammaticalConfiguration != null -> tree.setGrammaticalConfiguration(
             dependent = it.id,
-            dependencyRelation = it.dependencyRelation!!)
+            grammaticalConfiguration = it.grammaticalConfiguration!!)
           it is ArcConfiguration -> tree.setArc(
             dependent = it.dependent,
             governor = it.governor,
-            dependencyRelation = it.dependencyRelation,
+            grammaticalConfiguration = it.grammaticalConfiguration,
             score = it.attachmentScore,
             allowCycle = allowCycles)
         }
@@ -137,10 +137,10 @@ class DependencyTree(val elements: List<Int>) {
   internal val heads: MutableMap<Int, Int?> = this.elements.associate { it to null }.toMutableMap()
 
   /**
-   * The map of elements to their dependency relations.
-   * Not assigned elements have null dependency relation.
+   * The map of elements to their possible grammatical configurations.
+   * Not assigned elements have null grammatical configuration.
    */
-  internal val dependencyRelations: MutableMap<Int, DependencyRelation?> =
+  internal val grammaticalConfigurations: MutableMap<Int, GrammaticalConfiguration?> =
     this.elements.associate { it to null }.toMutableMap()
 
   /**
@@ -180,9 +180,9 @@ class DependencyTree(val elements: List<Int>) {
   /**
    * @param element an element of the tree
    *
-   * @return the dependency relation of the given element
+   * @return the grammatical configuration of the given element
    */
-  fun getDependencyRelation(element: Int): DependencyRelation? = this.dependencyRelations.getValue(element)
+  fun getGrammaticalConfiguration(element: Int): GrammaticalConfiguration? = this.grammaticalConfigurations.getValue(element)
 
   /**
    * @param element an element of the tree
@@ -237,11 +237,11 @@ class DependencyTree(val elements: List<Int>) {
   fun hasSingleRoot(): Boolean = this.roots.size == 1
 
   /**
-   * Set a new arc between a given dependent and governor, possibly with a dependency relation.
+   * Set a new arc between a given dependent and governor, possibly with a grammatical configuration.
    *
    * @param dependent an element of the tree
    * @param governor an element of the tree
-   * @param dependencyRelation a dependency relation (can be null)
+   * @param grammaticalConfiguration a grammatical configuration (can be null)
    * @param score the attachment score (default = 0.0)
    * @param allowCycle if true it allows to create cycles setting this arc (default = false)
    *
@@ -249,7 +249,7 @@ class DependencyTree(val elements: List<Int>) {
    */
   fun setArc(dependent: Int,
              governor: Int,
-             dependencyRelation: DependencyRelation? = null,
+             grammaticalConfiguration: GrammaticalConfiguration? = null,
              score: Double = 0.0,
              allowCycle: Boolean = false) {
 
@@ -261,7 +261,7 @@ class DependencyTree(val elements: List<Int>) {
 
     this.roots.remove(dependent)
     this.heads[dependent] = governor
-    this.dependencyRelations[dependent] = dependencyRelation
+    this.grammaticalConfigurations[dependent] = grammaticalConfiguration
     this.attachmentScores[dependent] = score
     this.addDependent(dependent = dependent, governor = governor)
   }
@@ -283,29 +283,29 @@ class DependencyTree(val elements: List<Int>) {
 
     this.setRoot(dependent)
     this.heads[dependent] = null
-    this.dependencyRelations[dependent] = null
+    this.grammaticalConfigurations[dependent] = null
     this.attachmentScores[dependent] = 0.0
     this.removeDependent(dependent = dependent, governor = governor)
   }
 
   /**
-   * Set a dependency relation to a given dependent.
+   * Set the grammatical configuration of a given dependent.
    *
    * @param dependent an element of the tree
-   * @param dependencyRelation a dependency relation
+   * @param grammaticalConfiguration a grammatical configuration
    */
-  fun setDependencyRelation(dependent: Int, dependencyRelation: DependencyRelation) {
-    this.dependencyRelations[dependent] = dependencyRelation
+  fun setGrammaticalConfiguration(dependent: Int, grammaticalConfiguration: GrammaticalConfiguration) {
+    this.grammaticalConfigurations[dependent] = grammaticalConfiguration
   }
 
   /**
-   * Set a dependency relation to a given dependent with a [Deprel] only.
+   * Set the grammatical configuration of a given dependent with a [Deprel] only.
    *
    * @param dependent an element of the tree
    * @param deprel a deprel
    */
-  fun setDependencyRelation(dependent: Int, deprel: Deprel) {
-    this.dependencyRelations[dependent] = DependencyRelation(deprel = deprel)
+  fun setGrammaticalConfiguration(dependent: Int, deprel: Deprel) {
+    this.grammaticalConfigurations[dependent] = GrammaticalConfiguration(deprel = deprel)
   }
 
   /**
@@ -537,17 +537,17 @@ class DependencyTree(val elements: List<Int>) {
   /**
    * @param otherTree another dependency tree
    *
-   * @return a Boolean indicating whether the dependency relations of this tree and the given one match
+   * @return a Boolean indicating whether this tree matches the grammatical configuration of the given one
    */
-  fun matchDependencyRelations(otherTree: DependencyTree): Boolean =
-    this.dependencyRelations == otherTree.dependencyRelations
+  fun matchesGrammar(otherTree: DependencyTree): Boolean =
+    this.grammaticalConfigurations == otherTree.grammaticalConfigurations
 
   /**
    * @param otherTree another dependency tree
    *
-   * @return a Boolean indicating whether the given tree heads match the heads of this [DependencyTree]
+   * @return a Boolean indicating whether this tree matches the heads of the given one
    */
-  fun matchHeads(otherTree: DependencyTree): Boolean = this.heads == otherTree.heads
+  fun matchesHeads(otherTree: DependencyTree): Boolean = this.heads == otherTree.heads
 
   /**
    * Get a list of paths that represent the cycles of this tree.
@@ -611,7 +611,7 @@ class DependencyTree(val elements: List<Int>) {
     tree.roots.addAll(this.roots)
 
     this.heads.forEach { element, head -> tree.heads[element] = head }
-    this.dependencyRelations.forEach { element, relation -> tree.dependencyRelations[element] = relation }
+    this.grammaticalConfigurations.forEach { element, relation -> tree.grammaticalConfigurations[element] = relation }
     this.attachmentScores.forEach { element, score -> tree.attachmentScores[element] = score }
     this.leftDependents.forEach { element, dependents -> tree.leftDependents.getValue(element).addAll(dependents) }
     this.rightDependents.forEach { element, dependents -> tree.rightDependents.getValue(element).addAll(dependents) }
@@ -623,12 +623,12 @@ class DependencyTree(val elements: List<Int>) {
    * @return a Boolean indicating whether the given [other] object is equal to this [DependencyTree]
    */
   override operator fun equals(other: Any?): Boolean
-    = other is DependencyTree && this.matchHeads(other) && this.matchDependencyRelations(other)
+    = other is DependencyTree && this.matchesHeads(other) && this.matchesGrammar(other)
 
   /**
    * @return the hash code of this [DependencyTree]
    */
-  override fun hashCode(): Int = this.heads.hashCode() * 8191 + this.dependencyRelations.hashCode()
+  override fun hashCode(): Int = this.heads.hashCode() * 8191 + this.grammaticalConfigurations.hashCode()
 
   /**
    * Set the arc defined by the id, head and deprel of a given CoNLL [token].
@@ -639,12 +639,12 @@ class DependencyTree(val elements: List<Int>) {
 
     val head: Int = token.head!!
 
-    val dependencyRelation = DependencyRelation(deprel = token.deprel, posTag = token.pos)
+    val grammaticalConfiguration = GrammaticalConfiguration(deprel = token.deprel, posTag = token.pos)
 
     if (head > 0)
-      this.setArc(dependent = token.id, governor = head, dependencyRelation = dependencyRelation)
+      this.setArc(dependent = token.id, governor = head, grammaticalConfiguration = grammaticalConfiguration)
     else
-      this.setDependencyRelation(dependent = token.id, dependencyRelation = dependencyRelation)
+      this.setGrammaticalConfiguration(dependent = token.id, grammaticalConfiguration = grammaticalConfiguration)
   }
 
   /**
