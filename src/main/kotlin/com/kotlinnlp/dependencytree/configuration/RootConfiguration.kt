@@ -8,7 +8,7 @@
 package com.kotlinnlp.dependencytree.configuration
 
 import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
-import com.kotlinnlp.linguisticdescription.Deprel
+import com.kotlinnlp.linguisticdescription.syntax.SyntacticDependency
 
 /**
  * The configuration of the root.
@@ -24,15 +24,15 @@ data class RootConfiguration(
 ) : DependencyConfiguration {
 
   /**
-   * Build a [RootConfiguration] given a [Deprel] only instead of a complete [GrammaticalConfiguration].
+   * Build a [RootConfiguration] given a [SyntacticDependency] only instead of a complete [GrammaticalConfiguration].
    *
    * @param id an element of the tree
-   * @param deprel the deprel (can be null)
+   * @param dependency the deprel (can be null)
    * @param attachmentScore the attachment score (default = 0.0)
    */
-  constructor(id: Int, deprel: Deprel?, attachmentScore: Double = 0.0): this(
+  constructor(id: Int, dependency: SyntacticDependency?, attachmentScore: Double = 0.0): this(
     id = id,
-    grammaticalConfiguration = deprel?.let { GrammaticalConfiguration(deprel = it) },
+    grammaticalConfiguration = dependency?.let { GrammaticalConfiguration(GrammaticalConfiguration.Component(it)) },
     attachmentScore = attachmentScore
   )
 }

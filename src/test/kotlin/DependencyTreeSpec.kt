@@ -8,7 +8,7 @@
 import com.kotlinnlp.dependencytree.configuration.ArcConfiguration
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.dependencytree.configuration.RootConfiguration
-import com.kotlinnlp.linguisticdescription.Deprel
+import com.kotlinnlp.linguisticdescription.syntax.SyntacticDependency
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.context
 import org.jetbrains.spek.api.dsl.describe
@@ -306,11 +306,24 @@ class DependencyTreeSpec : Spek({
       val dependencyTree = DependencyTree(
         size = 5,
         dependencies = listOf(
-          RootConfiguration(id = 0, deprel = Deprel(labels = listOf("VERB"), direction = Deprel.Direction.ROOT)),
-          ArcConfiguration(1, 0, deprel = Deprel(labels = listOf("SUBJ"), direction = Deprel.Direction.RIGHT)),
-          ArcConfiguration(2, 1, deprel = null),
-          ArcConfiguration(3, 4, deprel = Deprel(labels = listOf("PRON"), direction = Deprel.Direction.LEFT)),
-          RootConfiguration(id = 4, deprel = Deprel(labels = listOf("VERB"), direction = Deprel.Direction.ROOT))
+          RootConfiguration(
+            id = 0,
+            dependency = SyntacticDependency(annotation = "VERB", direction = SyntacticDependency.Direction.ROOT)),
+          ArcConfiguration(
+            dependent = 1,
+            governor = 0,
+            dependency = SyntacticDependency(annotation = "SUBJ", direction = SyntacticDependency.Direction.RIGHT)),
+          ArcConfiguration(
+            dependent = 2,
+            governor = 1,
+            dependency = null),
+          ArcConfiguration(
+            dependent = 3,
+            governor = 4,
+            dependency = SyntacticDependency(annotation = "PRON", direction = SyntacticDependency.Direction.LEFT)),
+          RootConfiguration(
+            id = 4,
+            dependency = SyntacticDependency(annotation = "VERB", direction = SyntacticDependency.Direction.ROOT))
         ))
 
       it("should have the expected root") {
@@ -415,10 +428,18 @@ class DependencyTreeSpec : Spek({
 
           val testTree = DependencyTree(listOf(0, 1, 2, 3, 4))
 
-          testTree.setGrammaticalConfiguration(0, deprel = Deprel(labels = listOf("VERB"), direction = Deprel.Direction.ROOT))
-          testTree.setGrammaticalConfiguration(1, deprel = Deprel(labels = listOf("SUBJ"), direction = Deprel.Direction.RIGHT))
-          testTree.setGrammaticalConfiguration(3, deprel = Deprel(labels = listOf("PRON"), direction = Deprel.Direction.LEFT))
-          testTree.setGrammaticalConfiguration(4, deprel = Deprel(labels = listOf("VERB"), direction = Deprel.Direction.ROOT))
+          testTree.setGrammaticalConfiguration(
+            dependent = 0,
+            dependency = SyntacticDependency(annotation = "VERB", direction = SyntacticDependency.Direction.ROOT))
+          testTree.setGrammaticalConfiguration(
+            dependent = 1,
+            dependency = SyntacticDependency(annotation = "SUBJ", direction = SyntacticDependency.Direction.RIGHT))
+          testTree.setGrammaticalConfiguration(
+            dependent = 3,
+            dependency = SyntacticDependency(annotation = "PRON", direction = SyntacticDependency.Direction.LEFT))
+          testTree.setGrammaticalConfiguration(
+            dependent = 4,
+            dependency = SyntacticDependency(annotation = "VERB", direction = SyntacticDependency.Direction.ROOT))
 
           assertTrue { dependencyTree.matchesGrammar(testTree) }
         }
@@ -999,11 +1020,21 @@ class DependencyTreeSpec : Spek({
       val dependencyTree = DependencyTree(
         elements = listOf(5, 89, 13, 67, 69),
         dependencies = listOf(
-          RootConfiguration(5, deprel = Deprel(labels = listOf("VERB"), direction = Deprel.Direction.ROOT)),
-          ArcConfiguration(89, 5, deprel = Deprel(labels = listOf("SUBJ"), direction = Deprel.Direction.RIGHT)),
-          ArcConfiguration(13, 89, deprel = null),
-          ArcConfiguration(67, 69, deprel = Deprel(labels = listOf("PRON"), direction = Deprel.Direction.LEFT)),
-          RootConfiguration(69, deprel = Deprel(labels = listOf("VERB"), direction = Deprel.Direction.ROOT))
+          RootConfiguration(
+            id = 5,
+            dependency = SyntacticDependency(annotation = "VERB", direction = SyntacticDependency.Direction.ROOT)),
+          ArcConfiguration(
+            dependent = 89,
+            governor = 5,
+            dependency = SyntacticDependency(annotation = "SUBJ", direction = SyntacticDependency.Direction.RIGHT)),
+          ArcConfiguration(13, 89, dependency = null),
+          ArcConfiguration(
+            dependent = 67,
+            governor = 69,
+            dependency = SyntacticDependency(annotation = "PRON", direction = SyntacticDependency.Direction.LEFT)),
+          RootConfiguration(
+            id = 69,
+            dependency = SyntacticDependency(annotation = "VERB", direction = SyntacticDependency.Direction.ROOT))
         ))
 
       it("should have the expected root") {
@@ -1108,10 +1139,18 @@ class DependencyTreeSpec : Spek({
 
           val testTree = DependencyTree(listOf(5, 89, 13, 67, 69))
 
-          testTree.setGrammaticalConfiguration(5, deprel = Deprel(labels = listOf("VERB"), direction = Deprel.Direction.ROOT))
-          testTree.setGrammaticalConfiguration(89, deprel = Deprel(labels = listOf("SUBJ"), direction = Deprel.Direction.RIGHT))
-          testTree.setGrammaticalConfiguration(67, deprel = Deprel(labels = listOf("PRON"), direction = Deprel.Direction.LEFT))
-          testTree.setGrammaticalConfiguration(69, deprel = Deprel(labels = listOf("VERB"), direction = Deprel.Direction.ROOT))
+          testTree.setGrammaticalConfiguration(
+            dependent = 5,
+            dependency = SyntacticDependency(annotation = "VERB", direction = SyntacticDependency.Direction.ROOT))
+          testTree.setGrammaticalConfiguration(
+            dependent = 89,
+            dependency = SyntacticDependency(annotation = "SUBJ", direction = SyntacticDependency.Direction.RIGHT))
+          testTree.setGrammaticalConfiguration(
+            dependent = 67,
+            dependency = SyntacticDependency(annotation = "PRON", direction = SyntacticDependency.Direction.LEFT))
+          testTree.setGrammaticalConfiguration(
+            dependent = 69,
+            dependency = SyntacticDependency(annotation = "VERB", direction = SyntacticDependency.Direction.ROOT))
 
           assertTrue { dependencyTree.matchesGrammar(testTree) }
         }

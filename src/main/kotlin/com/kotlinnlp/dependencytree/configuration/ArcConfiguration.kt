@@ -8,7 +8,8 @@
 package com.kotlinnlp.dependencytree.configuration
 
 import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
-import com.kotlinnlp.linguisticdescription.Deprel
+import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration.Component
+import com.kotlinnlp.linguisticdescription.syntax.SyntacticDependency
 
 /**
  * The configuration of an arc.
@@ -26,17 +27,22 @@ data class ArcConfiguration(
 ) : DependencyConfiguration {
 
   /**
-   * Build a [RootConfiguration] given a [Deprel] only instead of a complete [GrammaticalConfiguration].
+   * Build a [RootConfiguration] given a [SyntacticDependency] only instead of a complete [GrammaticalConfiguration].
    *
    * @param dependent an element of the tree
    * @param governor an element of the tree
-   * @param deprel the deprel (can be null)
+   * @param dependency the syntactic dependency (can be null)
    * @param attachmentScore the attachment score (default = 0.0)
    */
-  constructor(dependent: Int, governor: Int, deprel: Deprel?, attachmentScore: Double = 0.0): this(
+  constructor(
+    dependent: Int,
+    governor: Int,
+    dependency: SyntacticDependency?,
+    attachmentScore: Double = 0.0
+  ): this(
     dependent = dependent,
     governor = governor,
-    grammaticalConfiguration = deprel?.let { GrammaticalConfiguration(deprel = it) },
+    grammaticalConfiguration = dependency?.let { GrammaticalConfiguration(Component(it)) },
     attachmentScore = attachmentScore
   )
 }

@@ -13,7 +13,7 @@ import com.kotlinnlp.dependencytree.configuration.ArcConfiguration
 import com.kotlinnlp.dependencytree.configuration.DependencyConfiguration
 import com.kotlinnlp.dependencytree.configuration.RootConfiguration
 import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
-import com.kotlinnlp.linguisticdescription.Deprel
+import com.kotlinnlp.linguisticdescription.syntax.SyntacticDependency
 
 /**
  * [DependencyTree] contains methods to build and navigate a dependency tree.
@@ -43,7 +43,7 @@ class DependencyTree(val elements: List<Int>) {
         when  {
           it is RootConfiguration && it.grammaticalConfiguration != null -> tree.setGrammaticalConfiguration(
             dependent = it.id,
-            grammaticalConfiguration = it.grammaticalConfiguration!!)
+            configuration = it.grammaticalConfiguration!!)
           it is ArcConfiguration -> tree.setArc(
             dependent = it.dependent,
             governor = it.governor,
@@ -292,20 +292,20 @@ class DependencyTree(val elements: List<Int>) {
    * Set the grammatical configuration of a given dependent.
    *
    * @param dependent an element of the tree
-   * @param grammaticalConfiguration a grammatical configuration
+   * @param configuration a grammatical configuration
    */
-  fun setGrammaticalConfiguration(dependent: Int, grammaticalConfiguration: GrammaticalConfiguration) {
-    this.grammaticalConfigurations[dependent] = grammaticalConfiguration
+  fun setGrammaticalConfiguration(dependent: Int, configuration: GrammaticalConfiguration) {
+    this.grammaticalConfigurations[dependent] = configuration
   }
 
   /**
-   * Set the grammatical configuration of a given dependent with a [Deprel] only.
+   * Set the grammatical configuration of a given dependent with a [SyntacticDependency] only.
    *
    * @param dependent an element of the tree
-   * @param deprel a deprel
+   * @param dependency a syntactic dependency
    */
-  fun setGrammaticalConfiguration(dependent: Int, deprel: Deprel) {
-    this.grammaticalConfigurations[dependent] = GrammaticalConfiguration(deprel = deprel)
+  fun setGrammaticalConfiguration(dependent: Int, dependency: SyntacticDependency) {
+    this.grammaticalConfigurations[dependent] = GrammaticalConfiguration(GrammaticalConfiguration.Component(dependency))
   }
 
   /**
@@ -639,12 +639,17 @@ class DependencyTree(val elements: List<Int>) {
 
     val head: Int = token.head!!
 
-    val grammaticalConfiguration = GrammaticalConfiguration(deprel = token.deprel, posTag = token.pos)
+    val grammaticalConfiguration = GrammaticalConfiguration(components = *Array(
+      size = token.posList.size,
+      init = { i -> GrammaticalConfiguration.Component(
+        syntacticDependency = token.syntacticDependencies[i],
+        pos = token.posList[i])
+      }))
 
     if (head > 0)
       this.setArc(dependent = token.id, governor = head, grammaticalConfiguration = grammaticalConfiguration)
     else
-      this.setGrammaticalConfiguration(dependent = token.id, grammaticalConfiguration = grammaticalConfiguration)
+      this.setGrammaticalConfiguration(dependent = token.id, configuration = grammaticalConfiguration)
   }
 
   /**
