@@ -182,7 +182,7 @@ class DependencyTree(val elements: List<Int>) {
    *
    * @return the grammatical configuration of the given element
    */
-  fun getGrammaticalConfiguration(element: Int): GrammaticalConfiguration? = this.grammaticalConfigurations.getValue(element)
+  fun getConfiguration(element: Int): GrammaticalConfiguration? = this.grammaticalConfigurations.getValue(element)
 
   /**
    * @param element an element of the tree
