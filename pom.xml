@@ -57,6 +57,7 @@
         <spek.version>1.1.5</spek.version>
         <dokka.version>0.9.16</dokka.version>
         <conllio.version>0.2.5</conllio.version>
+        <linguisticdescription.version>0.10.0</linguisticdescription.version>
     </properties>
 
     <repositories>
@@ -228,6 +229,12 @@
             <groupId>com.kotlinnlp</groupId>
             <artifactId>conllio</artifactId>
             <version>${conllio.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.kotlinnlp</groupId>
+            <artifactId>linguisticdescription</artifactId>
+            <version>${linguisticdescription.version}</version>
         </dependency>
     </dependencies>
 </project>
