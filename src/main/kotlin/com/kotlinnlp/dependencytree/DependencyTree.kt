@@ -7,12 +7,13 @@
 
 package com.kotlinnlp.dependencytree
 
-import com.kotlinnlp.conllio.Sentence
-import com.kotlinnlp.conllio.Token
+import com.kotlinnlp.conllio.Sentence as CoNLLSentence
+import com.kotlinnlp.conllio.Token as CoNLLToken
 import com.kotlinnlp.dependencytree.configuration.ArcConfiguration
 import com.kotlinnlp.dependencytree.configuration.DependencyConfiguration
 import com.kotlinnlp.dependencytree.configuration.RootConfiguration
 import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
+import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
 import com.kotlinnlp.linguisticdescription.syntax.SyntacticDependency
 
 /**
@@ -80,11 +81,27 @@ class DependencyTree(val elements: List<Int>) {
      *
      * @return a new dependency tree defined in the given sentence
      */
-    operator fun invoke(sentence: Sentence): DependencyTree {
+    operator fun invoke(sentence: CoNLLSentence): DependencyTree {
 
       val tree = DependencyTree(elements = sentence.tokens.map { it.id })
 
       sentence.tokens.forEach { tree.setArc(it) }
+
+      return tree
+    }
+
+    /**
+     * Build a [DependencyTree] from a list of morpho-syntactic tokens.
+     *
+     * @param tokens a list of morpho-syntactic tokens
+     *
+     * @return a new dependency tree defined in the given sentence
+     */
+    operator fun invoke(tokens: List<MorphoSynToken>): DependencyTree {
+
+      val tree = DependencyTree(elements = tokens.map { it.id })
+
+      tokens.forEach { tree.setArc(it) }
 
       return tree
     }
@@ -631,22 +648,44 @@ class DependencyTree(val elements: List<Int>) {
   override fun hashCode(): Int = this.heads.hashCode() * 8191 + this.grammaticalConfigurations.hashCode()
 
   /**
-   * Set the arc defined by the id, head and deprel of a given CoNLL [token].
+   * Set the arc defined by the id, head and deprel of a given CoNLL token.
    *
    * @param token a CoNLL token
    */
-  private fun setArc(token: Token) {
+  private fun setArc(token: CoNLLToken) {
 
     val head: Int = token.head!!
 
-    val grammaticalConfiguration = GrammaticalConfiguration(components = *Array(
-      size = token.posList.size,
-      init = { i -> GrammaticalConfiguration.Component(
-        syntacticDependency = token.syntacticDependencies[i],
-        pos = token.posList[i])
-      }))
+    val grammaticalConfiguration = GrammaticalConfiguration(
+      components = token.syntacticDependencies.zip(token.posList).map {
+        GrammaticalConfiguration.Component(syntacticDependency = it.first, pos = it.second)
+      })
 
     if (head > 0)
+      this.setArc(dependent = token.id, governor = head, grammaticalConfiguration = grammaticalConfiguration)
+    else
+      this.setGrammaticalConfiguration(dependent = token.id, configuration = grammaticalConfiguration)
+  }
+
+  /**
+   * Set the arc defined by a given morpho-syntactic token.
+   *
+   * @param token a morpho-syntactic token
+   */
+  private fun setArc(token: MorphoSynToken) {
+
+    val head: Int? = token.syntacticRelation.governor
+
+    val components: List<MorphoSynToken.Single> = when (token) {
+      is MorphoSynToken.Single -> listOf(token)
+      is MorphoSynToken.Composite -> token.components
+    }
+
+    val grammaticalConfiguration = GrammaticalConfiguration(components = components.map {
+      GrammaticalConfiguration.Component(syntacticDependency = it.syntacticRelation.dependency, pos = it.pos)
+    })
+
+    if (head != null)
       this.setArc(dependent = token.id, governor = head, grammaticalConfiguration = grammaticalConfiguration)
     else
       this.setGrammaticalConfiguration(dependent = token.id, configuration = grammaticalConfiguration)
