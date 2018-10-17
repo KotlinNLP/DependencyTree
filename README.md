@@ -1,4 +1,4 @@
-# DependencyTree [![GitHub version](https://badge.fury.io/gh/KotlinNLP%2FDependencyTree.svg)](https://badge.fury.io/gh/KotlinNLP%2FDependencyTree) [![Build Status](https://travis-ci.org/KotlinNLP/DependencyTree.svg?branch=master)](https://travis-ci.org/KotlinNLP/DependencyTree)
+# DependencyTree [![Maven Central](https://img.shields.io/maven-central/v/com.kotlinnlp/dependencytree.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.kotlinnlp%22%20AND%20a:%22dependencytree%22) [![Build Status](https://travis-ci.org/KotlinNLP/DependencyTree.svg?branch=master)](https://travis-ci.org/KotlinNLP/DependencyTree)
 
 A simple package that contains convenient methods to build and navigate a dependency tree.
 
