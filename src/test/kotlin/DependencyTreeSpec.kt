@@ -505,6 +505,34 @@ class DependencyTreeSpec : Spek({
         }
       }
 
+      on("inDepthPreOrder") {
+
+        it("should return the expected list") {
+          assertEquals(listOf(2, 0, 1, 3, 8, 7, 9, 11, 10, 6, 4, 5), dependencyTree.inDepthPreOrder())
+        }
+      }
+
+      on("inDepthPostOrder") {
+
+        it("should return the expected list") {
+          assertEquals(listOf(0, 1, 7, 9, 10, 11, 8, 3, 4, 5, 6, 2), dependencyTree.inDepthPostOrder())
+        }
+      }
+
+      on("inBreadthPreOrder") {
+
+        it("should return the expected list") {
+          assertEquals(listOf(2, 0, 1, 3, 6, 8, 4, 5, 7, 9, 11, 10), dependencyTree.inBreadthPreOrder())
+        }
+      }
+
+      on("inBreadthPostOrder") {
+
+        it("should return the expected list") {
+          assertEquals(listOf(10, 7, 9, 11, 8, 4, 5, 0, 1, 3, 6, 2), dependencyTree.inBreadthPostOrder())
+        }
+      }
+
       on("inOrder") {
 
         it("should return the expected list") {
@@ -1213,6 +1241,34 @@ class DependencyTreeSpec : Spek({
         it("should return true") {
 
           assertTrue { dependencyTree.isDAG() }
+        }
+      }
+
+      on("inDepthPreOrder") {
+
+        it("should return the expected list") {
+          assertEquals(listOf(13, 5, 89, 67, 45, 3, 77, 52, 14, 15, 69, 97), dependencyTree.inDepthPreOrder())
+        }
+      }
+
+      on("inDepthPostOrder") {
+
+        it("should return the expected list") {
+          assertEquals(listOf(5, 89, 3, 77, 14, 52, 45, 67, 69, 97, 15, 13), dependencyTree.inDepthPostOrder())
+        }
+      }
+
+      on("inBreadthPreOrder") {
+
+        it("should return the expected list") {
+          assertEquals(listOf(13, 5, 89, 67, 15, 45, 69, 97, 3, 77, 52, 14), dependencyTree.inBreadthPreOrder())
+        }
+      }
+
+      on("inBreadthPostOrder") {
+
+        it("should return the expected list") {
+          assertEquals(listOf(14, 3, 77, 52, 45, 69, 97, 5, 89, 67, 15, 13), dependencyTree.inBreadthPostOrder())
         }
       }
 
