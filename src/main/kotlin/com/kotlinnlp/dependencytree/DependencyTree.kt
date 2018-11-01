@@ -508,6 +508,63 @@ class DependencyTree(val elements: List<Int>) {
   fun isDAG(): Boolean = this.hasSingleRoot() && !this.containsCycle()
 
   /**
+   * Get the list of all the elements following an in-depth visit with a pre-order.
+   *
+   * @param element the element from which to start the visit or null if the visit must start from the roots
+   *
+   * @return the list of all the elements visited in pre-order depth
+   */
+  fun inDepthPreOrder(element: Int? = null): List<Int> =
+    if (element == null)
+      this.roots.flatMap { this.inDepthPreOrder(it) }
+    else
+      listOf(element) + this.getDependents(element).flatMap { this.inDepthPreOrder(it) }
+
+  /**
+   * Get the list of all the elements following an in-depth visit with a post-order.
+   *
+   * @param element the element from which to start the visit or null if the visit must start from the roots
+   *
+   * @return the list of all the elements visited in post-order depth
+   */
+  fun inDepthPostOrder(element: Int? = null): List<Int> =
+    if (element == null)
+      this.roots.flatMap { this.inDepthPostOrder(it) }
+    else
+      this.getDependents(element).flatMap { this.inDepthPostOrder(it) } + element
+
+  /**
+   * Get the list of all the elements following an in-breadth visit with a pre-order.
+   *
+   * @param elements the list of all the elements at the same level from which to start the visit or null if the visit
+   *                 must start from the roots
+   *
+   * @return the list of all the elements visited in pre-order breadth
+   */
+  fun inBreadthPreOrder(elements: List<Int>? = null): List<Int> =
+    when {
+      elements == null -> this.inBreadthPreOrder(this.roots)
+      elements.isNotEmpty() -> elements + inBreadthPreOrder(elements.flatMap { this.getDependents(it) })
+      else -> elements
+    }
+
+
+  /**
+   * Get the list of all the elements following an in-breadth visit with a post-order.
+   *
+   * @param elements the list of all the elements at the same level from which to start the visit or null if the visit
+   *                 must start from the roots
+   *
+   * @return the list of all the elements visited in post-order breadth
+   */
+  fun inBreadthPostOrder(elements: List<Int>? = null): List<Int> =
+    when {
+      elements == null -> this.inBreadthPostOrder(this.roots)
+      elements.isNotEmpty() -> inBreadthPostOrder(elements.flatMap { this.getDependents(it) }) + elements
+      else -> elements
+    }
+
+  /**
    * The projective order is a canonical (re)ordering of the elements for which the tree is projective.
    *
    * Implementation note: the projective order is obtained through an inorder traversal of the tree that respects the
