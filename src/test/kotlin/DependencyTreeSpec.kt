@@ -448,12 +448,12 @@ class DependencyTreeSpec : Spek({
       on("toString") {
 
         val expectedString = """
-          0 _ VERB:ROOT
-          +--r 1 _ SUBJ:RIGHT
+          0 _ VERB
+          +--r 1 _ SUBJ
                +--r 2 _ _
 
-          4 _ VERB:ROOT
-          +--l 3 _ PRON:LEFT
+          4 _ VERB
+          +--l 3 _ PRON
           """.trimIndent()
 
         it("should return the expected string") {
@@ -1187,12 +1187,12 @@ class DependencyTreeSpec : Spek({
       on("toString") {
 
         val expectedString = """
-          5 _ VERB:ROOT
-          +--r 89 _ SUBJ:RIGHT
+          5 _ VERB
+          +--r 89 _ SUBJ
                +--r 13 _ _
 
-          69 _ VERB:ROOT
-          +--l 67 _ PRON:LEFT
+          69 _ VERB
+          +--l 67 _ PRON
           """.trimIndent()
 
         it("should return the expected string") {
