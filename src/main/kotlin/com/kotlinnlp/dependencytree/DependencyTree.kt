@@ -509,60 +509,80 @@ class DependencyTree(val elements: List<Int>) {
 
   /**
    * Get the list of all the elements following an in-depth visit with a pre-order.
+   * Note: this method should be called on a DAG only.
    *
-   * @param element the element from which to start the visit or null if the visit must start from the roots
+   * @param element the element from which to start the visit or null if the visit must start from the root
    *
    * @return the list of all the elements visited in pre-order depth
    */
-  fun inDepthPreOrder(element: Int? = null): List<Int> =
-    if (element == null)
+  fun inDepthPreOrder(element: Int? = null): List<Int> {
+
+    require(this.isDAG()) { "Required a single directed acyclic graph."}
+
+    return if (element == null)
       this.roots.flatMap { this.inDepthPreOrder(it) }
     else
       listOf(element) + this.getDependents(element).flatMap { this.inDepthPreOrder(it) }
+  }
 
   /**
    * Get the list of all the elements following an in-depth visit with a post-order.
+   * Note: this method should be called on a DAG only.
    *
-   * @param element the element from which to start the visit or null if the visit must start from the roots
+   * @param element the element from which to start the visit or null if the visit must start from the root
    *
    * @return the list of all the elements visited in post-order depth
    */
-  fun inDepthPostOrder(element: Int? = null): List<Int> =
-    if (element == null)
+  fun inDepthPostOrder(element: Int? = null): List<Int> {
+
+    require(this.isDAG()) { "Required a single directed acyclic graph."}
+
+    return if (element == null)
       this.roots.flatMap { this.inDepthPostOrder(it) }
     else
       this.getDependents(element).flatMap { this.inDepthPostOrder(it) } + element
+  }
 
   /**
    * Get the list of all the elements following an in-breadth visit with a pre-order.
+   * Note: this method should be called on a DAG only.
    *
    * @param elements the list of all the elements at the same level from which to start the visit or null if the visit
-   *                 must start from the roots
+   *                 must start from the root
    *
    * @return the list of all the elements visited in pre-order breadth
    */
-  fun inBreadthPreOrder(elements: List<Int>? = null): List<Int> =
-    when {
+  fun inBreadthPreOrder(elements: List<Int>? = null): List<Int> {
+
+    require(this.isDAG()) { "Required a single directed acyclic graph."}
+
+    return when {
       elements == null -> this.inBreadthPreOrder(this.roots)
       elements.isNotEmpty() -> elements + inBreadthPreOrder(elements.flatMap { this.getDependents(it) })
       else -> elements
     }
+  }
 
 
   /**
    * Get the list of all the elements following an in-breadth visit with a post-order.
+   * Note: this method should be called on a DAG only.
    *
    * @param elements the list of all the elements at the same level from which to start the visit or null if the visit
-   *                 must start from the roots
+   *                 must start from the root
    *
    * @return the list of all the elements visited in post-order breadth
    */
-  fun inBreadthPostOrder(elements: List<Int>? = null): List<Int> =
-    when {
+  fun inBreadthPostOrder(elements: List<Int>? = null): List<Int> {
+
+    require(this.isDAG()) { "Required a single directed acyclic graph."}
+
+    return when {
       elements == null -> this.inBreadthPostOrder(this.roots)
       elements.isNotEmpty() -> inBreadthPostOrder(elements.flatMap { this.getDependents(it) }) + elements
       else -> elements
     }
+  }
 
   /**
    * The projective order is a canonical (re)ordering of the elements for which the tree is projective.
