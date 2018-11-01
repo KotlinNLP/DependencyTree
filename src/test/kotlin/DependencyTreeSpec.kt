@@ -14,10 +14,8 @@ import org.jetbrains.spek.api.dsl.context
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
+import java.lang.IllegalArgumentException
+import kotlin.test.*
 
 /**
  * DependencyTreeSpec.
@@ -367,6 +365,34 @@ class DependencyTreeSpec : Spek({
 
         it("should return no cycles") {
           assertTrue { dependencyTree.getCycles().isEmpty() }
+        }
+      }
+
+      on("inDepthPreOrder") {
+
+        it("should raise an exception") {
+          assertFailsWith<IllegalArgumentException> { dependencyTree.inDepthPreOrder() }
+        }
+      }
+
+      on("inDepthPostOrder") {
+
+        it("should raise an exception") {
+          assertFailsWith<IllegalArgumentException> { dependencyTree.inDepthPostOrder() }
+        }
+      }
+
+      on("inBreadthPreOrder") {
+
+        it("should raise an exception") {
+          assertFailsWith<IllegalArgumentException> { dependencyTree.inBreadthPreOrder() }
+        }
+      }
+
+      on("inBreadthPostOrder") {
+
+        it("should raise an exception") {
+          assertFailsWith<IllegalArgumentException> { dependencyTree.inBreadthPostOrder() }
         }
       }
 
@@ -1106,6 +1132,34 @@ class DependencyTreeSpec : Spek({
 
         it("should return no cycles") {
           assertTrue { dependencyTree.getCycles().isEmpty() }
+        }
+      }
+
+      on("inDepthPreOrder") {
+
+        it("should raise an exception") {
+          assertFailsWith<IllegalArgumentException> { dependencyTree.inDepthPreOrder() }
+        }
+      }
+
+      on("inDepthPostOrder") {
+
+        it("should raise an exception") {
+          assertFailsWith<IllegalArgumentException> { dependencyTree.inDepthPostOrder() }
+        }
+      }
+
+      on("inBreadthPreOrder") {
+
+        it("should raise an exception") {
+          assertFailsWith<IllegalArgumentException> { dependencyTree.inBreadthPreOrder() }
+        }
+      }
+
+      on("inBreadthPostOrder") {
+
+        it("should raise an exception") {
+          assertFailsWith<IllegalArgumentException> { dependencyTree.inBreadthPostOrder() }
         }
       }
 
