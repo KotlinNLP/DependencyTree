@@ -697,6 +697,32 @@ class DependencyTreeSpec : Spek({
         }
       }
 
+      on("getDescendants") {
+
+        it("should raise an exception with a negative maxDepth") {
+          assertFailsWith<IllegalArgumentException> { dependencyTree.getDescendants(3, maxDepth = -3) }
+        }
+
+        it("should raise an exception with maxDepth = 0") {
+          assertFailsWith<IllegalArgumentException> { dependencyTree.getDescendants(3, maxDepth = 0) }
+        }
+
+        it("should return the expected descendants list with maxDepth = 1") {
+          assertEquals(listOf(8), dependencyTree.getDescendants(3, maxDepth = 1))
+        }
+
+        it("should return the expected descendants list with maxDepth = 2") {
+          assertEquals(listOf(8, 7, 9, 11), dependencyTree.getDescendants(3, maxDepth = 2))
+        }
+      }
+
+      on("getAllDescendants") {
+
+        it("should return the expected descendants list") {
+          assertEquals(listOf(8, 7, 9, 11, 10), dependencyTree.getAllDescendants(3))
+        }
+      }
+
       on("toString") {
 
         val expectedString = """
@@ -1461,6 +1487,32 @@ class DependencyTreeSpec : Spek({
         it("should return true") {
 
           assertTrue { dependencyTree.isNonProjective() }
+        }
+      }
+
+      on("getDescendants") {
+
+        it("should raise an exception with a negative maxDepth") {
+          assertFailsWith<IllegalArgumentException> { dependencyTree.getDescendants(3, maxDepth = -3) }
+        }
+
+        it("should raise an exception with maxDepth = 0") {
+          assertFailsWith<IllegalArgumentException> { dependencyTree.getDescendants(3, maxDepth = 0) }
+        }
+
+        it("should return the expected descendants list with maxDepth = 1") {
+          assertEquals(listOf(45), dependencyTree.getDescendants(67, maxDepth = 1))
+        }
+
+        it("should return the expected descendants list with maxDepth = 2") {
+          assertEquals(listOf(45, 3, 77, 52), dependencyTree.getDescendants(67, maxDepth = 2))
+        }
+      }
+
+      on("getAllDescendants") {
+
+        it("should return the expected descendants list") {
+          assertEquals(listOf(45, 3, 77, 52, 14), dependencyTree.getAllDescendants(67))
         }
       }
 
