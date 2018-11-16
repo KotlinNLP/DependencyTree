@@ -242,6 +242,24 @@ class DependencyTree(val elements: List<Int>) {
   }
 
   /**
+   * @param element an element of the tree
+   * @param maxDepth the max depth at which to look for descendants (>= 1)
+   *
+   * @return the list of the descendants of the given element, until the given depth
+   */
+  fun getDescendants(element: Int, maxDepth: Int): List<Int> {
+
+    require(maxDepth >= 1)
+
+    val dependents: List<Int> = this.getDependents(element)
+
+    return if (maxDepth > 1)
+      dependents + dependents.flatMap { this.getDescendants(it, maxDepth = maxDepth - 1) }
+    else
+      dependents
+  }
+
+  /**
    * @return the list of roots of the tree
    */
   fun getRoots(): List<Int> = this.roots
