@@ -41,10 +41,13 @@ class DependencyTree(val elements: List<Int>) {
       val tree = DependencyTree(elements)
 
       dependencies.forEach {
+
         when  {
+
           it is RootConfiguration && it.grammaticalConfiguration != null -> tree.setGrammaticalConfiguration(
             dependent = it.id,
             configuration = it.grammaticalConfiguration!!)
+
           it is ArcConfiguration -> tree.setArc(
             dependent = it.dependent,
             governor = it.governor,
@@ -78,14 +81,15 @@ class DependencyTree(val elements: List<Int>) {
      * Build a [DependencyTree] from a CoNLL sentence.
      *
      * @param sentence a CoNLL sentence
+     * @param allowCycles if true it allows to create cycles when building the tree (default = false)
      *
      * @return a new dependency tree defined in the given sentence
      */
-    operator fun invoke(sentence: CoNLLSentence): DependencyTree {
+    operator fun invoke(sentence: CoNLLSentence, allowCycles: Boolean = false): DependencyTree {
 
       val tree = DependencyTree(elements = sentence.tokens.map { it.id })
 
-      sentence.tokens.forEach { tree.setArc(it) }
+      sentence.tokens.forEach { tree.setArc(it, allowCycle = allowCycles) }
 
       return tree
     }
@@ -578,7 +582,6 @@ class DependencyTree(val elements: List<Int>) {
     return visit(this.roots)
   }
 
-
   /**
    * Get the list of all the elements following an in-breadth visit with a post-order.
    * Note: this method should be called on a DAG only.
@@ -741,8 +744,9 @@ class DependencyTree(val elements: List<Int>) {
    * Set the arc defined by the id, head and deprel of a given CoNLL token.
    *
    * @param token a CoNLL token
+   * @param allowCycle if true it allows to create cycles when building the tree (default = false)
    */
-  private fun setArc(token: CoNLLToken) {
+  private fun setArc(token: CoNLLToken, allowCycle: Boolean = false) {
 
     val head: Int = token.head!!
 
@@ -751,18 +755,29 @@ class DependencyTree(val elements: List<Int>) {
         GrammaticalConfiguration.Component(syntacticDependency = it.first, pos = it.second)
       })
 
-    if (head > 0)
-      this.setArc(dependent = token.id, governor = head, grammaticalConfiguration = grammaticalConfiguration)
-    else
-      this.setGrammaticalConfiguration(dependent = token.id, configuration = grammaticalConfiguration)
+    if (head > 0) {
+
+      this.setArc(
+        dependent = token.id,
+        governor = head,
+        grammaticalConfiguration = grammaticalConfiguration,
+        allowCycle = allowCycle)
+
+    } else {
+
+      this.setGrammaticalConfiguration(
+        dependent = token.id,
+        configuration = grammaticalConfiguration)
+    }
   }
 
   /**
    * Set the arc defined by a given morpho-syntactic token.
    *
    * @param token a morpho-syntactic token
+   * @param allowCycle if true it allows to create cycles when building the tree (default = false)
    */
-  private fun setArc(token: MorphoSynToken) {
+  private fun setArc(token: MorphoSynToken, allowCycle: Boolean = false) {
 
     val head: Int? = token.syntacticRelation.governor
 
@@ -775,10 +790,20 @@ class DependencyTree(val elements: List<Int>) {
       GrammaticalConfiguration.Component(syntacticDependency = it.syntacticRelation.dependency, pos = it.pos)
     })
 
-    if (head != null)
-      this.setArc(dependent = token.id, governor = head, grammaticalConfiguration = grammaticalConfiguration)
-    else
-      this.setGrammaticalConfiguration(dependent = token.id, configuration = grammaticalConfiguration)
+    if (head != null) {
+
+      this.setArc(
+        dependent = token.id,
+        governor = head,
+        grammaticalConfiguration = grammaticalConfiguration,
+        allowCycle = allowCycle)
+
+    } else {
+
+      this.setGrammaticalConfiguration(
+        dependent = token.id,
+        configuration = grammaticalConfiguration)
+    }
   }
 
   /**
