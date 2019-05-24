@@ -709,14 +709,10 @@ sealed class DependencyTree(val elements: List<Int>) {
        *
        * @return a new dependency tree defined in the given sentence
        */
-      operator fun invoke(sentence: CoNLLSentence, allowCycles: Boolean = false): DependencyTree.Unlabeled {
-
-        val tree = DependencyTree.Unlabeled(elements = sentence.tokens.map { it.id })
-
-        sentence.tokens.forEach { tree.setArc(it, allowCycle = allowCycles) }
-
-        return tree
-      }
+      operator fun invoke(sentence: CoNLLSentence, allowCycles: Boolean = false): DependencyTree.Unlabeled =
+        DependencyTree.Unlabeled(elements = sentence.tokens.map { it.id }).apply {
+          sentence.tokens.forEach { setArc(it, allowCycle = allowCycles) }
+        }
 
       /**
        * Build a labeled dependency tree from a list of morpho-syntactic tokens.
@@ -725,14 +721,10 @@ sealed class DependencyTree(val elements: List<Int>) {
        *
        * @return a new dependency tree defined in the given sentence
        */
-      operator fun invoke(tokens: List<MorphoSynToken>): DependencyTree.Unlabeled {
-
-        val tree = DependencyTree.Unlabeled(elements = tokens.map { it.id })
-
-        tokens.forEach { tree.setArc(it) }
-
-        return tree
-      }
+      operator fun invoke(tokens: List<MorphoSynToken>): DependencyTree.Unlabeled =
+        DependencyTree.Unlabeled(elements = tokens.map { it.id }).apply {
+          tokens.forEach { setArc(it) }
+        }
     }
 
     /**
@@ -806,19 +798,17 @@ sealed class DependencyTree(val elements: List<Int>) {
        */
       operator fun invoke(elements: List<Int>,
                           dependencies: List<DependencyConfiguration.Labeled>,
-                          allowCycles: Boolean = false): DependencyTree.Labeled {
-
-        val tree = DependencyTree.Labeled(elements)
+                          allowCycles: Boolean = false) = DependencyTree.Labeled(elements).apply {
 
         dependencies.forEach {
 
           when (it) {
 
-            is DependencyConfiguration.Labeled.Root -> tree.setGrammaticalConfiguration(
+            is DependencyConfiguration.Labeled.Root -> setGrammaticalConfiguration(
               dependent = it.id,
               configuration = it.grammaticalConfiguration)
 
-            is DependencyConfiguration.Labeled.Arc -> tree.setArc(
+            is DependencyConfiguration.Labeled.Arc -> setArc(
               dependent = it.dependent,
               governor = it.governor,
               grammaticalConfiguration = it.grammaticalConfiguration,
@@ -826,8 +816,6 @@ sealed class DependencyTree(val elements: List<Int>) {
               allowCycle = allowCycles)
           }
         }
-
-        return tree
       }
 
       /**
