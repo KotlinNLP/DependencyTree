@@ -7,11 +7,10 @@
 
 package com.kotlinnlp.dependencytree
 
+import com.kotlinnlp.dependencytree.configuration.ArcConfiguration
 import com.kotlinnlp.conllio.Sentence as CoNLLSentence
 import com.kotlinnlp.conllio.Token as CoNLLToken
-import com.kotlinnlp.dependencytree.configuration.ArcConfiguration
 import com.kotlinnlp.dependencytree.configuration.DependencyConfiguration
-import com.kotlinnlp.dependencytree.configuration.RootConfiguration
 import com.kotlinnlp.linguisticdescription.GrammaticalConfiguration
 import com.kotlinnlp.linguisticdescription.sentence.token.MorphoSynToken
 import com.kotlinnlp.linguisticdescription.syntax.SyntacticDependency
@@ -21,105 +20,7 @@ import com.kotlinnlp.linguisticdescription.syntax.SyntacticDependency
  *
  * @property elements the list of the elements in the dependency tree (each represented by an integer ID)
  */
-class DependencyTree(val elements: List<Int>) {
-
-  companion object {
-
-    /**
-     * Build a DependencyTree with a given list of [dependencies].
-     *
-     * @param elements the list of the ids of the elements in the dependency tree
-     * @param dependencies a list of [DependencyConfiguration]
-     * @param allowCycles if true it allows to create cycles when building the tree (default = false)
-     *
-     * @return a new DependencyTree
-     */
-    operator fun invoke(elements: List<Int>,
-                        dependencies: List<DependencyConfiguration>,
-                        allowCycles: Boolean = false): DependencyTree {
-
-      val tree = DependencyTree(elements)
-
-      dependencies.forEach {
-
-        when  {
-
-          it is RootConfiguration && it.grammaticalConfiguration != null -> tree.setGrammaticalConfiguration(
-            dependent = it.id,
-            configuration = it.grammaticalConfiguration!!)
-
-          it is ArcConfiguration -> tree.setArc(
-            dependent = it.dependent,
-            governor = it.governor,
-            grammaticalConfiguration = it.grammaticalConfiguration,
-            score = it.attachmentScore,
-            allowCycle = allowCycles)
-        }
-      }
-
-      return tree
-    }
-
-    /**
-     * Build a DependencyTree with a size.
-     * It will contain elements with sequential ids, from 0 to (size - 1).
-     *
-     * @param size the number of elements in the dependency tree
-     * @param dependencies a list of [DependencyConfiguration]
-     * @param allowCycles if true it allows to create cycles when building the tree (default = false)
-     *
-     * @return a new DependencyTree
-     */
-    operator fun invoke(size: Int,
-                        dependencies: List<DependencyConfiguration>,
-                        allowCycles: Boolean = false): DependencyTree = this(
-      elements = IntRange(0, size - 1).toList(),
-      dependencies = dependencies,
-      allowCycles = allowCycles)
-
-    /**
-     * Build a [DependencyTree] from a CoNLL sentence.
-     *
-     * @param sentence a CoNLL sentence
-     * @param allowCycles if true it allows to create cycles when building the tree (default = false)
-     *
-     * @return a new dependency tree defined in the given sentence
-     */
-    operator fun invoke(sentence: CoNLLSentence, allowCycles: Boolean = false): DependencyTree {
-
-      val tree = DependencyTree(elements = sentence.tokens.map { it.id })
-
-      sentence.tokens.forEach { tree.setArc(it, allowCycle = allowCycles) }
-
-      return tree
-    }
-
-    /**
-     * Build a [DependencyTree] from a list of morpho-syntactic tokens.
-     *
-     * @param tokens a list of morpho-syntactic tokens
-     *
-     * @return a new dependency tree defined in the given sentence
-     */
-    operator fun invoke(tokens: List<MorphoSynToken>): DependencyTree {
-
-      val tree = DependencyTree(elements = tokens.map { it.id })
-
-      tokens.forEach { tree.setArc(it) }
-
-      return tree
-    }
-  }
-
-  /**
-   * Build a DependencyTree with a size.
-   * It will contain elements with sequential ids, from 0 to (size - 1).
-   *
-   * @param size the number of elements in the dependency tree
-   *
-   * @return a new DependencyTree
-   */
-  constructor(size: Int): this(IntRange(0, size - 1).toList())
+sealed class DependencyTree(val elements: List<Int>) {
 
   /**
    * An arc between two elements.
@@ -158,13 +59,6 @@ class DependencyTree(val elements: List<Int>) {
   internal val heads: MutableMap<Int, Int?> = this.elements.associate { it to null }.toMutableMap()
 
   /**
-   * The map of elements to their possible grammatical configurations.
-   * Not assigned elements have null grammatical configuration.
-   */
-  internal val grammaticalConfigurations: MutableMap<Int, GrammaticalConfiguration?> =
-    this.elements.associate { it to null }.toMutableMap()
-
-  /**
    * The map of elements to their attachment scores (roots included, default = 0.0).
    */
   internal val attachmentScores: MutableMap<Int, Double> = this.elements.associate { it to 0.0 }.toMutableMap()
@@ -173,13 +67,13 @@ class DependencyTree(val elements: List<Int>) {
    * The map of elements to their left dependents.
    * In case of no dependents the list is empty.
    */
-  private val leftDependents: Map<Int, MutableList<Int>> = this.elements.associate { it to mutableListOf<Int>() }
+  protected val leftDependents: Map<Int, MutableList<Int>> = this.elements.associate { it to mutableListOf<Int>() }
 
   /**
    * The map of elements to their right dependents.
    * In case of no dependents the list is empty.
    */
-  private val rightDependents: Map<Int, MutableList<Int>> = this.elements.associate { it to mutableListOf<Int>() }
+  protected val rightDependents: Map<Int, MutableList<Int>> = this.elements.associate { it to mutableListOf<Int>() }
 
   /**
    * List of root elements.
@@ -197,13 +91,6 @@ class DependencyTree(val elements: List<Int>) {
    * @return the head of the given element
    */
   fun getHead(element: Int): Int? = this.heads.getValue(element)
-
-  /**
-   * @param element an element of the tree
-   *
-   * @return the grammatical configuration of the given element
-   */
-  fun getConfiguration(element: Int): GrammaticalConfiguration? = this.grammaticalConfigurations.getValue(element)
 
   /**
    * @param element an element of the tree
@@ -285,7 +172,6 @@ class DependencyTree(val elements: List<Int>) {
    *
    * @param dependent an element of the tree
    * @param governor an element of the tree
-   * @param grammaticalConfiguration a grammatical configuration (can be null)
    * @param score the attachment score (default = 0.0)
    * @param allowCycle if true it allows to create cycles setting this arc (default = false)
    *
@@ -293,7 +179,6 @@ class DependencyTree(val elements: List<Int>) {
    */
   fun setArc(dependent: Int,
              governor: Int,
-             grammaticalConfiguration: GrammaticalConfiguration? = null,
              score: Double = 0.0,
              allowCycle: Boolean = false) {
 
@@ -305,7 +190,6 @@ class DependencyTree(val elements: List<Int>) {
 
     this.roots.remove(dependent)
     this.heads[dependent] = governor
-    this.grammaticalConfigurations[dependent] = grammaticalConfiguration
     this.attachmentScores[dependent] = score
     this.addDependent(dependent = dependent, governor = governor)
   }
@@ -318,7 +202,7 @@ class DependencyTree(val elements: List<Int>) {
    *
    * @throws InvalidArc if the given [dependent] and [governor] are not involved in an arc
    */
-  fun removeArc(dependent: Int, governor: Int) {
+  open fun removeArc(dependent: Int, governor: Int) {
 
     require(governor in this.elementsSet) { "Invalid governor: $governor" }
     require(dependent in this.elementsSet) { "Invalid dependent: $dependent" }
@@ -327,29 +211,8 @@ class DependencyTree(val elements: List<Int>) {
 
     this.setRoot(dependent)
     this.heads[dependent] = null
-    this.grammaticalConfigurations[dependent] = null
     this.attachmentScores[dependent] = 0.0
     this.removeDependent(dependent = dependent, governor = governor)
-  }
-
-  /**
-   * Set the grammatical configuration of a given dependent.
-   *
-   * @param dependent an element of the tree
-   * @param configuration a grammatical configuration
-   */
-  fun setGrammaticalConfiguration(dependent: Int, configuration: GrammaticalConfiguration) {
-    this.grammaticalConfigurations[dependent] = configuration
-  }
-
-  /**
-   * Set the grammatical configuration of a given dependent with a [SyntacticDependency] only.
-   *
-   * @param dependent an element of the tree
-   * @param dependency a syntactic dependency
-   */
-  fun setGrammaticalConfiguration(dependent: Int, dependency: SyntacticDependency) {
-    this.grammaticalConfigurations[dependent] = GrammaticalConfiguration(GrammaticalConfiguration.Component(dependency))
   }
 
   /**
@@ -647,14 +510,6 @@ class DependencyTree(val elements: List<Int>) {
   /**
    * @param otherTree another dependency tree
    *
-   * @return a Boolean indicating whether this tree matches the grammatical configuration of the given one
-   */
-  fun matchesGrammar(otherTree: DependencyTree): Boolean =
-    this.grammaticalConfigurations == otherTree.grammaticalConfigurations
-
-  /**
-   * @param otherTree another dependency tree
-   *
    * @return a Boolean indicating whether this tree matches the heads of the given one
    */
   fun matchesHeads(otherTree: DependencyTree): Boolean = this.heads == otherTree.heads
@@ -711,100 +566,15 @@ class DependencyTree(val elements: List<Int>) {
   fun toString(words: List<String>): String = PrintHelper(tree = this, words = words).print()
 
   /**
-   * @return a copy of this [DependencyTree]
-   */
-  fun clone(): DependencyTree {
-
-    val tree = DependencyTree(this.elements)
-
-    tree.roots.clear()
-    tree.roots.addAll(this.roots)
-
-    this.heads.forEach { element, head -> tree.heads[element] = head }
-    this.grammaticalConfigurations.forEach { element, relation -> tree.grammaticalConfigurations[element] = relation }
-    this.attachmentScores.forEach { element, score -> tree.attachmentScores[element] = score }
-    this.leftDependents.forEach { element, dependents -> tree.leftDependents.getValue(element).addAll(dependents) }
-    this.rightDependents.forEach { element, dependents -> tree.rightDependents.getValue(element).addAll(dependents) }
-
-    return tree
-  }
-
-  /**
-   * @return a Boolean indicating whether the given [other] object is equal to this [DependencyTree]
+   * @return a Boolean indicating whether the given [other] object is equal to this dependency tree
    */
   override operator fun equals(other: Any?): Boolean
-    = other is DependencyTree && this.matchesHeads(other) && this.matchesGrammar(other)
+    = other is DependencyTree && this.matchesHeads(other)
 
   /**
-   * @return the hash code of this [DependencyTree]
+   * @return the hash code of this dependency tree
    */
-  override fun hashCode(): Int = this.heads.hashCode() * 8191 + this.grammaticalConfigurations.hashCode()
-
-  /**
-   * Set the arc defined by the id, head and deprel of a given CoNLL token.
-   *
-   * @param token a CoNLL token
-   * @param allowCycle if true it allows to create cycles when building the tree (default = false)
-   */
-  private fun setArc(token: CoNLLToken, allowCycle: Boolean = false) {
-
-    val head: Int = token.head!!
-
-    val grammaticalConfiguration = GrammaticalConfiguration(
-      components = token.syntacticDependencies.zip(token.posList).map {
-        GrammaticalConfiguration.Component(syntacticDependency = it.first, pos = it.second)
-      })
-
-    if (head > 0) {
-
-      this.setArc(
-        dependent = token.id,
-        governor = head,
-        grammaticalConfiguration = grammaticalConfiguration,
-        allowCycle = allowCycle)
-
-    } else {
-
-      this.setGrammaticalConfiguration(
-        dependent = token.id,
-        configuration = grammaticalConfiguration)
-    }
-  }
-
-  /**
-   * Set the arc defined by a given morpho-syntactic token.
-   *
-   * @param token a morpho-syntactic token
-   * @param allowCycle if true it allows to create cycles when building the tree (default = false)
-   */
-  private fun setArc(token: MorphoSynToken, allowCycle: Boolean = false) {
-
-    val head: Int? = token.syntacticRelation.governor
-
-    val components: List<MorphoSynToken.Single> = when (token) {
-      is MorphoSynToken.Single -> listOf(token)
-      is MorphoSynToken.Composite -> token.components
-    }
-
-    val grammaticalConfiguration = GrammaticalConfiguration(components = components.map {
-      GrammaticalConfiguration.Component(syntacticDependency = it.syntacticRelation.dependency, pos = it.pos)
-    })
-
-    if (head != null) {
-
-      this.setArc(
-        dependent = token.id,
-        governor = head,
-        grammaticalConfiguration = grammaticalConfiguration,
-        allowCycle = allowCycle)
-
-    } else {
-
-      this.setGrammaticalConfiguration(
-        dependent = token.id,
-        configuration = grammaticalConfiguration)
-    }
-  }
+  override fun hashCode(): Int = this.heads.hashCode() * 8191
 
   /**
    * Add the given dependent to the [leftDependents] or [rightDependents] of the given governor.
@@ -869,5 +639,360 @@ class DependencyTree(val elements: List<Int>) {
     }
 
     return Path(cycle)
+  }
+
+  class Unlabeled(elements: List<Int>) : DependencyTree(elements) {
+
+    /**
+     * Build an unlabeled dependency tree with a size.
+     * It will contain elements with sequential ids, from 0 to (size - 1).
+     *
+     * @param size the number of elements in the dependency tree
+     *
+     * @return a new unlabeled dependency tree
+     */
+    constructor(size: Int): this(IntRange(0, size - 1).toList())
+
+    companion object {
+
+
+      /**
+       * Build a DependencyTree with a given list of [dependencies].
+       *
+       * @param elements the list of the ids of the elements in the dependency tree
+       * @param dependencies a list of unlabeled dependencies configurations
+       * @param allowCycles if true it allows to create cycles when building the tree (default = false)
+       *
+       * @return a new DependencyTree
+       */
+      operator fun invoke(elements: List<Int>,
+                          dependencies: List<DependencyConfiguration.Unlabeled>,
+                          allowCycles: Boolean = false): DependencyTree.Unlabeled {
+
+        val tree = DependencyTree.Unlabeled(elements)
+
+        dependencies.forEach {
+
+          if (it is ArcConfiguration)
+            tree.setArc(
+              dependent = it.dependent,
+              governor = it.governor,
+              score = it.attachmentScore,
+              allowCycle = allowCycles)
+        }
+
+        return tree
+      }
+
+      /**
+       * Build a DependencyTree with a size.
+       * It will contain elements with sequential ids, from 0 to (size - 1).
+       *
+       * @param size the number of elements in the dependency tree
+       * @param dependencies a list of unlabeled dependencies configurations
+       * @param allowCycles if true it allows to create cycles when building the tree (default = false)
+       *
+       * @return a new DependencyTree
+       */
+      operator fun invoke(size: Int,
+                          dependencies: List<DependencyConfiguration.Unlabeled>,
+                          allowCycles: Boolean = false): DependencyTree.Unlabeled = this(
+        elements = IntRange(0, size - 1).toList(),
+        dependencies = dependencies,
+        allowCycles = allowCycles)
+    }
+
+    /**
+     * @return a copy of this dependency tree
+     */
+    fun clone(): DependencyTree.Unlabeled {
+
+      val tree = DependencyTree.Unlabeled(this.elements)
+
+      tree.roots.clear()
+      tree.roots.addAll(this.roots)
+
+      this.heads.forEach { element, head -> tree.heads[element] = head }
+      this.attachmentScores.forEach { element, score -> tree.attachmentScores[element] = score }
+      this.leftDependents.forEach { element, dependents -> tree.leftDependents.getValue(element).addAll(dependents) }
+      this.rightDependents.forEach { element, dependents -> tree.rightDependents.getValue(element).addAll(dependents) }
+
+      return tree
+    }
+  }
+
+  class Labeled(elements: List<Int>) : DependencyTree(elements) {
+
+    /**
+     * Build an labeled dependency tree with a size.
+     * It will contain elements with sequential ids, from 0 to (size - 1).
+     *
+     * @param size the number of elements in the dependency tree
+     *
+     * @return a new labeled dependency tree
+     */
+    constructor(size: Int): this(IntRange(0, size - 1).toList())
+
+    companion object {
+
+      /**
+       * Build a DependencyTree with a given list of [dependencies].
+       *
+       * @param elements the list of the ids of the elements in the dependency tree
+       * @param dependencies a list of labeled dependencies configurations
+       * @param allowCycles if true it allows to create cycles when building the tree (default = false)
+       *
+       * @return a new DependencyTree
+       */
+      operator fun invoke(elements: List<Int>,
+                          dependencies: List<DependencyConfiguration.Labeled>,
+                          allowCycles: Boolean = false): DependencyTree.Labeled {
+
+        val tree = DependencyTree.Labeled(elements)
+
+        dependencies.forEach {
+
+          when (it) {
+
+            is DependencyConfiguration.Labeled.Root -> tree.setGrammaticalConfiguration(
+              dependent = it.id,
+              configuration = it.grammaticalConfiguration)
+
+            is DependencyConfiguration.Labeled.Arc -> tree.setArc(
+              dependent = it.dependent,
+              governor = it.governor,
+              grammaticalConfiguration = it.grammaticalConfiguration,
+              score = it.attachmentScore,
+              allowCycle = allowCycles)
+          }
+        }
+
+        return tree
+      }
+
+      /**
+       * Build a DependencyTree with a size.
+       * It will contain elements with sequential ids, from 0 to (size - 1).
+       *
+       * @param size the number of elements in the dependency tree
+       * @param dependencies a list of labeled dependencies configurations
+       * @param allowCycles if true it allows to create cycles when building the tree (default = false)
+       *
+       * @return a new DependencyTree
+       */
+      operator fun invoke(size: Int,
+                          dependencies: List<DependencyConfiguration.Labeled>,
+                          allowCycles: Boolean = false): DependencyTree.Labeled = this(
+        elements = IntRange(0, size - 1).toList(),
+        dependencies = dependencies,
+        allowCycles = allowCycles)
+
+      /**
+       * Build a [DependencyTree] from a CoNLL sentence.
+       *
+       * @param sentence a CoNLL sentence
+       * @param allowCycles if true it allows to create cycles when building the tree (default = false)
+       *
+       * @return a new dependency tree defined in the given sentence
+       */
+      operator fun invoke(sentence: CoNLLSentence, allowCycles: Boolean = false): DependencyTree.Labeled {
+
+        val tree = DependencyTree.Labeled(elements = sentence.tokens.map { it.id })
+
+        sentence.tokens.forEach { tree.setArc(it, allowCycle = allowCycles) }
+
+        return tree
+      }
+
+      /**
+       * Build a [DependencyTree] from a list of morpho-syntactic tokens.
+       *
+       * @param tokens a list of morpho-syntactic tokens
+       *
+       * @return a new dependency tree defined in the given sentence
+       */
+      operator fun invoke(tokens: List<MorphoSynToken>): DependencyTree {
+
+        val tree = DependencyTree.Labeled(elements = tokens.map { it.id })
+
+        tokens.forEach { tree.setArc(it) }
+
+        return tree
+      }
+    }
+
+    /**
+     * The map of elements to their grammatical configurations.
+     * Not assigned elements have null grammatical configuration.
+     */
+    private val grammaticalConfigurations: MutableMap<Int, GrammaticalConfiguration> = mutableMapOf()
+
+    /**
+     * Set a new arc between a given dependent and governor, possibly with a grammatical configuration.
+     *
+     * @param dependent an element of the tree
+     * @param governor an element of the tree
+     * @param grammaticalConfiguration a grammatical configuration (can be null)
+     * @param score the attachment score (default = 0.0)
+     * @param allowCycle if true it allows to create cycles setting this arc (default = false)
+     *
+     * @throws CycleDetectedError if [allowCycle] is false and this arc introduces a cycle
+     */
+    fun setArc(dependent: Int,
+               governor: Int,
+               grammaticalConfiguration: GrammaticalConfiguration,
+               score: Double = 0.0,
+               allowCycle: Boolean = false) {
+
+      super.setArc(dependent, governor, score, allowCycle)
+
+      this.grammaticalConfigurations[dependent] = grammaticalConfiguration
+    }
+
+    /**
+     * Set the arc defined by the id, head and deprel of a given CoNLL token.
+     *
+     * @param token a CoNLL token
+     * @param allowCycle if true it allows to create cycles when building the tree (default = false)
+     */
+    private fun setArc(token: CoNLLToken, allowCycle: Boolean = false) {
+
+      val head: Int = token.head!!
+
+      val grammaticalConfiguration = GrammaticalConfiguration(
+        components = token.syntacticDependencies.zip(token.posList).map {
+          GrammaticalConfiguration.Component(syntacticDependency = it.first, pos = it.second)
+        })
+
+      if (head > 0) {
+
+        this.setArc(
+          dependent = token.id,
+          governor = head,
+          grammaticalConfiguration = grammaticalConfiguration,
+          allowCycle = allowCycle)
+
+      } else {
+
+        this.setGrammaticalConfiguration(
+          dependent = token.id,
+          configuration = grammaticalConfiguration)
+      }
+    }
+
+    /**
+     * Set the arc defined by a given morpho-syntactic token.
+     *
+     * @param token a morpho-syntactic token
+     * @param allowCycle if true it allows to create cycles when building the tree (default = false)
+     */
+    private fun setArc(token: MorphoSynToken, allowCycle: Boolean = false) {
+
+      val head: Int? = token.syntacticRelation.governor
+
+      val components: List<MorphoSynToken.Single> = when (token) {
+        is MorphoSynToken.Single -> listOf(token)
+        is MorphoSynToken.Composite -> token.components
+      }
+
+      val grammaticalConfiguration = GrammaticalConfiguration(components = components.map {
+        GrammaticalConfiguration.Component(syntacticDependency = it.syntacticRelation.dependency, pos = it.pos)
+      })
+
+      if (head != null) {
+
+        this.setArc(
+          dependent = token.id,
+          governor = head,
+          grammaticalConfiguration = grammaticalConfiguration,
+          allowCycle = allowCycle)
+
+      } else {
+
+        this.setGrammaticalConfiguration(
+          dependent = token.id,
+          configuration = grammaticalConfiguration)
+      }
+    }
+
+    /**
+     * Remove the arc between the given [dependent] and [governor].
+     *
+     * @param dependent an element of the tree
+     * @param governor an element of the tree
+     *
+     * @throws InvalidArc if the given [dependent] and [governor] are not involved in an arc
+     */
+    override fun removeArc(dependent: Int, governor: Int) {
+
+      super.removeArc(dependent = dependent, governor = governor)
+
+      this.grammaticalConfigurations.remove(dependent)
+    }
+
+    /**
+     * @param element an element of the tree
+     *
+     * @return the grammatical configuration of the given element
+     */
+    fun getConfiguration(element: Int): GrammaticalConfiguration = this.grammaticalConfigurations.getValue(element)
+
+    /**
+     * Set the grammatical configuration of a given dependent.
+     *
+     * @param dependent an element of the tree
+     * @param configuration a grammatical configuration
+     */
+    fun setGrammaticalConfiguration(dependent: Int, configuration: GrammaticalConfiguration) {
+      this.grammaticalConfigurations[dependent] = configuration
+    }
+
+    /**
+     * Set the grammatical configuration of a given dependent with a [SyntacticDependency] only.
+     *
+     * @param dependent an element of the tree
+     * @param dependency a syntactic dependency
+     */
+    fun setGrammaticalConfiguration(dependent: Int, dependency: SyntacticDependency) {
+      this.grammaticalConfigurations[dependent] = GrammaticalConfiguration(GrammaticalConfiguration.Component(dependency))
+    }
+
+    /**
+     * @param otherTree another dependency tree
+     *
+     * @return a Boolean indicating whether this tree matches the grammatical configuration of the given one
+     */
+    fun matchesGrammar(otherTree: DependencyTree.Labeled): Boolean =
+      this.grammaticalConfigurations == otherTree.grammaticalConfigurations
+
+    /**
+     * @return a Boolean indicating whether the given [other] object is equal to this dependency tree
+     */
+    override fun equals(other: Any?): Boolean
+      = other is DependencyTree.Labeled && super.equals(other) && this.matchesGrammar(other)
+
+    /**
+     * @return the hash code of this dependency tree
+     */
+    override fun hashCode(): Int = super.hashCode() + this.grammaticalConfigurations.hashCode()
+
+    /**
+     * @return a copy of this dependency tree
+     */
+    fun clone(): DependencyTree.Labeled {
+
+      val tree = DependencyTree.Labeled(this.elements)
+
+      tree.roots.clear()
+      tree.roots.addAll(this.roots)
+
+      this.heads.forEach { element, head -> tree.heads[element] = head }
+      this.grammaticalConfigurations.forEach { element, relation -> tree.grammaticalConfigurations[element] = relation }
+      this.attachmentScores.forEach { element, score -> tree.attachmentScores[element] = score }
+      this.leftDependents.forEach { element, dependents -> tree.leftDependents.getValue(element).addAll(dependents) }
+      this.rightDependents.forEach { element, dependents -> tree.rightDependents.getValue(element).addAll(dependents) }
+
+      return tree
+    }
   }
 }
