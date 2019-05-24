@@ -5,9 +5,8 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
-import com.kotlinnlp.dependencytree.configuration.ArcConfiguration
 import com.kotlinnlp.dependencytree.DependencyTree
-import com.kotlinnlp.dependencytree.configuration.RootConfiguration
+import com.kotlinnlp.dependencytree.configuration.DependencyConfiguration
 import com.kotlinnlp.linguisticdescription.syntax.SyntacticDependency
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.context
@@ -22,11 +21,11 @@ import kotlin.test.*
  */
 class DependencyTreeSpec : Spek({
 
-  describe("a DependencyTree built with the size") {
+  describe("a DependencyTree.Unlabeled built with the size") {
 
     context("not initialized") {
 
-      val dependencyTree = DependencyTree(size = 5)
+      val dependencyTree = DependencyTree.Unlabeled(size = 5)
 
       on("roots") {
 
@@ -82,13 +81,13 @@ class DependencyTreeSpec : Spek({
      */
     context("pre-initialized with a cycle") {
 
-      val dependencyTree = DependencyTree(
+      val dependencyTree = DependencyTree.Unlabeled(
         size = 5,
         dependencies = listOf(
-          ArcConfiguration(1, 2),
-          ArcConfiguration(2, 4),
-          ArcConfiguration(3, 2),
-          ArcConfiguration(4, 3)
+          DependencyConfiguration.Unlabeled.Arc(1, 2),
+          DependencyConfiguration.Unlabeled.Arc(2, 4),
+          DependencyConfiguration.Unlabeled.Arc(3, 2),
+          DependencyConfiguration.Unlabeled.Arc(4, 3)
         ),
         allowCycles = true)
 
@@ -138,13 +137,13 @@ class DependencyTreeSpec : Spek({
      */
     context("pre-initialized with attachment scores") {
 
-      val dependencyTree = DependencyTree(
+      val dependencyTree = DependencyTree.Unlabeled(
         size = 5,
         dependencies = listOf(
-          ArcConfiguration(1, 0, attachmentScore = 0.5),
-          ArcConfiguration(2, 0, attachmentScore = 0.2),
-          ArcConfiguration(3, 4, attachmentScore = 0.7),
-          ArcConfiguration(4, 0, attachmentScore = 0.3)
+          DependencyConfiguration.Unlabeled.Arc(1, 0, attachmentScore = 0.5),
+          DependencyConfiguration.Unlabeled.Arc(2, 0, attachmentScore = 0.2),
+          DependencyConfiguration.Unlabeled.Arc(3, 4, attachmentScore = 0.7),
+          DependencyConfiguration.Unlabeled.Arc(4, 0, attachmentScore = 0.3)
         ))
 
       it("should contain the expected attachment score of the element 0") {
@@ -174,13 +173,13 @@ class DependencyTreeSpec : Spek({
      */
     context("pre-initialized with a single root") {
 
-      val dependencyTree = DependencyTree(
+      val dependencyTree = DependencyTree.Unlabeled(
         size = 5,
         dependencies = listOf(
-          ArcConfiguration(1, 0),
-          ArcConfiguration(2, 0),
-          ArcConfiguration(3, 4),
-          ArcConfiguration(4, 0)
+          DependencyConfiguration.Unlabeled.Arc(1, 0),
+          DependencyConfiguration.Unlabeled.Arc(2, 0),
+          DependencyConfiguration.Unlabeled.Arc(3, 4),
+          DependencyConfiguration.Unlabeled.Arc(4, 0)
         ))
 
       it("should have the expected root") {
@@ -260,13 +259,13 @@ class DependencyTreeSpec : Spek({
      */
     context("pre-initialized with a single root (removing arcs)") {
 
-      val dependencyTree = DependencyTree(
+      val dependencyTree = DependencyTree.Unlabeled(
         size = 5,
         dependencies = listOf(
-          ArcConfiguration(1, 0),
-          ArcConfiguration(2, 0),
-          ArcConfiguration(3, 4),
-          ArcConfiguration(4, 0)
+          DependencyConfiguration.Unlabeled.Arc(1, 0),
+          DependencyConfiguration.Unlabeled.Arc(2, 0),
+          DependencyConfiguration.Unlabeled.Arc(3, 4),
+          DependencyConfiguration.Unlabeled.Arc(4, 0)
         ))
 
       on("removing the arc between 2 and 0") {
@@ -285,10 +284,6 @@ class DependencyTreeSpec : Spek({
           assertNull(dependencyTree.heads[2])
         }
 
-        it("should return null as grammatical configuration of 2") {
-          assertNull(dependencyTree.grammaticalConfigurations[2])
-        }
-
         it("should not contain 2 as dependent of 0") {
           assertFalse { 2 in dependencyTree.getDependents(0) }
         }
@@ -301,27 +296,14 @@ class DependencyTreeSpec : Spek({
      */
     context("pre-initialized with two roots") {
 
-      val dependencyTree = DependencyTree(
+      val dependencyTree = DependencyTree.Unlabeled(
         size = 5,
         dependencies = listOf(
-          RootConfiguration(
-            id = 0,
-            dependency = SyntacticDependency(annotation = "VERB", direction = SyntacticDependency.Direction.ROOT)),
-          ArcConfiguration(
-            dependent = 1,
-            governor = 0,
-            dependency = SyntacticDependency(annotation = "SUBJ", direction = SyntacticDependency.Direction.RIGHT)),
-          ArcConfiguration(
-            dependent = 2,
-            governor = 1,
-            dependency = null),
-          ArcConfiguration(
-            dependent = 3,
-            governor = 4,
-            dependency = SyntacticDependency(annotation = "PRON", direction = SyntacticDependency.Direction.LEFT)),
-          RootConfiguration(
-            id = 4,
-            dependency = SyntacticDependency(annotation = "VERB", direction = SyntacticDependency.Direction.ROOT))
+          DependencyConfiguration.Unlabeled.Root(0),
+          DependencyConfiguration.Unlabeled.Arc(dependent = 1, governor = 0),
+          DependencyConfiguration.Unlabeled.Arc(dependent = 2, governor = 1),
+          DependencyConfiguration.Unlabeled.Arc(dependent = 3, governor = 4),
+          DependencyConfiguration.Unlabeled.Root(4)
         ))
 
       it("should have the expected root") {
@@ -448,38 +430,15 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("matchesGrammar") {
-
-        it("should match the expected grammatical configurations") {
-
-          val testTree = DependencyTree(listOf(0, 1, 2, 3, 4))
-
-          testTree.setGrammaticalConfiguration(
-            dependent = 0,
-            dependency = SyntacticDependency(annotation = "VERB", direction = SyntacticDependency.Direction.ROOT))
-          testTree.setGrammaticalConfiguration(
-            dependent = 1,
-            dependency = SyntacticDependency(annotation = "SUBJ", direction = SyntacticDependency.Direction.RIGHT))
-          testTree.setGrammaticalConfiguration(
-            dependent = 3,
-            dependency = SyntacticDependency(annotation = "PRON", direction = SyntacticDependency.Direction.LEFT))
-          testTree.setGrammaticalConfiguration(
-            dependent = 4,
-            dependency = SyntacticDependency(annotation = "VERB", direction = SyntacticDependency.Direction.ROOT))
-
-          assertTrue { dependencyTree.matchesGrammar(testTree) }
-        }
-      }
-
       on("toString") {
 
         val expectedString = """
-          0 _ VERB
-          +--r 1 _ SUBJ
+          0 _ _
+          +--r 1 _ _
                +--r 2 _ _
 
-          4 _ VERB
-          +--l 3 _ PRON
+          4 _ _
+          +--l 3 _ _
           """.trimIndent()
 
         it("should return the expected string") {
@@ -495,21 +454,21 @@ class DependencyTreeSpec : Spek({
      */
     context("pre-initialized with non-projective arcs") {
 
-      val dependencyTree = DependencyTree(
+      val dependencyTree = DependencyTree.Unlabeled(
         size = 12,
         dependencies = listOf(
-          ArcConfiguration(0, 2),
-          ArcConfiguration(1, 2),
-          RootConfiguration(2),
-          ArcConfiguration(3, 2),
-          ArcConfiguration(4, 6),
-          ArcConfiguration(5, 6),
-          ArcConfiguration(6, 2),
-          ArcConfiguration(7, 8),
-          ArcConfiguration(8, 3),
-          ArcConfiguration(9, 8),
-          ArcConfiguration(10, 11),
-          ArcConfiguration(11, 8)
+          DependencyConfiguration.Unlabeled.Arc(0, 2),
+          DependencyConfiguration.Unlabeled.Arc(1, 2),
+          DependencyConfiguration.Unlabeled.Root(2),
+          DependencyConfiguration.Unlabeled.Arc(3, 2),
+          DependencyConfiguration.Unlabeled.Arc(4, 6),
+          DependencyConfiguration.Unlabeled.Arc(5, 6),
+          DependencyConfiguration.Unlabeled.Arc(6, 2),
+          DependencyConfiguration.Unlabeled.Arc(7, 8),
+          DependencyConfiguration.Unlabeled.Arc(8, 3),
+          DependencyConfiguration.Unlabeled.Arc(9, 8),
+          DependencyConfiguration.Unlabeled.Arc(10, 11),
+          DependencyConfiguration.Unlabeled.Arc(11, 8)
         ))
 
       on("isRoot") {
@@ -777,21 +736,21 @@ class DependencyTreeSpec : Spek({
      */
     context("pre-initialized with overlapping 'continue' string paddings") {
 
-      val dependencyTree = DependencyTree(
+      val dependencyTree = DependencyTree.Unlabeled(
         size = 12,
         dependencies = listOf(
-          ArcConfiguration(0, 2),
-          ArcConfiguration(1, 2),
-          RootConfiguration(2),
-          ArcConfiguration(3, 2),
-          ArcConfiguration(4, 6),
-          ArcConfiguration(5, 6),
-          ArcConfiguration(6, 2),
-          ArcConfiguration(7, 8),
-          ArcConfiguration(8, 3),
-          ArcConfiguration(9, 8),
-          ArcConfiguration(10, 11),
-          ArcConfiguration(11, 3)
+          DependencyConfiguration.Unlabeled.Arc(0, 2),
+          DependencyConfiguration.Unlabeled.Arc(1, 2),
+          DependencyConfiguration.Unlabeled.Root(2),
+          DependencyConfiguration.Unlabeled.Arc(3, 2),
+          DependencyConfiguration.Unlabeled.Arc(4, 6),
+          DependencyConfiguration.Unlabeled.Arc(5, 6),
+          DependencyConfiguration.Unlabeled.Arc(6, 2),
+          DependencyConfiguration.Unlabeled.Arc(7, 8),
+          DependencyConfiguration.Unlabeled.Arc(8, 3),
+          DependencyConfiguration.Unlabeled.Arc(9, 8),
+          DependencyConfiguration.Unlabeled.Arc(10, 11),
+          DependencyConfiguration.Unlabeled.Arc(11, 3)
         ))
 
       on("toString") {
@@ -818,11 +777,11 @@ class DependencyTreeSpec : Spek({
     }
   }
 
-  describe("a DependencyTree built with a list of elements") {
+  describe("a DependencyTree.Unlabeled built with a list of elements") {
 
     context("not initialized") {
 
-      val dependencyTree = DependencyTree(elements = listOf(5, 89, 13, 67, 69))
+      val dependencyTree = DependencyTree.Unlabeled(elements = listOf(5, 89, 13, 67, 69))
 
       on("roots") {
 
@@ -878,13 +837,13 @@ class DependencyTreeSpec : Spek({
      */
     context("pre-initialized with a cycle") {
 
-      val dependencyTree = DependencyTree(
+      val dependencyTree = DependencyTree.Unlabeled(
         elements = listOf(5, 89, 13, 67, 69),
         dependencies = listOf(
-          ArcConfiguration(89, 13),
-          ArcConfiguration(13, 69),
-          ArcConfiguration(67, 13),
-          ArcConfiguration(69, 67)
+          DependencyConfiguration.Unlabeled.Arc(89, 13),
+          DependencyConfiguration.Unlabeled.Arc(13, 69),
+          DependencyConfiguration.Unlabeled.Arc(67, 13),
+          DependencyConfiguration.Unlabeled.Arc(69, 67)
         ),
         allowCycles = true)
 
@@ -934,13 +893,13 @@ class DependencyTreeSpec : Spek({
      */
     context("pre-initialized with attachment scores") {
 
-      val dependencyTree = DependencyTree(
+      val dependencyTree = DependencyTree.Unlabeled(
         elements = listOf(5, 89, 13, 67, 69),
         dependencies = listOf(
-          ArcConfiguration(89, 5, attachmentScore = 0.5),
-          ArcConfiguration(13, 5, attachmentScore = 0.2),
-          ArcConfiguration(67, 69, attachmentScore = 0.7),
-          ArcConfiguration(69, 5, attachmentScore = 0.3)
+          DependencyConfiguration.Unlabeled.Arc(89, 5, attachmentScore = 0.5),
+          DependencyConfiguration.Unlabeled.Arc(13, 5, attachmentScore = 0.2),
+          DependencyConfiguration.Unlabeled.Arc(67, 69, attachmentScore = 0.7),
+          DependencyConfiguration.Unlabeled.Arc(69, 5, attachmentScore = 0.3)
         ))
 
       it("should contain the expected attachment score of the element 5") {
@@ -970,13 +929,13 @@ class DependencyTreeSpec : Spek({
      */
     context("pre-initialized with a single root") {
 
-      val dependencyTree = DependencyTree(
+      val dependencyTree = DependencyTree.Unlabeled(
         elements = listOf(5, 89, 13, 67, 69),
         dependencies = listOf(
-          ArcConfiguration(89, 5),
-          ArcConfiguration(13, 5),
-          ArcConfiguration(67, 69),
-          ArcConfiguration(69, 5)
+          DependencyConfiguration.Unlabeled.Arc(89, 5),
+          DependencyConfiguration.Unlabeled.Arc(13, 5),
+          DependencyConfiguration.Unlabeled.Arc(67, 69),
+          DependencyConfiguration.Unlabeled.Arc(69, 5)
         ))
 
       it("should have the expected root") {
@@ -1056,13 +1015,13 @@ class DependencyTreeSpec : Spek({
      */
     context("pre-initialized with a single root (removing arcs)") {
 
-      val dependencyTree = DependencyTree(
+      val dependencyTree = DependencyTree.Unlabeled(
         elements = listOf(5, 89, 13, 67, 69),
         dependencies = listOf(
-          ArcConfiguration(89, 5),
-          ArcConfiguration(13, 5),
-          ArcConfiguration(67, 69),
-          ArcConfiguration(69, 5)
+          DependencyConfiguration.Unlabeled.Arc(89, 5),
+          DependencyConfiguration.Unlabeled.Arc(13, 5),
+          DependencyConfiguration.Unlabeled.Arc(67, 69),
+          DependencyConfiguration.Unlabeled.Arc(69, 5)
         ))
 
       on("removing the arc between 13 and 5") {
@@ -1081,10 +1040,6 @@ class DependencyTreeSpec : Spek({
           assertNull(dependencyTree.heads[13])
         }
 
-        it("should return null as grammatical configuration of 13") {
-          assertNull(dependencyTree.grammaticalConfigurations[13])
-        }
-
         it("should not contain 13 as dependent of 5") {
           assertFalse { 13 in dependencyTree.getDependents(5) }
         }
@@ -1097,24 +1052,14 @@ class DependencyTreeSpec : Spek({
      */
     context("pre-initialized with two roots") {
 
-      val dependencyTree = DependencyTree(
+      val dependencyTree = DependencyTree.Unlabeled(
         elements = listOf(5, 89, 13, 67, 69),
         dependencies = listOf(
-          RootConfiguration(
-            id = 5,
-            dependency = SyntacticDependency(annotation = "VERB", direction = SyntacticDependency.Direction.ROOT)),
-          ArcConfiguration(
-            dependent = 89,
-            governor = 5,
-            dependency = SyntacticDependency(annotation = "SUBJ", direction = SyntacticDependency.Direction.RIGHT)),
-          ArcConfiguration(13, 89, dependency = null),
-          ArcConfiguration(
-            dependent = 67,
-            governor = 69,
-            dependency = SyntacticDependency(annotation = "PRON", direction = SyntacticDependency.Direction.LEFT)),
-          RootConfiguration(
-            id = 69,
-            dependency = SyntacticDependency(annotation = "VERB", direction = SyntacticDependency.Direction.ROOT))
+          DependencyConfiguration.Unlabeled.Root(5),
+          DependencyConfiguration.Unlabeled.Arc(dependent = 89, governor = 5),
+          DependencyConfiguration.Unlabeled.Arc(dependent = 13, governor =89),
+          DependencyConfiguration.Unlabeled.Arc(dependent = 67, governor = 69),
+          DependencyConfiguration.Unlabeled.Root(69)
         ))
 
       it("should have the expected root") {
@@ -1241,38 +1186,15 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("matchesGrammar") {
-
-        it("should match the expected grammatical configurations") {
-
-          val testTree = DependencyTree(listOf(5, 89, 13, 67, 69))
-
-          testTree.setGrammaticalConfiguration(
-            dependent = 5,
-            dependency = SyntacticDependency(annotation = "VERB", direction = SyntacticDependency.Direction.ROOT))
-          testTree.setGrammaticalConfiguration(
-            dependent = 89,
-            dependency = SyntacticDependency(annotation = "SUBJ", direction = SyntacticDependency.Direction.RIGHT))
-          testTree.setGrammaticalConfiguration(
-            dependent = 67,
-            dependency = SyntacticDependency(annotation = "PRON", direction = SyntacticDependency.Direction.LEFT))
-          testTree.setGrammaticalConfiguration(
-            dependent = 69,
-            dependency = SyntacticDependency(annotation = "VERB", direction = SyntacticDependency.Direction.ROOT))
-
-          assertTrue { dependencyTree.matchesGrammar(testTree) }
-        }
-      }
-
       on("toString") {
 
         val expectedString = """
-          5 _ VERB
-          +--r 89 _ SUBJ
+          5 _ _
+          +--r 89 _ _
                +--r 13 _ _
 
-          69 _ VERB
-          +--l 67 _ PRON
+          69 _ _
+          +--l 67 _ _
           """.trimIndent()
 
         it("should return the expected string") {
@@ -1288,21 +1210,21 @@ class DependencyTreeSpec : Spek({
      */
     context("pre-initialized with non-projective arcs") {
 
-      val dependencyTree = DependencyTree(
+      val dependencyTree = DependencyTree.Unlabeled(
         elements = listOf(5, 89, 13, 67, 69, 97, 15, 3, 45, 77, 14, 52),
         dependencies = listOf(
-          ArcConfiguration(5, 13),
-          ArcConfiguration(89, 13),
-          RootConfiguration(13),
-          ArcConfiguration(67, 13),
-          ArcConfiguration(69, 15),
-          ArcConfiguration(97, 15),
-          ArcConfiguration(15, 13),
-          ArcConfiguration(3, 45),
-          ArcConfiguration(45, 67),
-          ArcConfiguration(77, 45),
-          ArcConfiguration(14, 52),
-          ArcConfiguration(52, 45)
+          DependencyConfiguration.Unlabeled.Arc(5, 13),
+          DependencyConfiguration.Unlabeled.Arc(89, 13),
+          DependencyConfiguration.Unlabeled.Root(13),
+          DependencyConfiguration.Unlabeled.Arc(67, 13),
+          DependencyConfiguration.Unlabeled.Arc(69, 15),
+          DependencyConfiguration.Unlabeled.Arc(97, 15),
+          DependencyConfiguration.Unlabeled.Arc(15, 13),
+          DependencyConfiguration.Unlabeled.Arc(3, 45),
+          DependencyConfiguration.Unlabeled.Arc(45, 67),
+          DependencyConfiguration.Unlabeled.Arc(77, 45),
+          DependencyConfiguration.Unlabeled.Arc(14, 52),
+          DependencyConfiguration.Unlabeled.Arc(52, 45)
         ))
 
       on("isRoot") {
@@ -1571,23 +1493,21 @@ class DependencyTreeSpec : Spek({
      */
     context("pre-initialized with overlapping 'continue' string paddings") {
 
-      // 0  1  2  3  4  5  6 7  8  9 10 11
-      // 5 89 13 67 69 97 15 3 45 77 14 52
-      val dependencyTree = DependencyTree(
+      val dependencyTree = DependencyTree.Unlabeled(
         elements = listOf(5, 89, 13, 67, 69, 97, 15, 3, 45, 77, 14, 52),
         dependencies = listOf(
-          ArcConfiguration(5, 13),
-          ArcConfiguration(89, 13),
-          RootConfiguration(13),
-          ArcConfiguration(67, 13),
-          ArcConfiguration(69, 15),
-          ArcConfiguration(97, 15),
-          ArcConfiguration(15, 13),
-          ArcConfiguration(3, 45),
-          ArcConfiguration(45, 67),
-          ArcConfiguration(77, 45),
-          ArcConfiguration(14, 52),
-          ArcConfiguration(52, 67)
+          DependencyConfiguration.Unlabeled.Arc(5, 13),
+          DependencyConfiguration.Unlabeled.Arc(89, 13),
+          DependencyConfiguration.Unlabeled.Root(13),
+          DependencyConfiguration.Unlabeled.Arc(67, 13),
+          DependencyConfiguration.Unlabeled.Arc(69, 15),
+          DependencyConfiguration.Unlabeled.Arc(97, 15),
+          DependencyConfiguration.Unlabeled.Arc(15, 13),
+          DependencyConfiguration.Unlabeled.Arc(3, 45),
+          DependencyConfiguration.Unlabeled.Arc(45, 67),
+          DependencyConfiguration.Unlabeled.Arc(77, 45),
+          DependencyConfiguration.Unlabeled.Arc(14, 52),
+          DependencyConfiguration.Unlabeled.Arc(52, 67)
         ))
 
       on("toString") {
@@ -1605,6 +1525,156 @@ class DependencyTreeSpec : Spek({
           +--r 15 _ _
                +--l 69 _ _
                +--l 97 _ _
+          """.trimIndent()
+
+        it("should return the expected string") {
+          assertEquals(expectedString, dependencyTree.toString())
+        }
+      }
+    }
+  }
+
+  describe("a DependencyTree.Labeled built with the size") {
+
+    /**
+     * id    |   0    1    2    3    4
+     * head  |  -1    0    1    4   -1
+     */
+    context("pre-initialized with two roots") {
+
+      val dependencyTree = DependencyTree.Labeled(
+        size = 5,
+        dependencies = listOf(
+          DependencyConfiguration.Labeled.Root(
+            id = 0,
+            dependency = SyntacticDependency(annotation = "VERB", direction = SyntacticDependency.Direction.ROOT)),
+          DependencyConfiguration.Labeled.Arc(
+            dependent = 1,
+            governor = 0,
+            dependency = SyntacticDependency(annotation = "SUBJ", direction = SyntacticDependency.Direction.RIGHT)),
+          DependencyConfiguration.Labeled.Arc(
+            dependent = 2,
+            governor = 1,
+            dependency = SyntacticDependency(annotation = "RMOD", direction = SyntacticDependency.Direction.RIGHT)),
+          DependencyConfiguration.Labeled.Arc(
+            dependent = 3,
+            governor = 4,
+            dependency = SyntacticDependency(annotation = "PRON", direction = SyntacticDependency.Direction.LEFT)),
+          DependencyConfiguration.Labeled.Root(
+            id = 4,
+            dependency = SyntacticDependency(annotation = "VERB", direction = SyntacticDependency.Direction.ROOT))
+        ))
+
+      on("matchesGrammar") {
+
+        it("should match the expected grammatical configurations") {
+
+          val testTree = DependencyTree.Labeled(listOf(0, 1, 2, 3, 4))
+
+          testTree.setGrammaticalConfiguration(
+            dependent = 0,
+            dependency = SyntacticDependency(annotation = "VERB", direction = SyntacticDependency.Direction.ROOT))
+          testTree.setGrammaticalConfiguration(
+            dependent = 1,
+            dependency = SyntacticDependency(annotation = "SUBJ", direction = SyntacticDependency.Direction.RIGHT))
+          testTree.setGrammaticalConfiguration(
+            dependent = 2,
+            dependency = SyntacticDependency(annotation = "RMOD", direction = SyntacticDependency.Direction.RIGHT))
+          testTree.setGrammaticalConfiguration(
+            dependent = 3,
+            dependency = SyntacticDependency(annotation = "PRON", direction = SyntacticDependency.Direction.LEFT))
+          testTree.setGrammaticalConfiguration(
+            dependent = 4,
+            dependency = SyntacticDependency(annotation = "VERB", direction = SyntacticDependency.Direction.ROOT))
+
+          assertTrue { dependencyTree.matchesGrammar(testTree) }
+        }
+      }
+
+      on("toString") {
+
+        val expectedString = """
+          0 _ VERB
+          +--r 1 _ SUBJ
+               +--r 2 _ RMOD
+
+          4 _ VERB
+          +--l 3 _ PRON
+          """.trimIndent()
+
+        it("should return the expected string") {
+          assertEquals(expectedString, dependencyTree.toString())
+        }
+      }
+    }
+  }
+
+  describe("a DependencyTree.Labeled built with a list of elements") {
+
+    /**
+     * id    |   5   89   13   67   69
+     * head  |  -1    5   89   69   -1
+     */
+    context("pre-initialized with two roots") {
+
+      val dependencyTree = DependencyTree.Labeled(
+        elements = listOf(5, 89, 13, 67, 69),
+        dependencies = listOf(
+          DependencyConfiguration.Labeled.Root(
+            id = 5,
+            dependency = SyntacticDependency(annotation = "VERB", direction = SyntacticDependency.Direction.ROOT)),
+          DependencyConfiguration.Labeled.Arc(
+            dependent = 89,
+            governor = 5,
+            dependency = SyntacticDependency(annotation = "SUBJ", direction = SyntacticDependency.Direction.RIGHT)),
+          DependencyConfiguration.Labeled.Arc(
+            dependent = 13,
+            governor = 89,
+            dependency = SyntacticDependency(annotation = "RMOD", direction = SyntacticDependency.Direction.RIGHT)),
+          DependencyConfiguration.Labeled.Arc(
+            dependent = 67,
+            governor = 69,
+            dependency = SyntacticDependency(annotation = "PRON", direction = SyntacticDependency.Direction.LEFT)),
+          DependencyConfiguration.Labeled.Root(
+            id = 69,
+            dependency = SyntacticDependency(annotation = "VERB", direction = SyntacticDependency.Direction.ROOT))
+        ))
+
+      on("matchesGrammar") {
+
+        it("should match the expected grammatical configurations") {
+
+          val testTree = DependencyTree.Labeled(listOf(5, 89, 13, 67, 69))
+
+          testTree.setGrammaticalConfiguration(
+            dependent = 5,
+            dependency = SyntacticDependency(annotation = "VERB", direction = SyntacticDependency.Direction.ROOT))
+          testTree.setGrammaticalConfiguration(
+            dependent = 89,
+            dependency = SyntacticDependency(annotation = "SUBJ", direction = SyntacticDependency.Direction.RIGHT))
+          testTree.setGrammaticalConfiguration(
+            dependent = 13,
+            dependency = SyntacticDependency(annotation = "RMOD", direction = SyntacticDependency.Direction.RIGHT))
+          testTree.setGrammaticalConfiguration(
+            dependent = 67,
+            dependency = SyntacticDependency(annotation = "PRON", direction = SyntacticDependency.Direction.LEFT))
+          testTree.setGrammaticalConfiguration(
+            dependent = 69,
+            dependency = SyntacticDependency(annotation = "VERB", direction = SyntacticDependency.Direction.ROOT))
+
+          assertTrue { dependencyTree.matchesGrammar(testTree) }
+        }
+      }
+
+      on("toString") {
+
+        val expectedString = """
+          5 _ VERB
+          +--r 89 _ SUBJ
+               +--r 13 _ RMOD
+
+          69 _ VERB
+          +--l 67 _ PRON
           """.trimIndent()
 
         it("should return the expected string") {
