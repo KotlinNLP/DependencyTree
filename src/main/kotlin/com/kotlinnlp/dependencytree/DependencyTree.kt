@@ -657,7 +657,7 @@ sealed class DependencyTree(val elements: List<Int>) {
 
 
       /**
-       * Build a DependencyTree with a given list of [dependencies].
+       * Build an unlabeled dependency tree with a given list of [dependencies].
        *
        * @param elements the list of the ids of the elements in the dependency tree
        * @param dependencies a list of unlabeled dependencies configurations
@@ -685,7 +685,7 @@ sealed class DependencyTree(val elements: List<Int>) {
       }
 
       /**
-       * Build a DependencyTree with a size.
+       * Build an unlabeled dependency tree with a size.
        * It will contain elements with sequential ids, from 0 to (size - 1).
        *
        * @param size the number of elements in the dependency tree
@@ -700,6 +700,66 @@ sealed class DependencyTree(val elements: List<Int>) {
         elements = IntRange(0, size - 1).toList(),
         dependencies = dependencies,
         allowCycles = allowCycles)
+
+      /**
+       * Build an unlabeled dependency tree from a CoNLL sentence.
+       *
+       * @param sentence a CoNLL sentence
+       * @param allowCycles if true it allows to create cycles when building the tree (default = false)
+       *
+       * @return a new dependency tree defined in the given sentence
+       */
+      operator fun invoke(sentence: CoNLLSentence, allowCycles: Boolean = false): DependencyTree.Unlabeled {
+
+        val tree = DependencyTree.Unlabeled(elements = sentence.tokens.map { it.id })
+
+        sentence.tokens.forEach { tree.setArc(it, allowCycle = allowCycles) }
+
+        return tree
+      }
+
+      /**
+       * Build a labeled dependency tree from a list of morpho-syntactic tokens.
+       *
+       * @param tokens a list of morpho-syntactic tokens
+       *
+       * @return a new dependency tree defined in the given sentence
+       */
+      operator fun invoke(tokens: List<MorphoSynToken>): DependencyTree.Unlabeled {
+
+        val tree = DependencyTree.Unlabeled(elements = tokens.map { it.id })
+
+        tokens.forEach { tree.setArc(it) }
+
+        return tree
+      }
+    }
+
+    /**
+     * Set the arc defined by the id, head and deprel of a given CoNLL token.
+     *
+     * @param token a CoNLL token
+     * @param allowCycle if true it allows to create cycles when building the tree (default = false)
+     */
+    private fun setArc(token: CoNLLToken, allowCycle: Boolean = false) {
+
+      val head: Int = token.head!!
+
+      if (head > 0)
+        this.setArc(dependent = token.id, governor = head, allowCycle = allowCycle)
+    }
+
+    /**
+     * Set the arc defined by a given morpho-syntactic token.
+     *
+     * @param token a morpho-syntactic token
+     * @param allowCycle if true it allows to create cycles when building the tree (default = false)
+     */
+    private fun setArc(token: MorphoSynToken, allowCycle: Boolean = false) {
+
+      token.syntacticRelation.governor?.let { head ->
+        this.setArc(dependent = token.id, governor = head, allowCycle = allowCycle)
+      }
     }
 
     /**
@@ -736,7 +796,7 @@ sealed class DependencyTree(val elements: List<Int>) {
     companion object {
 
       /**
-       * Build a DependencyTree with a given list of [dependencies].
+       * Build a labeled dependency tree with a given list of [dependencies].
        *
        * @param elements the list of the ids of the elements in the dependency tree
        * @param dependencies a list of labeled dependencies configurations
@@ -771,7 +831,7 @@ sealed class DependencyTree(val elements: List<Int>) {
       }
 
       /**
-       * Build a DependencyTree with a size.
+       * Build a labeled dependency tree with a size.
        * It will contain elements with sequential ids, from 0 to (size - 1).
        *
        * @param size the number of elements in the dependency tree
@@ -788,7 +848,7 @@ sealed class DependencyTree(val elements: List<Int>) {
         allowCycles = allowCycles)
 
       /**
-       * Build a [DependencyTree] from a CoNLL sentence.
+       * Build a labeled dependency tree from a CoNLL sentence.
        *
        * @param sentence a CoNLL sentence
        * @param allowCycles if true it allows to create cycles when building the tree (default = false)
@@ -805,7 +865,7 @@ sealed class DependencyTree(val elements: List<Int>) {
       }
 
       /**
-       * Build a [DependencyTree] from a list of morpho-syntactic tokens.
+       * Build a labeled dependency tree from a list of morpho-syntactic tokens.
        *
        * @param tokens a list of morpho-syntactic tokens
        *
