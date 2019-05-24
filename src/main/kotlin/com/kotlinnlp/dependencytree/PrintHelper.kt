@@ -125,9 +125,20 @@ internal class PrintHelper(private val tree: DependencyTree, private val words: 
     val elementIndex: Int = this.tree.getPosition(element)
 
     val name: String = this.words?.get(elementIndex) ?: element.toString()
-    val grammaticalConfig: GrammaticalConfiguration? = this.tree.getConfiguration(element)
-    val posTag: String = grammaticalConfig?.posToString ?: this.nullKeyword
-    val dependency: String = grammaticalConfig?.dependencyToString ?: this.nullKeyword
+    val posTag: String
+    val dependency: String
+
+    if (this.tree is DependencyTree.Labeled) {
+
+      val config: GrammaticalConfiguration = this.tree.getConfiguration(element)
+
+      posTag = config.posToString ?: this.nullKeyword
+      dependency = config.dependencyToString
+
+    } else {
+      posTag = this.nullKeyword
+      dependency = this.nullKeyword
+    }
 
     return "$name $posTag $dependency"
   }
