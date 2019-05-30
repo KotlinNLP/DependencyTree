@@ -8,11 +8,8 @@
 import com.kotlinnlp.dependencytree.DependencyTree
 import com.kotlinnlp.dependencytree.configuration.DependencyConfiguration
 import com.kotlinnlp.linguisticdescription.syntax.SyntacticDependency
-import org.jetbrains.spek.api.Spek
-import org.jetbrains.spek.api.dsl.context
-import org.jetbrains.spek.api.dsl.describe
-import org.jetbrains.spek.api.dsl.it
-import org.jetbrains.spek.api.dsl.on
+import org.spekframework.spek2.Spek
+import org.spekframework.spek2.style.specification.describe
 import java.lang.IllegalArgumentException
 import kotlin.test.*
 
@@ -27,35 +24,35 @@ class DependencyTreeSpec : Spek({
 
       val dependencyTree = DependencyTree.Unlabeled(size = 5)
 
-      on("roots") {
+      context("roots") {
 
         it("should have the expected roots") {
           assertEquals(listOf(0, 1, 2, 3, 4), dependencyTree.roots)
         }
       }
 
-      on("attachment scores") {
+      context("attachment scores") {
 
         it("should have the expected default attachment scores") {
           assertTrue { dependencyTree.attachmentScores.values.all { it == 0.0 } }
         }
       }
 
-      on("containsCycle") {
+      context("containsCycle") {
 
         it("should return false") {
           assertFalse { dependencyTree.containsCycle() }
         }
       }
 
-      on("getCycles") {
+      context("getCycles") {
 
         it("should return no cycles") {
           assertTrue { dependencyTree.getCycles().isEmpty() }
         }
       }
 
-      on("toString") {
+      context("toString") {
 
         val expectedString = """
           0 _ _
@@ -91,14 +88,14 @@ class DependencyTreeSpec : Spek({
         ),
         allowCycles = true)
 
-      on("containsCycle") {
+      context("containsCycle") {
 
         it("should return true") {
           assertTrue { dependencyTree.containsCycle() }
         }
       }
 
-      on("getCycles") {
+      context("getCycles") {
 
         it("should return the expected cycles") {
 
@@ -112,14 +109,14 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("anyAncestor") {
+      context("anyAncestor") {
 
         it("should return true on its ancestor condition") {
           assertTrue { dependencyTree.anyAncestor(2) { it == 2 } }
         }
       }
 
-      on("isRoot") {
+      context("isRoot") {
 
         it("should return true on a root element") {
           assertTrue { dependencyTree.isRoot(0) }
@@ -190,14 +187,14 @@ class DependencyTreeSpec : Spek({
         assertTrue { dependencyTree.attachmentScores.values.all { it == 0.0 } }
       }
 
-      on("hasSingleRoot") {
+      context("hasSingleRoot") {
 
         it("should return true"){
           assertTrue { dependencyTree.hasSingleRoot() }
         }
       }
 
-      on("isRoot") {
+      context("isRoot") {
 
         it("should return true on a root element") {
           assertTrue { dependencyTree.isRoot(0) }
@@ -208,7 +205,7 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on ("isDAG") {
+      context("isDAG") {
 
         it("should return true") {
 
@@ -216,28 +213,28 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("containsCycle") {
+      context("containsCycle") {
 
         it("should return false") {
           assertFalse { dependencyTree.containsCycle() }
         }
       }
 
-      on("getCycles") {
+      context("getCycles") {
 
         it("should return no cycles") {
           assertTrue { dependencyTree.getCycles().isEmpty() }
         }
       }
 
-      on("introduceCycle") {
+      context("introduceCycle") {
 
         it("should detect the introduction of a cycle") {
           assertTrue { dependencyTree.introduceCycle(dependent = 4, governor = 3) }
         }
       }
 
-      on("toString") {
+      context("toString") {
 
         val expectedString = """
           0 _ _
@@ -268,7 +265,7 @@ class DependencyTreeSpec : Spek({
           DependencyConfiguration.Unlabeled.Arc(4, 0)
         ))
 
-      on("removing the arc between 2 and 0") {
+      context("removing the arc between 2 and 0") {
 
         dependencyTree.removeArc(dependent = 2, governor = 0)
 
@@ -310,14 +307,14 @@ class DependencyTreeSpec : Spek({
         assertEquals(listOf(0, 4), dependencyTree.roots)
       }
 
-      on("hasSingleRoot") {
+      context("hasSingleRoot") {
 
         it("should return true"){
           assertFalse { dependencyTree.hasSingleRoot() }
         }
       }
 
-      on("isRoot") {
+      context("isRoot") {
 
         it("should return true on a root element") {
           assertTrue { dependencyTree.isRoot(4) }
@@ -328,7 +325,7 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on ("isDAG") {
+      context("isDAG") {
 
         it("should return false") {
 
@@ -336,49 +333,49 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("containsCycle") {
+      context("containsCycle") {
 
         it("should return false") {
           assertFalse { dependencyTree.containsCycle() }
         }
       }
 
-      on("getCycles") {
+      context("getCycles") {
 
         it("should return no cycles") {
           assertTrue { dependencyTree.getCycles().isEmpty() }
         }
       }
 
-      on("inDepthPreOrder") {
+      context("inDepthPreOrder") {
 
         it("should raise an exception") {
           assertFailsWith<IllegalArgumentException> { dependencyTree.inDepthPreOrder() }
         }
       }
 
-      on("inDepthPostOrder") {
+      context("inDepthPostOrder") {
 
         it("should raise an exception") {
           assertFailsWith<IllegalArgumentException> { dependencyTree.inDepthPostOrder() }
         }
       }
 
-      on("inBreadthPreOrder") {
+      context("inBreadthPreOrder") {
 
         it("should raise an exception") {
           assertFailsWith<IllegalArgumentException> { dependencyTree.inBreadthPreOrder() }
         }
       }
 
-      on("inBreadthPostOrder") {
+      context("inBreadthPostOrder") {
 
         it("should raise an exception") {
           assertFailsWith<IllegalArgumentException> { dependencyTree.inBreadthPostOrder() }
         }
       }
 
-      on("forEachAncestor") {
+      context("forEachAncestor") {
 
         val ancestors = mutableListOf<Int>()
 
@@ -389,7 +386,7 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("anyAncestor") {
+      context("anyAncestor") {
 
         it("should return true on its ancestor condition") {
           assertTrue { dependencyTree.anyAncestor(2) { it == 0 } }
@@ -400,7 +397,7 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("isAncestorOf") {
+      context("isAncestorOf") {
 
         it("should return true on its ancestor condition") {
           assertTrue { dependencyTree.isAncestorOf(candidateAncestor = 0, element = 2) }
@@ -411,7 +408,7 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("introduceCycle") {
+      context("introduceCycle") {
 
         it("should detect the feasibility of an arc") {
           assertFalse { dependencyTree.introduceCycle(dependent = 4, governor = 2) }
@@ -422,7 +419,7 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("isProjective") {
+      context("isProjective") {
 
         it("should return true") {
 
@@ -430,7 +427,7 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("toString") {
+      context("toString") {
 
         val expectedString = """
           0 _ _
@@ -471,7 +468,7 @@ class DependencyTreeSpec : Spek({
           DependencyConfiguration.Unlabeled.Arc(11, 8)
         ))
 
-      on("isRoot") {
+      context("isRoot") {
 
         it("should return true on a root element") {
           assertTrue { dependencyTree.isRoot(2) }
@@ -482,7 +479,7 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on ("isDAG") {
+      context("isDAG") {
 
         it("should return true") {
 
@@ -490,42 +487,42 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("inDepthPreOrder") {
+      context("inDepthPreOrder") {
 
         it("should return the expected list") {
           assertEquals(listOf(2, 0, 1, 3, 8, 7, 9, 11, 10, 6, 4, 5), dependencyTree.inDepthPreOrder())
         }
       }
 
-      on("inDepthPostOrder") {
+      context("inDepthPostOrder") {
 
         it("should return the expected list") {
           assertEquals(listOf(0, 1, 7, 9, 10, 11, 8, 3, 4, 5, 6, 2), dependencyTree.inDepthPostOrder())
         }
       }
 
-      on("inBreadthPreOrder") {
+      context("inBreadthPreOrder") {
 
         it("should return the expected list") {
           assertEquals(listOf(2, 0, 1, 3, 6, 8, 4, 5, 7, 9, 11, 10), dependencyTree.inBreadthPreOrder())
         }
       }
 
-      on("inBreadthPostOrder") {
+      context("inBreadthPostOrder") {
 
         it("should return the expected list") {
           assertEquals(listOf(10, 7, 9, 11, 8, 4, 5, 0, 1, 3, 6, 2), dependencyTree.inBreadthPostOrder())
         }
       }
 
-      on("inOrder") {
+      context("inOrder") {
 
         it("should return the expected list") {
           assertEquals(listOf(0, 1, 2, 3, 7, 8, 9, 10, 11, 4, 5, 6), dependencyTree.inOrder())
         }
       }
 
-      on("elementsToInOrderIndex") {
+      context("elementsToInOrderIndex") {
 
         it("should return the expected list") {
           assertEquals(
@@ -546,21 +543,21 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("containsCycle") {
+      context("containsCycle") {
 
         it("should return false") {
           assertFalse { dependencyTree.containsCycle() }
         }
       }
 
-      on("getCycles") {
+      context("getCycles") {
 
         it("should return no cycles") {
           assertTrue { dependencyTree.getCycles().isEmpty() }
         }
       }
 
-      on("forEachAncestor") {
+      context("forEachAncestor") {
 
         val ancestors = mutableListOf<Int>()
 
@@ -575,7 +572,7 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("anyAncestor") {
+      context("anyAncestor") {
 
         it("should return true on its ancestor condition") {
           assertTrue { dependencyTree.anyAncestor(10) { it == 2 } }
@@ -586,7 +583,7 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("isAncestorOf") {
+      context("isAncestorOf") {
 
         it("should return true on its ancestor condition") {
           assertTrue { dependencyTree.isAncestorOf(candidateAncestor = 2, element = 10) }
@@ -597,7 +594,7 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("isNonProjectiveArc") {
+      context("isNonProjectiveArc") {
 
         it("should return false at index 0") {
           assertFalse(dependencyTree.isNonProjectiveArc(0))
@@ -648,7 +645,7 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("isNonProjective") {
+      context("isNonProjective") {
 
         it("should return true") {
 
@@ -656,7 +653,7 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("getDescendants") {
+      context("getDescendants") {
 
         it("should raise an exception with a negative maxDepth") {
           assertFailsWith<IllegalArgumentException> { dependencyTree.getDescendants(3, maxDepth = -3) }
@@ -675,14 +672,14 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("getAllDescendants") {
+      context("getAllDescendants") {
 
         it("should return the expected descendants list") {
           assertEquals(listOf(8, 7, 9, 11, 10), dependencyTree.getAllDescendants(3))
         }
       }
 
-      on("toString") {
+      context("toString") {
 
         val expectedString = """
           2 _ _
@@ -704,7 +701,7 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("toString(words)") {
+      context("toString(words)") {
 
         val words = listOf("You", "cannot", "put", "flavor", "into", "a", "bean", "that", "is", "not", "already",
           "there")
@@ -753,7 +750,7 @@ class DependencyTreeSpec : Spek({
           DependencyConfiguration.Unlabeled.Arc(11, 3)
         ))
 
-      on("toString") {
+      context("toString") {
 
         val expectedString = """
           2 _ _
@@ -783,35 +780,35 @@ class DependencyTreeSpec : Spek({
 
       val dependencyTree = DependencyTree.Unlabeled(elements = listOf(5, 89, 13, 67, 69))
 
-      on("roots") {
+      context("roots") {
 
         it("should have the expected roots") {
           assertEquals(listOf(5, 89, 13, 67, 69), dependencyTree.roots)
         }
       }
 
-      on("attachment scores") {
+      context("attachment scores") {
 
         it("should have the expected default attachment scores") {
           assertTrue { dependencyTree.attachmentScores.values.all { it == 0.0 } }
         }
       }
 
-      on("containsCycle") {
+      context("containsCycle") {
 
         it("should return false") {
           assertFalse { dependencyTree.containsCycle() }
         }
       }
 
-      on("getCycles") {
+      context("getCycles") {
 
         it("should return no cycles") {
           assertTrue { dependencyTree.getCycles().isEmpty() }
         }
       }
 
-      on("toString") {
+      context("toString") {
 
         val expectedString = """
           5 _ _
@@ -847,14 +844,14 @@ class DependencyTreeSpec : Spek({
         ),
         allowCycles = true)
 
-      on("containsCycle") {
+      context("containsCycle") {
 
         it("should return true") {
           assertTrue { dependencyTree.containsCycle() }
         }
       }
 
-      on("getCycles") {
+      context("getCycles") {
 
         it("should return the expected cycles") {
 
@@ -868,14 +865,14 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("anyAncestor") {
+      context("anyAncestor") {
 
         it("should return true on its ancestor condition") {
           assertTrue { dependencyTree.anyAncestor(13) { it == 13 } }
         }
       }
 
-      on("isRoot") {
+      context("isRoot") {
 
         it("should return true on a root element") {
           assertTrue { dependencyTree.isRoot(5) }
@@ -946,14 +943,14 @@ class DependencyTreeSpec : Spek({
         assertTrue { dependencyTree.attachmentScores.values.all { it == 0.0 } }
       }
 
-      on("hasSingleRoot") {
+      context("hasSingleRoot") {
 
         it("should return true"){
           assertTrue { dependencyTree.hasSingleRoot() }
         }
       }
 
-      on("isRoot") {
+      context("isRoot") {
 
         it("should return true on a root element") {
           assertTrue { dependencyTree.isRoot(5) }
@@ -964,7 +961,7 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on ("isDAG") {
+      context("isDAG") {
 
         it("should return true") {
 
@@ -972,28 +969,28 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("containsCycle") {
+      context("containsCycle") {
 
         it("should return false") {
           assertFalse { dependencyTree.containsCycle() }
         }
       }
 
-      on("getCycles") {
+      context("getCycles") {
 
         it("should return no cycles") {
           assertTrue { dependencyTree.getCycles().isEmpty() }
         }
       }
 
-      on("introduceCycle") {
+      context("introduceCycle") {
 
         it("should detect the introduction of a cycle") {
           assertTrue { dependencyTree.introduceCycle(dependent = 69, governor = 67) }
         }
       }
 
-      on("toString") {
+      context("toString") {
 
         val expectedString = """
           5 _ _
@@ -1024,7 +1021,7 @@ class DependencyTreeSpec : Spek({
           DependencyConfiguration.Unlabeled.Arc(69, 5)
         ))
 
-      on("removing the arc between 13 and 5") {
+      context("removing the arc between 13 and 5") {
 
         dependencyTree.removeArc(dependent = 13, governor = 5)
 
@@ -1066,14 +1063,14 @@ class DependencyTreeSpec : Spek({
         assertEquals(listOf(5, 69), dependencyTree.roots)
       }
 
-      on("hasSingleRoot") {
+      context("hasSingleRoot") {
 
         it("should return true"){
           assertFalse { dependencyTree.hasSingleRoot() }
         }
       }
 
-      on("isRoot") {
+      context("isRoot") {
 
         it("should return true on a root element") {
           assertTrue { dependencyTree.isRoot(69) }
@@ -1084,7 +1081,7 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on ("isDAG") {
+      context("isDAG") {
 
         it("should return false") {
 
@@ -1092,49 +1089,49 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("containsCycle") {
+      context("containsCycle") {
 
         it("should return false") {
           assertFalse { dependencyTree.containsCycle() }
         }
       }
 
-      on("getCycles") {
+      context("getCycles") {
 
         it("should return no cycles") {
           assertTrue { dependencyTree.getCycles().isEmpty() }
         }
       }
 
-      on("inDepthPreOrder") {
+      context("inDepthPreOrder") {
 
         it("should raise an exception") {
           assertFailsWith<IllegalArgumentException> { dependencyTree.inDepthPreOrder() }
         }
       }
 
-      on("inDepthPostOrder") {
+      context("inDepthPostOrder") {
 
         it("should raise an exception") {
           assertFailsWith<IllegalArgumentException> { dependencyTree.inDepthPostOrder() }
         }
       }
 
-      on("inBreadthPreOrder") {
+      context("inBreadthPreOrder") {
 
         it("should raise an exception") {
           assertFailsWith<IllegalArgumentException> { dependencyTree.inBreadthPreOrder() }
         }
       }
 
-      on("inBreadthPostOrder") {
+      context("inBreadthPostOrder") {
 
         it("should raise an exception") {
           assertFailsWith<IllegalArgumentException> { dependencyTree.inBreadthPostOrder() }
         }
       }
 
-      on("forEachAncestor") {
+      context("forEachAncestor") {
 
         val ancestors = mutableListOf<Int>()
 
@@ -1145,7 +1142,7 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("anyAncestor") {
+      context("anyAncestor") {
 
         it("should return true on its ancestor condition") {
           assertTrue { dependencyTree.anyAncestor(13) { it == 5 } }
@@ -1156,7 +1153,7 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("isAncestorOf") {
+      context("isAncestorOf") {
 
         it("should return true on its ancestor condition") {
           assertTrue { dependencyTree.isAncestorOf(candidateAncestor = 5, element = 13) }
@@ -1167,7 +1164,7 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("introduceCycle") {
+      context("introduceCycle") {
 
         it("should detect the feasibility of an arc") {
           assertFalse { dependencyTree.introduceCycle(dependent = 69, governor = 13) }
@@ -1178,7 +1175,7 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("isProjective") {
+      context("isProjective") {
 
         it("should return true") {
 
@@ -1186,7 +1183,7 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("toString") {
+      context("toString") {
 
         val expectedString = """
           5 _ _
@@ -1227,7 +1224,7 @@ class DependencyTreeSpec : Spek({
           DependencyConfiguration.Unlabeled.Arc(52, 45)
         ))
 
-      on("isRoot") {
+      context("isRoot") {
 
         it("should return true on a root element") {
           assertTrue { dependencyTree.isRoot(13) }
@@ -1238,7 +1235,7 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on ("isDAG") {
+      context("isDAG") {
 
         it("should return true") {
 
@@ -1246,42 +1243,42 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("inDepthPreOrder") {
+      context("inDepthPreOrder") {
 
         it("should return the expected list") {
           assertEquals(listOf(13, 5, 89, 67, 45, 3, 77, 52, 14, 15, 69, 97), dependencyTree.inDepthPreOrder())
         }
       }
 
-      on("inDepthPostOrder") {
+      context("inDepthPostOrder") {
 
         it("should return the expected list") {
           assertEquals(listOf(5, 89, 3, 77, 14, 52, 45, 67, 69, 97, 15, 13), dependencyTree.inDepthPostOrder())
         }
       }
 
-      on("inBreadthPreOrder") {
+      context("inBreadthPreOrder") {
 
         it("should return the expected list") {
           assertEquals(listOf(13, 5, 89, 67, 15, 45, 69, 97, 3, 77, 52, 14), dependencyTree.inBreadthPreOrder())
         }
       }
 
-      on("inBreadthPostOrder") {
+      context("inBreadthPostOrder") {
 
         it("should return the expected list") {
           assertEquals(listOf(14, 3, 77, 52, 45, 69, 97, 5, 89, 67, 15, 13), dependencyTree.inBreadthPostOrder())
         }
       }
 
-      on("inOrder") {
+      context("inOrder") {
 
         it("should return the expected list") {
           assertEquals(listOf(5, 89, 13, 67, 3, 45, 77, 14, 52, 69, 97, 15), dependencyTree.inOrder())
         }
       }
 
-      on("elementsToInOrderIndex") {
+      context("elementsToInOrderIndex") {
 
         it("should return the expected list") {
           assertEquals(
@@ -1302,21 +1299,21 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("containsCycle") {
+      context("containsCycle") {
 
         it("should return false") {
           assertFalse { dependencyTree.containsCycle() }
         }
       }
 
-      on("getCycles") {
+      context("getCycles") {
 
         it("should return no cycles") {
           assertTrue { dependencyTree.getCycles().isEmpty() }
         }
       }
 
-      on("forEachAncestor") {
+      context("forEachAncestor") {
 
         val ancestors = mutableListOf<Int>()
 
@@ -1331,7 +1328,7 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("anyAncestor") {
+      context("anyAncestor") {
 
         it("should return true on its ancestor condition") {
           assertTrue { dependencyTree.anyAncestor(14) { it == 13 } }
@@ -1342,7 +1339,7 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("isAncestorOf") {
+      context("isAncestorOf") {
 
         it("should return true on its ancestor condition") {
           assertTrue { dependencyTree.isAncestorOf(candidateAncestor = 13, element = 14) }
@@ -1353,7 +1350,7 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("isNonProjectiveArc") {
+      context("isNonProjectiveArc") {
 
         it("should return false for the token 5") {
           assertFalse(dependencyTree.isNonProjectiveArc(5))
@@ -1404,7 +1401,7 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("isNonProjective") {
+      context("isNonProjective") {
 
         it("should return true") {
 
@@ -1412,7 +1409,7 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("getDescendants") {
+      context("getDescendants") {
 
         it("should raise an exception with a negative maxDepth") {
           assertFailsWith<IllegalArgumentException> { dependencyTree.getDescendants(3, maxDepth = -3) }
@@ -1431,14 +1428,14 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("getAllDescendants") {
+      context("getAllDescendants") {
 
         it("should return the expected descendants list") {
           assertEquals(listOf(45, 3, 77, 52, 14), dependencyTree.getAllDescendants(67))
         }
       }
 
-      on("toString") {
+      context("toString") {
 
         val expectedString = """
           13 _ _
@@ -1460,7 +1457,7 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("toString(words)") {
+      context("toString(words)") {
 
         val words = listOf("You", "cannot", "put", "flavor", "into", "a", "bean", "that", "is", "not", "already",
           "there")
@@ -1510,7 +1507,7 @@ class DependencyTreeSpec : Spek({
           DependencyConfiguration.Unlabeled.Arc(52, 67)
         ))
 
-      on("toString") {
+      context("toString") {
 
         val expectedString = """
           13 _ _
@@ -1565,7 +1562,7 @@ class DependencyTreeSpec : Spek({
             dependency = SyntacticDependency(annotation = "VERB", direction = SyntacticDependency.Direction.ROOT))
         ))
 
-      on("matchesGrammar") {
+      context("matchesGrammar") {
 
         it("should match the expected grammatical configurations") {
 
@@ -1591,7 +1588,7 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("toString") {
+      context("toString") {
 
         val expectedString = """
           0 _ VERB
@@ -1640,7 +1637,7 @@ class DependencyTreeSpec : Spek({
             dependency = SyntacticDependency(annotation = "VERB", direction = SyntacticDependency.Direction.ROOT))
         ))
 
-      on("matchesGrammar") {
+      context("matchesGrammar") {
 
         it("should match the expected grammatical configurations") {
 
@@ -1666,7 +1663,7 @@ class DependencyTreeSpec : Spek({
         }
       }
 
-      on("toString") {
+      context("toString") {
 
         val expectedString = """
           5 _ VERB
