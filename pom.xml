@@ -56,8 +56,8 @@
         <surfire.version>2.22.0</surfire.version>
         <spek.version>2.0.5</spek.version>
         <dokka.version>0.9.16</dokka.version>
-        <conllio.version>0.2.9</conllio.version>
-        <linguisticdescription.version>0.12.1</linguisticdescription.version>
+        <conllio.version>0.2.10</conllio.version>
+        <linguisticdescription.version>0.12.2</linguisticdescription.version>
     </properties>
 
     <repositories>
